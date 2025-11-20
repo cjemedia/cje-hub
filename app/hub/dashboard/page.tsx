@@ -12,6 +12,7 @@ import {
   Package,
   Clock,
   CheckCircle,
+  Mail,
 } from 'lucide-react'
 import Button from '@/components/Button'
 import HubHeader from '@/components/HubHeader'
@@ -111,6 +112,12 @@ export default function DashboardPage() {
       href: '/hub/projects',
       color: 'bg-primary-charcoal/10 text-primary-charcoal',
     },
+    {
+      icon: Mail,
+      label: 'Contact Responses',
+      href: '/hub/inquiries',
+      color: 'bg-primary-tiffany/10 text-primary-tiffany',
+    },
   ]
 
   return (
@@ -133,7 +140,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
           {quickActions.map((action, index) => (
             <motion.a
               key={action.label}

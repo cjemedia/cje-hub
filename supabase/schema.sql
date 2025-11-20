@@ -191,3 +191,22 @@ CREATE TRIGGER update_events_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+-- Contact messages captured from public forms
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  sender_email TEXT NOT NULL,
+  phone TEXT,
+  subject TEXT,
+  inquiry_types TEXT[],
+  preferred_contact TEXT,
+  message TEXT NOT NULL
+);
+
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow inserts on contact_messages"
+  ON contact_messages FOR INSERT
+  USING (true)
+  WITH CHECK (true);
+

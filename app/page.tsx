@@ -46,7 +46,7 @@ export default function Home() {
       {/* SECTION 1: HERO */}
       <section
         className="relative min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat bg-fixed flex items-center"
-        style={{ backgroundImage: "url('/images/cje14.PNG')", backgroundPosition: 'center 40%' }}
+        style={{ backgroundImage: "url('/images/cje14.png')", backgroundPosition: 'center 40%' }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/40 to-white/50" />
 

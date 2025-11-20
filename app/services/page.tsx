@@ -18,6 +18,7 @@ import {
   Check,
 } from 'lucide-react'
 import Image from 'next/image'
+import { FormEvent, useState } from 'react'
 
 const services = {
   experiences: [
@@ -150,6 +151,67 @@ const services = {
 }
 
 export default function ServicesPage() {
+  const [showContactModal, setShowContactModal] = useState(false)
+  const [contactForm, setContactForm] = useState({
+    from: '',
+    phone: '',
+    subject: '',
+    inquiryTypes: [] as string[],
+    preferredContact: 'email',
+    message: '',
+  })
+  const [contactStatus, setContactStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleCheckboxChange = (value: string) => {
+    setContactForm((prev) => {
+      const exists = prev.inquiryTypes.includes(value)
+      const updated = exists
+        ? prev.inquiryTypes.filter((item) => item !== value)
+        : [...prev.inquiryTypes, value]
+      return { ...prev, inquiryTypes: updated }
+    })
+  }
+
+  const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setContactStatus('idle')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'CJE Services Contact',
+          from: contactForm.from,
+          phone: contactForm.phone,
+          subject: contactForm.subject,
+          inquiryType: contactForm.inquiryTypes,
+          preferredContact: contactForm.preferredContact,
+          message: contactForm.message,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed to send message')
+
+      setContactStatus('success')
+      setContactForm({
+        from: '',
+        phone: '',
+        subject: '',
+        inquiryTypes: [],
+        preferredContact: 'email',
+        message: '',
+      })
+    } catch (error) {
+      console.error(error)
+      setContactStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-primary-white">
       <Navigation />
@@ -424,22 +486,163 @@ export default function ServicesPage() {
             <p className="text-body text-primary-white/80">
               Let&apos;s discuss how we can bring your vision to life.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button href="/booking" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[220px] h-[56px]">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <Button href="/booking" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[220px] h-[56px]">
                 Book a Call
               </Button>
-              <Button
-                href="mailto:media@ciarajevans.com"
-                variant="outline"
-                size="lg"
-                className="border-2 border-primary-white text-primary-white hover:bg-primary-white hover:text-primary-charcoal w-full sm:w-auto sm:min-w-[220px] h-[56px]"
-              >
+                <Button
+                  onClick={() => setShowContactModal(true)}
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-primary-white text-primary-white hover:bg-primary-white hover:text-primary-charcoal w-full sm:w-auto sm:min-w-[220px] h-[56px]"
+                >
                 Contact Us
               </Button>
             </div>
           </motion.div>
         </div>
       </section>
+
+      {showContactModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative"
+          >
+            <button
+              onClick={() => {
+                setShowContactModal(false)
+                setContactStatus('idle')
+              }}
+              className="absolute top-4 right-4 text-primary-charcoal/60 hover:text-primary-charcoal"
+              aria-label="Close contact form"
+            >
+              ×
+            </button>
+            <h3 className="text-3xl font-serif font-semibold text-primary-charcoal mb-4 text-center">
+              Send Us a Message
+            </h3>
+            <p className="text-sm text-primary-charcoal/70 text-center mb-6">
+              Emails go directly to <span className="font-semibold">media@ciarajevans.com</span>
+            </p>
+
+            <form onSubmit={handleContactSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-primary-charcoal mb-2">
+                  From *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={contactForm.from}
+                  onChange={(e) => setContactForm((prev) => ({ ...prev, from: e.target.value }))}
+                  placeholder="you@example.com"
+                  className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-primary-charcoal mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={contactForm.phone}
+                  onChange={(e) => setContactForm((prev) => ({ ...prev, phone: e.target.value }))}
+                  placeholder="(555) 123-4567"
+                  className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-primary-charcoal mb-2">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={contactForm.subject}
+                  onChange={(e) => setContactForm((prev) => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Project inquiry, collaboration, etc."
+                  className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany"
+                />
+              </div>
+
+              <div>
+                <span className="block text-sm font-semibold text-primary-charcoal mb-2">
+                  Inquiry Type
+                </span>
+                <div className="flex flex-col gap-2">
+                  {['Marketing', 'Events', 'Business Services'].map((type) => (
+                    <label key={type} className="flex items-center gap-2 text-sm text-primary-charcoal/80">
+                      <input
+                        type="checkbox"
+                        checked={contactForm.inquiryTypes.includes(type)}
+                        onChange={() => handleCheckboxChange(type)}
+                      />
+                      {type}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <span className="block text-sm font-semibold text-primary-charcoal mb-2">
+                  Preferred Contact
+                </span>
+                <div className="flex gap-6 text-sm text-primary-charcoal/80">
+                  {['email', 'call'].map((method) => (
+                    <label key={method} className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="preferredContact"
+                        value={method}
+                        checked={contactForm.preferredContact === method}
+                        onChange={(e) =>
+                          setContactForm((prev) => ({ ...prev, preferredContact: e.target.value }))
+                        }
+                      />
+                      {method === 'email' ? 'Email' : 'Call'}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-primary-charcoal mb-2">
+                  Message *
+                </label>
+                <textarea
+                  required
+                  rows={5}
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm((prev) => ({ ...prev, message: e.target.value }))}
+                  placeholder="Tell us about your goals or request..."
+                  className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany"
+                />
+              </div>
+
+              {contactStatus === 'success' && (
+                <p className="text-sm text-green-600">
+                  Thank you for contacting us. We will reply within 24 business hours. Have a great day!
+                </p>
+              )}
+              {contactStatus === 'error' && (
+                <p className="text-sm text-red-600">Something went wrong. Please try again.</p>
+              )}
+
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Sending...' : 'Send'}
+              </Button>
+            </form>
+          </motion.div>
+        </div>
+      )}
 
       <Footer />
     </main>
