@@ -20,9 +20,9 @@ export default function Home() {
   useEffect(() => {
     const updateBgPosition = () => {
       if (window.innerWidth < 640) {
-        setBgPosition('center 30$')
+        setBgPosition('center 35%')
       } else {
-        setBgPosition('center 50%')
+        setBgPosition('center 45%')
       }
     }
     
