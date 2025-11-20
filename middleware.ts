@@ -57,29 +57,46 @@ export async function middleware(request: NextRequest) {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        return NextResponse.redirect(new URL('/hub/login', request.url))
+        const loginUrl = new URL('/hub/login', request.url)
+        // Prevent redirect loop - only redirect if not already going to login
+        if (request.nextUrl.pathname !== '/hub/login') {
+          return NextResponse.redirect(loginUrl)
+        }
       }
     } catch (error) {
-      // If auth check fails, allow access to login page
+      // If auth check fails, only redirect to login if we're not already there
       if (request.nextUrl.pathname !== '/hub/login') {
-        return NextResponse.redirect(new URL('/hub/login', request.url))
+        const loginUrl = new URL('/hub/login', request.url)
+        return NextResponse.redirect(loginUrl)
       }
     }
   }
 
   // Redirect logged-in users away from login/forgot-password pages
-  if (request.nextUrl.pathname === '/hub/login' || request.nextUrl.pathname === '/hub/forgot-password') {
+  // Only redirect if we have a valid authenticated user
+  if (isPublicRoute && (request.nextUrl.pathname === '/hub/login' || request.nextUrl.pathname === '/hub/forgot-password')) {
     try {
       const {
         data: { user },
+        error: userError,
       } = await supabase.auth.getUser()
 
-      if (user) {
-        return NextResponse.redirect(new URL('/hub/dashboard', request.url))
+      // Only redirect if we have a valid user with no errors
+      // This prevents redirect loops when auth is misconfigured or cookies are invalid
+      if (user && user.id && !userError) {
+        const dashboardUrl = new URL('/hub/dashboard', request.url)
+        // Ensure we're not already on the dashboard to prevent loops
+        if (request.nextUrl.pathname !== dashboardUrl.pathname) {
+          return NextResponse.redirect(dashboardUrl)
+        }
       }
+      // If no user or there's an error, just allow access to the public page
+      // Return early to prevent any further processing
+      return response
     } catch (error) {
-      // If auth check fails, allow access to public pages
-      return NextResponse.next()
+      // If auth check throws an error, allow access to public pages
+      // This is critical to prevent redirect loops when Supabase is misconfigured
+      return response
     }
   }
 
