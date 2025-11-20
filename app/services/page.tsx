@@ -282,8 +282,8 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* CJE Media */}
-      <section className="section-padding bg-primary-gray">
+      {/* CJE Media - Tiffany Blue Background */}
+      <section className="section-padding bg-[#81D8D0] py-32">
         <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -291,10 +291,10 @@ export default function ServicesPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
+            <h2 className="text-h2 font-serif font-semibold text-white mb-4">
               CJE Media
             </h2>
-            <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
+            <p className="text-body text-white/90 max-w-2xl mx-auto">
               This suite of services is designed to build, nurture, and amplify
               your brand&apos;s digital presence from the inside out.
             </p>
@@ -308,20 +308,20 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-primary-white p-8 rounded-2xl card-hover border-2 border-transparent hover:border-primary-tiffany"
+                className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl card-hover border-2 border-white/20 hover:border-white"
               >
-                <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
-                  <service.icon size={32} className="text-primary-tiffany" />
+                <div className="bg-white/20 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                  <service.icon size={32} className="text-white" />
                 </div>
-                <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-4">
+                <h3 className="text-h3 font-serif font-semibold text-white mb-4">
                   {service.title}
                 </h3>
-                <p className="text-small text-primary-charcoal/70 mb-6 leading-relaxed">
+                <p className="text-small text-white/90 mb-6 leading-relaxed">
                   {service.description}
                 </p>
-                <div className="pt-4 border-t border-primary-charcoal/10">
+                <div className="pt-4 border-t border-white/20">
                   {service.price ? (
-                    <div className="text-lg font-semibold text-primary-tiffany">
+                    <div className="text-lg font-semibold text-white">
                       {service.price}
                     </div>
                   ) : (
@@ -329,7 +329,7 @@ export default function ServicesPage() {
                       {service.pricing?.map((price, i) => (
                         <div
                           key={i}
-                          className="text-small text-primary-charcoal/70"
+                          className="text-small text-white/90"
                         >
                           {price}
                         </div>
@@ -410,7 +410,7 @@ export default function ServicesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="section-padding bg-primary-charcoal text-primary-white">
+      <section className="section-padding bg-[#2D2D2D] py-32 text-white">
         <div className="section-max-width text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

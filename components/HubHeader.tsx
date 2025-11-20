@@ -51,7 +51,7 @@ export default function HubHeader({
 
   return (
     <header className="bg-primary-white border-b border-primary-charcoal/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link href="/hub/dashboard" className="group">
@@ -59,7 +59,7 @@ export default function HubHeader({
               <img
                 src="/images/cje-media-logo.png"
                 alt="CJE Media"
-                className="h-12 w-auto max-w-[180px] transition-opacity group-hover:opacity-80"
+                className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80"
               />
             </Link>
             {showBackButton && (

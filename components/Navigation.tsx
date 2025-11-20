@@ -33,12 +33,12 @@ export default function Navigation() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-36 md:h-44">
           <Link href="/" className="group">
             <img
               src="/images/cje-media-logo.png"
               alt="CJE Media"
-              className="h-12 w-auto max-w-[180px] transition-opacity group-hover:opacity-80"
+              className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80"
             />
           </Link>
 
