@@ -14,6 +14,7 @@ import {
   Mail,
   MessageCircle,
   Users,
+  CheckCircle,
 } from 'lucide-react'
 import HubHeader from '@/components/HubHeader'
 import { createClient } from '@/lib/supabase/client'
