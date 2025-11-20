@@ -286,7 +286,7 @@ export default function BookingPage() {
                 size="lg"
                 className="w-full"
                 icon={ArrowRight}
-                disabled={isSubmitting || !selectedType}
+               
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
               </Button>
