@@ -217,7 +217,7 @@ export default function ServicesPage() {
       <Navigation />
 
       {/* HERO */}
-      <section className="relative h-[60vh] flex items-center justify-center">
+      <section className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] flex items-center justify-center">
         <div className="absolute inset-0">
           <Image
             src="/images/cje12.JPG"
@@ -231,32 +231,32 @@ export default function ServicesPage() {
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 text-[96px] md:text-h1 font-serif font-bold text-primary-white text-center"
+          className="relative z-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-h1 font-serif font-bold text-primary-white text-center px-4"
         >
           Services
         </motion.h1>
       </section>
 
       {/* CJE Experiences */}
-      <section className="section-padding bg-primary-white">
+      <section className="section-padding bg-primary-white py-12 sm:py-16 md:py-24 lg:py-32">
         <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2 font-serif font-semibold text-primary-charcoal mb-3 sm:mb-4">
               CJE Experiences
             </h2>
-            <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-body text-primary-charcoal/70 max-w-2xl mx-auto px-4">
               From concept to in-person experiences, these packages are for
               brands and creatives ready to bring their ideas to life through
               unforgettable experiences.
             </p>
           </motion.div>
 
-          <div className="space-y-24">
+          <div className="space-y-12 sm:space-y-16 lg:space-y-24">
             {services.experiences.map((service, index) => (
               <motion.div
                 key={service.title}
@@ -264,14 +264,14 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className={`grid lg:grid-cols-2 gap-12 items-center ${
+                className={`grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center ${
                   index % 2 === 1 ? 'lg:flex-row-reverse' : ''
                 }`}
               >
                 <div
                   className={`${
                     index % 2 === 0 ? 'lg:order-1' : 'lg:order-2'
-                  } relative h-[500px] rounded-2xl overflow-hidden`}
+                  } relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden order-1`}
                 >
                   <Image
                     src={
@@ -289,16 +289,16 @@ export default function ServicesPage() {
                 <div
                   className={`${
                     index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'
-                  } space-y-6 ${
+                  } space-y-4 sm:space-y-6 order-2 ${
                     index % 2 === 0
-                      ? 'border-l-4 border-primary-tiffany pl-8'
-                      : 'border-r-4 border-primary-tiffany pr-8'
+                      ? 'border-l-0 lg:border-l-4 border-t-4 lg:border-t-0 border-primary-tiffany pl-0 lg:pl-8 pt-4 lg:pt-0'
+                      : 'border-r-0 lg:border-r-4 border-t-4 lg:border-t-0 border-primary-tiffany pr-0 lg:pr-8 pt-4 lg:pt-0'
                   }`}
                 >
-                  <h3 className="text-h3 font-serif font-semibold text-primary-charcoal">
+                  <h3 className="text-2xl sm:text-3xl lg:text-h3 font-serif font-semibold text-primary-charcoal">
                     {service.title}
                   </h3>
-                  <p className="text-body text-primary-charcoal/80 leading-relaxed">
+                  <p className="text-sm sm:text-base lg:text-body text-primary-charcoal/80 leading-relaxed">
                     {service.description}
                   </p>
                   {service.includes && (

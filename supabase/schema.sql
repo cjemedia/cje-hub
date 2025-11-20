@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS clients (
   name TEXT NOT NULL,
   company TEXT,
   phone TEXT,
+  role TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('client', 'admin')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -79,7 +79,7 @@ export default function EventsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-primary-white">
+    <main className="min-h-screen bg-[#2D2D2D]">
       <HubHeader
         user={user}
         showBackButton
@@ -88,59 +88,59 @@ export default function EventsPage() {
         subtitle="Upcoming events and experiences"
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {events.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-12 text-center"
+            className="bg-[#1A1A1A] border-2 border-primary-tiffany/30 rounded-lg p-8 sm:p-12 text-center"
           >
-            <Calendar size={48} className="text-primary-charcoal/30 mx-auto mb-4" />
-            <h2 className="text-2xl font-serif font-bold text-primary-black mb-2">
+            <Calendar size={48} className="text-primary-tiffany/50 mx-auto mb-4" />
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-white mb-2">
               No Upcoming Events
             </h2>
-            <p className="text-primary-charcoal/70">
+            <p className="text-white/70 text-sm sm:text-base">
               Check back soon for new CJE Experiences events!
             </p>
           </motion.div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {events.map((event, index) => (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-6 hover:border-primary-tiffany transition-all duration-300"
+                className="bg-[#1A1A1A] border-2 border-primary-tiffany/30 rounded-lg p-4 sm:p-6 hover:border-primary-tiffany transition-all duration-300"
               >
-                <h3 className="text-2xl font-serif font-bold text-primary-black mb-3">
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-white mb-3">
                   {event.title}
                 </h3>
                 {event.description && (
-                  <p className="text-primary-charcoal/70 mb-4 line-clamp-3">
+                  <p className="text-white/70 mb-4 line-clamp-3 text-sm sm:text-base">
                     {event.description}
                   </p>
                 )}
-                <div className="space-y-2 mb-6">
-                  <div className="flex items-center space-x-2 text-sm text-primary-charcoal/70">
-                    <Calendar size={16} className="text-primary-tiffany" />
-                    <span>
+                <div className="space-y-2 mb-4 sm:mb-6">
+                  <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
+                    <Calendar size={14} className="text-primary-tiffany flex-shrink-0" />
+                    <span className="break-words">
                       {format(new Date(event.date), 'MMMM d, yyyy • h:mm a')}
                     </span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-primary-charcoal/70">
-                    <MapPin size={16} className="text-primary-tiffany" />
-                    <span>{event.location}</span>
+                  <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
+                    <MapPin size={14} className="text-primary-tiffany flex-shrink-0" />
+                    <span className="break-words">{event.location}</span>
                   </div>
                   {event.price && (
-                    <div className="flex items-center space-x-2 text-sm text-primary-charcoal/70">
-                      <DollarSign size={16} className="text-primary-tiffany" />
+                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
+                      <DollarSign size={14} className="text-primary-tiffany flex-shrink-0" />
                       <span>${event.price}</span>
                     </div>
                   )}
                   {event.capacity && (
-                    <div className="flex items-center space-x-2 text-sm text-primary-charcoal/70">
-                      <Users size={16} className="text-primary-tiffany" />
+                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
+                      <Users size={14} className="text-primary-tiffany flex-shrink-0" />
                       <span>
                         {event.rsvp_count || 0} / {event.capacity} attendees
                       </span>
@@ -150,7 +150,7 @@ export default function EventsPage() {
                 <Button
                   onClick={() => handleRSVP(event.id)}
                   size="md"
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
                 >
                   RSVP
                 </Button>
