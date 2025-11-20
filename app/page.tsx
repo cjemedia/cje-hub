@@ -68,12 +68,12 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white/40 sm:from-white/50 sm:via-white/40 sm:to-white/50" />
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-center text-center space-y-6 sm:space-y-8">
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-start sm:items-center text-left sm:text-center space-y-4 sm:space-y-8">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-h1 font-serif font-bold text-primary-charcoal leading-tight px-2"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-h1 font-serif font-bold text-primary-charcoal leading-tight"
           >
             Where Creativity,<br />
             <span className="text-primary-tiffany">Clarity</span>, and<br />
