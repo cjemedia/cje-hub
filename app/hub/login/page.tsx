@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { Mail, Lock, ArrowRight } from 'lucide-react'
@@ -19,20 +20,52 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
 
-    const supabase = createClient()
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      console.log('Attempting login for:', email)
+      const supabase = createClient()
+      
+      // Attempt login with timeout protection
+      const loginPromise = supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise<{ data: null; error: { message: string } }>((resolve) => {
+        setTimeout(() => {
+          resolve({
+            data: null,
+            error: { message: 'Login request timed out. Please check your connection and try again.' }
+          })
+        }, 15000) // 15 second timeout
+      })
 
-    if (authError) {
-      setError(authError.message)
+      // Race between login and timeout
+      const result = await Promise.race([loginPromise, timeoutPromise])
+      const { data, error: authError } = result
+
+      if (authError) {
+        console.error('Auth error:', authError)
+        setError(authError.message || 'Invalid email or password. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      console.log('Login successful, user:', data?.user?.id)
+      
+      if (data?.user && data?.session) {
+        console.log('Session established, redirecting...')
+        // Simple redirect - let middleware handle auth check
+        window.location.href = '/hub/dashboard'
+      } else {
+        console.error('No user or session in response:', data)
+        setError('Login failed. No session was created.')
+        setIsLoading(false)
+      }
+    } catch (err: any) {
+      console.error('Login error:', err)
+      setError(err.message || 'An unexpected error occurred. Please try again.')
       setIsLoading(false)
-      return
-    }
-
-    if (data.user) {
-      router.push('/hub/dashboard')
     }
   }
 
@@ -125,8 +158,16 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-primary-charcoal/60">
+          <div className="mt-6 space-y-3 text-center text-sm">
             <p>
+              <Link
+                href="/hub/forgot-password"
+                className="text-primary-tiffany hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </p>
+            <p className="text-primary-charcoal/60">
               Need access?{' '}
               <a
                 href="mailto:media@ciarajevans.com"

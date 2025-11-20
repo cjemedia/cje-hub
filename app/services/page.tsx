@@ -70,14 +70,14 @@ const services = {
       icon: Sparkles,
       title: 'Brand Management',
       description:
-        'Full-service management to oversee your brand's growth, voice, and visibility: including strategy, content direction, partnerships, and performance tracking.',
+        'Full-service management to oversee your brand\'s growth, voice, and visibility: including strategy, content direction, partnerships, and performance tracking.',
       pricing: ['Monthly: $1,200-$1,500', 'Quarterly: $3,600-$4,500'],
     },
     {
       icon: FileText,
       title: 'Campaign Curator',
       description:
-        'We develop your campaign's creative vision, storyline, and rollout strategy: perfect for launches, announcements, or brand moments.',
+        'We develop your campaign\'s creative vision, storyline, and rollout strategy: perfect for launches, announcements, or brand moments.',
       price: 'Per Campaign: $600-$1,000',
     },
     {
@@ -262,7 +262,7 @@ export default function ServicesPage() {
             </h2>
             <p className="text-xl text-primary-charcoal/70 max-w-2xl mx-auto">
               This suite of services is designed to build, nurture, and amplify
-              your brand's digital presence from the inside out.
+              your brand&apos;s digital presence from the inside out.
             </p>
           </motion.div>
 
@@ -383,7 +383,7 @@ export default function ServicesPage() {
               Ready to Get Started?
             </h2>
             <p className="text-xl text-primary-white/70">
-              Let's discuss how we can bring your vision to life.
+              Let&apos;s discuss how we can bring your vision to life.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Button
