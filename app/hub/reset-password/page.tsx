@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
@@ -8,7 +8,7 @@ import { Lock, CheckCircle, ArrowLeft } from 'lucide-react'
 import Button from '@/components/Button'
 import Link from 'next/link'
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [password, setPassword] = useState('')
@@ -56,13 +56,13 @@ export default function ResetPasswordPage() {
         } else if (accessToken && refreshToken) {
           // Alternative flow: set session from tokens in hash
           console.log('Setting session from tokens...')
-          const { error: setError } = await supabase.auth.setSession({
+          const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           })
           
-          if (setError) {
-            console.error('Session set error:', setError)
+          if (sessionError) {
+            console.error('Session set error:', sessionError)
             setIsValidToken(false)
             setError('Invalid or expired reset link. Please request a new password reset.')
           } else {
@@ -296,6 +296,18 @@ export default function ResetPasswordPage() {
         </div>
       </motion.div>
     </main>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gradient-to-br from-primary-white via-primary-white to-primary-charcoal/5 flex items-center justify-center p-4">
+        <div className="text-primary-charcoal/70">Loading...</div>
+      </main>
+    }>
+      <ResetPasswordPageContent />
+    </Suspense>
   )
 }
 

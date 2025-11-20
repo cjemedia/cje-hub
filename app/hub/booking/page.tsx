@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
@@ -15,7 +15,7 @@ import {
 import Button from '@/components/Button'
 import { format } from 'date-fns'
 
-export default function BookingPage() {
+function BookingPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [user, setUser] = useState<any>(null)
@@ -335,6 +335,18 @@ export default function BookingPage() {
         )}
       </div>
     </main>
+  )
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-primary-white flex items-center justify-center">
+        <div className="text-primary-charcoal/70">Loading...</div>
+      </main>
+    }>
+      <BookingPageContent />
+    </Suspense>
   )
 }
 
