@@ -88,7 +88,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="absolute bottom-0 left-0 right-0 z-30 sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-10 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md sm:max-w-none sm:w-auto px-4 sm:px-0 pb-4 sm:pb-0"
           >
-            <Button href="/services" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base">
+            <Button href="/services" size="lg" className="hidden sm:flex btn-primary w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base">
               Explore Services
             </Button>
             <Button
