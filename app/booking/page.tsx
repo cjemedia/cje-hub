@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import Navigation from '@/components/Navigation'
@@ -9,7 +9,7 @@ import Button from '@/components/Button'
 import { Calendar, Clock, Video, Smartphone, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
 
-export default function BookingPage() {
+function BookingContent() {
   const searchParams = useSearchParams()
   const initialType = useMemo(() => {
     const typeParam = searchParams.get('type')
@@ -239,5 +239,21 @@ export default function BookingPage() {
 
       <Footer />
     </main>
+  )
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-primary-white">
+        <Navigation />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-primary-charcoal/70">Loading...</div>
+        </div>
+        <Footer />
+      </main>
+    }>
+      <BookingContent />
+    </Suspense>
   )
 }
