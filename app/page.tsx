@@ -60,7 +60,7 @@ export default function Home() {
 
       {/* SECTION 1: HERO */}
       <section
-        className="relative min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center"
+        className="relative min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-end sm:items-center"
         style={{ 
           backgroundImage: "url('/images/cje14.png')", 
           backgroundPosition: bgPosition
@@ -68,7 +68,7 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white/40 sm:from-white/50 sm:via-white/40 sm:to-white/50" />
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-32 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-start sm:items-center text-left sm:text-center space-y-8 sm:space-y-8">
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-40 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-start sm:items-center text-left sm:text-center space-y-8 sm:space-y-8">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
