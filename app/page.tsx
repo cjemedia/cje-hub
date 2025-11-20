@@ -60,7 +60,7 @@ export default function Home() {
 
       {/* SECTION 1: HERO */}
       <section
-        className="relative min-h-[60vh] sm:min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center"
+        className="relative min-h-[75vh] sm:min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center"
 
         style={{ 
           backgroundImage: "url('/images/cje14.png')", 
@@ -114,7 +114,7 @@ export default function Home() {
                   href="/booking"
                   variant="outline"
                   size="lg"
-                  className="border-2 border-white text-white hover:bg-white hover:text-black w-full h-[44px] text-xs"
+                  className="bg-white text-black border-2 border-white hover:bg-white/90 hover:text-black w-full h-[44px] text-xs"
                 >
                   Book a Call
                 </Button>
@@ -124,8 +124,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 2: ABOUT - Charcoal Background */}
-      <section className="section-padding bg-[#2D2D2D] py-12 sm:py-16 md:py-24 lg:py-32">
+      {/* SECTION 2: ABOUT - White Background on Mobile, Charcoal on Desktop */}
+      <section className="section-padding bg-primary-white sm:bg-[#2D2D2D] py-12 sm:py-16 md:py-24 lg:py-32">
         <div className="section-max-width">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Image - Left */}
@@ -152,10 +152,10 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="space-y-4 sm:space-y-6 order-1 lg:order-2"
             >
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2 font-serif font-semibold text-white">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2 font-serif font-semibold text-primary-charcoal sm:text-white">
                 Meet Ciara
               </h2>
-              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base lg:text-body text-white/90 leading-relaxed">
+              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base lg:text-body text-primary-charcoal/90 sm:text-white/90 leading-relaxed">
                 <p>
                   At 26, Ciara J Evans is a dynamic creative director and
                   entrepreneur who has built CJE Media into a full-service
@@ -176,7 +176,7 @@ export default function Home() {
                   beautifully executed.
                 </p>
               </div>
-              <blockquote className="text-lg sm:text-xl lg:text-2xl italic text-white font-serif border-l-4 border-white pl-4 sm:pl-6 py-3 sm:py-4">
+              <blockquote className="text-lg sm:text-xl lg:text-2xl italic text-primary-charcoal sm:text-white font-serif border-l-4 border-primary-charcoal sm:border-white pl-4 sm:pl-6 py-3 sm:py-4">
                 "Where creativity, clarity, and connection meet."
               </blockquote>
             </motion.div>
