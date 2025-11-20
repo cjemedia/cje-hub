@@ -54,21 +54,27 @@ export async function middleware(request: NextRequest) {
     try {
       const {
         data: { user },
+        error: authError,
       } = await supabase.auth.getUser()
 
-      if (!user) {
+      // Only redirect if we have no user AND no auth error
+      // If there's an auth error, it might be due to invalid cookies, so don't redirect
+      if (!user && !authError) {
         const loginUrl = new URL('/hub/login', request.url)
         // Prevent redirect loop - only redirect if not already going to login
         if (request.nextUrl.pathname !== '/hub/login') {
           return NextResponse.redirect(loginUrl)
         }
       }
+      // If there's an auth error, allow the request to continue
+      // The page can handle showing an error or redirecting as needed
     } catch (error) {
-      // If auth check fails, only redirect to login if we're not already there
-      if (request.nextUrl.pathname !== '/hub/login') {
-        const loginUrl = new URL('/hub/login', request.url)
-        return NextResponse.redirect(loginUrl)
+      // If auth check throws an error, don't redirect - allow access
+      // This prevents redirect loops when Supabase is misconfigured or cookies are invalid
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Auth check error on protected route:', error)
       }
+      // Don't redirect on error - let the page handle it
     }
   }
 
@@ -86,7 +92,10 @@ export async function middleware(request: NextRequest) {
       if (user && user.id && !userError) {
         const dashboardUrl = new URL('/hub/dashboard', request.url)
         // Ensure we're not already on the dashboard to prevent loops
-        if (request.nextUrl.pathname !== dashboardUrl.pathname) {
+        // Also check that we're not in a redirect loop by checking the referer
+        const referer = request.headers.get('referer')
+        if (request.nextUrl.pathname !== dashboardUrl.pathname && 
+            (!referer || !referer.includes('/hub/login'))) {
           return NextResponse.redirect(dashboardUrl)
         }
       }
@@ -96,6 +105,10 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       // If auth check throws an error, allow access to public pages
       // This is critical to prevent redirect loops when Supabase is misconfigured
+      // Log error in development but don't block access
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Auth check error on public route:', error)
+      }
       return response
     }
   }

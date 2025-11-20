@@ -28,7 +28,7 @@ export default function Navigation() {
     { href: '/services', label: 'Services' },
     { href: '/booking', label: 'Book a Call' },
   ]
-  const clientLogin: NavItem = { href: 'https://agency.ciarajevans.com', label: 'Client Login', external: true }
+  const clientLogin: NavItem = { href: 'https://cje-gk7q2rsk7-cje-media.vercel.app/hub/dashboard', label: 'Client Login', external: true }
 
   return (
     <nav

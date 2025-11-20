@@ -50,7 +50,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="https://agency.ciarajevans.com"
+                  href="https://cje-gk7q2rsk7-cje-media.vercel.app/hub/login"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary-white/70 hover:text-primary-tiffany transition-colors text-sm"

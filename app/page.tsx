@@ -20,9 +20,9 @@ export default function Home() {
   useEffect(() => {
     const updateBgPosition = () => {
       if (window.innerWidth < 640) {
-        setBgPosition('center 70%')
+        setBgPosition('center 70%') // Position to show more of Ciara and reduce space above head
       } else {
-        setBgPosition('center 45%')
+        setBgPosition('center 40%')
       }
     }
     
@@ -60,7 +60,8 @@ export default function Home() {
 
       {/* SECTION 1: HERO */}
       <section
-        className="relative min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-end sm:items-center"
+        className="relative min-h-[60vh] sm:min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center"
+
         style={{ 
           backgroundImage: "url('/images/cje14.png')", 
           backgroundPosition: bgPosition
@@ -68,7 +69,7 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white/40 sm:from-white/50 sm:via-white/40 sm:to-white/50" />
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-40 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-start sm:items-center text-left sm:text-center space-y-8 sm:space-y-8">
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-40 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-start text-left space-y-6 sm:space-y-8">
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -80,11 +81,12 @@ export default function Home() {
             Connection Meet
           </motion.h1>
 
+          {/* Buttons - positioned at bottom of black band on mobile, normal flow on desktop */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md sm:max-w-none sm:w-auto mt-8"
+            className="absolute bottom-0 left-0 right-0 z-30 sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-10 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md sm:max-w-none sm:w-auto px-4 sm:px-0 pb-4 sm:pb-0"
           >
             <Button href="/services" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base">
               Explore Services
