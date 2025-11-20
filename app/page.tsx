@@ -95,7 +95,7 @@ export default function Home() {
               href="/booking"
               variant="outline"
               size="lg"
-              className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base"
+              className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base order-first sm:order-none"
             >
               Book a Call
             </Button>
