@@ -5,6 +5,11 @@ export const metadata: Metadata = {
   title: "Ciara J Evans | CJE Media & Experiences",
   description: "Where creativity, clarity, and connection meet. Marketing agency and event experiences for purpose-driven brands.",
   keywords: ["marketing agency", "event planning", "brand strategy", "content creation", "CJE Media", "CJE Experiences"],
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

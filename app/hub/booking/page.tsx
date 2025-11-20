@@ -13,6 +13,7 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import Button from '@/components/Button'
+import HubHeader from '@/components/HubHeader'
 import { format } from 'date-fns'
 
 function BookingPageContent() {
@@ -92,21 +93,12 @@ function BookingPageContent() {
 
   return (
     <main className="min-h-screen bg-primary-white">
-      {/* Header */}
-      <header className="bg-primary-white border-b border-primary-charcoal/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <button
-            onClick={() => router.push('/hub/dashboard')}
-            className="flex items-center space-x-2 text-primary-charcoal/70 hover:text-primary-charcoal transition-colors mb-4"
-          >
-            <ArrowLeft size={18} />
-            <span>Back to Dashboard</span>
-          </button>
-          <h1 className="text-3xl font-serif font-bold text-primary-black">
-            Book a Session
-          </h1>
-        </div>
-      </header>
+      <HubHeader
+        user={user}
+        showBackButton
+        backHref="/hub/dashboard"
+        title="Book a Session"
+      />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Booking Type Selection */}

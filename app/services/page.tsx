@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Check,
 } from 'lucide-react'
+import Image from 'next/image'
 
 const services = {
   experiences: [
@@ -153,46 +154,47 @@ export default function ServicesPage() {
     <main className="min-h-screen bg-primary-white">
       <Navigation />
 
-      {/* Hero */}
-      <section className="pt-32 pb-16 bg-gradient-to-br from-primary-white to-primary-charcoal/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-primary-black mb-6">
-              Our Services
-            </h1>
-            <p className="text-xl text-primary-charcoal/70 max-w-3xl mx-auto">
-              From event experiences to brand strategy, we offer comprehensive
-              solutions for purpose-driven brands and entrepreneurs.
-            </p>
-          </motion.div>
+      {/* HERO */}
+      <section className="relative h-[60vh] flex items-center justify-center">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/cje12.JPG"
+            alt="Services"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-primary-charcoal/50" />
         </div>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 text-[96px] md:text-h1 font-serif font-bold text-primary-white text-center"
+        >
+          Services
+        </motion.h1>
       </section>
 
       {/* CJE Experiences */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-padding bg-primary-white">
+        <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-black mb-4">
+            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
               CJE Experiences
             </h2>
-            <p className="text-xl text-primary-charcoal/70 max-w-2xl mx-auto">
+            <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
               From concept to in-person experiences, these packages are for
               brands and creatives ready to bring their ideas to life through
               unforgettable experiences.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="space-y-24">
             {services.experiences.map((service, index) => (
               <motion.div
                 key={service.title}
@@ -200,47 +202,79 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-8 hover:border-primary-tiffany transition-all duration-300 hover:shadow-xl"
+                className={`grid lg:grid-cols-2 gap-12 items-center ${
+                  index % 2 === 1 ? 'lg:flex-row-reverse' : ''
+                }`}
               >
-                <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
-                  <service.icon size={32} className="text-primary-tiffany" />
+                <div
+                  className={`${
+                    index % 2 === 0 ? 'lg:order-1' : 'lg:order-2'
+                  } relative h-[500px] rounded-2xl overflow-hidden`}
+                >
+                  <Image
+                    src={
+                      index === 0
+                        ? '/images/cje3.JPG'
+                        : index === 1
+                        ? '/images/cje7.JPG'
+                        : '/images/cje4.JPG'
+                    }
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-primary-black mb-4">
-                  {service.title}
-                </h3>
-                <p className="text-primary-charcoal/70 mb-6 leading-relaxed">
-                  {service.description}
-                </p>
-                {service.includes && (
-                  <ul className="space-y-2 mb-6">
-                    {service.includes.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start space-x-2 text-sm text-primary-charcoal/80"
-                      >
-                        <Check size={16} className="text-primary-tiffany mt-0.5 flex-shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <div className="pt-6 border-t border-primary-charcoal/10">
-                  {service.price ? (
-                    <div className="text-lg font-semibold text-primary-tiffany">
-                      {service.price}
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      {service.pricing?.map((price, i) => (
-                        <div
-                          key={i}
-                          className="text-sm text-primary-charcoal/70"
+                <div
+                  className={`${
+                    index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'
+                  } space-y-6 ${
+                    index % 2 === 0
+                      ? 'border-l-4 border-primary-tiffany pl-8'
+                      : 'border-r-4 border-primary-tiffany pr-8'
+                  }`}
+                >
+                  <h3 className="text-h3 font-serif font-semibold text-primary-charcoal">
+                    {service.title}
+                  </h3>
+                  <p className="text-body text-primary-charcoal/80 leading-relaxed">
+                    {service.description}
+                  </p>
+                  {service.includes && (
+                    <ul className="space-y-3">
+                      {service.includes.map((item) => (
+                        <li
+                          key={item}
+                          className="flex items-start space-x-3 text-small"
                         >
-                          {price}
-                        </div>
+                          <Check
+                            size={20}
+                            className="text-primary-tiffany mt-0.5 flex-shrink-0"
+                          />
+                          <span className="text-primary-charcoal/80">
+                            {item}
+                          </span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
+                  <div className="pt-4">
+                    {service.price ? (
+                      <div className="text-xl font-semibold text-primary-tiffany">
+                        {service.price}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {service.pricing?.map((price, i) => (
+                          <div
+                            key={i}
+                            className="text-small text-primary-charcoal/70"
+                          >
+                            {price}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -249,18 +283,18 @@ export default function ServicesPage() {
       </section>
 
       {/* CJE Media */}
-      <section className="py-24 bg-primary-charcoal/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-padding bg-primary-gray">
+        <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-black mb-4">
+            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
               CJE Media
             </h2>
-            <p className="text-xl text-primary-charcoal/70 max-w-2xl mx-auto">
+            <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
               This suite of services is designed to build, nurture, and amplify
               your brand&apos;s digital presence from the inside out.
             </p>
@@ -274,18 +308,18 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-8 hover:border-primary-tiffany transition-all duration-300 hover:shadow-xl"
+                className="bg-primary-white p-8 rounded-2xl card-hover border-2 border-transparent hover:border-primary-tiffany"
               >
                 <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
                   <service.icon size={32} className="text-primary-tiffany" />
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-primary-black mb-4">
+                <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-4">
                   {service.title}
                 </h3>
-                <p className="text-primary-charcoal/70 mb-6 leading-relaxed">
+                <p className="text-small text-primary-charcoal/70 mb-6 leading-relaxed">
                   {service.description}
                 </p>
-                <div className="pt-6 border-t border-primary-charcoal/10">
+                <div className="pt-4 border-t border-primary-charcoal/10">
                   {service.price ? (
                     <div className="text-lg font-semibold text-primary-tiffany">
                       {service.price}
@@ -295,7 +329,7 @@ export default function ServicesPage() {
                       {service.pricing?.map((price, i) => (
                         <div
                           key={i}
-                          className="text-sm text-primary-charcoal/70"
+                          className="text-small text-primary-charcoal/70"
                         >
                           {price}
                         </div>
@@ -309,19 +343,19 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Custom Services */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Custom Solutions */}
+      <section className="section-padding bg-primary-white">
+        <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-black mb-4">
+            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
               Custom Solutions
             </h2>
-            <p className="text-xl text-primary-charcoal/70 max-w-2xl mx-auto">
+            <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
               Tailored technology solutions to elevate your business operations
               and client experience.
             </p>
@@ -335,15 +369,15 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-8 hover:border-primary-tiffany transition-all duration-300 hover:shadow-xl"
+                className="bg-primary-white border-2 border-primary-charcoal/10 rounded-2xl p-8 card-hover hover:border-primary-tiffany"
               >
                 <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
                   <service.icon size={32} className="text-primary-tiffany" />
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-primary-black mb-4">
+                <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-4">
                   {service.title}
                 </h3>
-                <p className="text-primary-charcoal/70 mb-6 leading-relaxed">
+                <p className="text-small text-primary-charcoal/70 mb-6 leading-relaxed">
                   {service.description}
                 </p>
                 {service.includes && (
@@ -351,15 +385,20 @@ export default function ServicesPage() {
                     {service.includes.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start space-x-2 text-sm text-primary-charcoal/80"
+                        className="flex items-start space-x-2 text-small"
                       >
-                        <Check size={16} className="text-primary-tiffany mt-0.5 flex-shrink-0" />
-                        <span>{item}</span>
+                        <Check
+                          size={16}
+                          className="text-primary-tiffany mt-0.5 flex-shrink-0"
+                        />
+                        <span className="text-primary-charcoal/80">
+                          {item}
+                        </span>
                       </li>
                     ))}
                   </ul>
                 )}
-                <div className="pt-6 border-t border-primary-charcoal/10">
+                <div className="pt-4 border-t border-primary-charcoal/10">
                   <div className="text-lg font-semibold text-primary-tiffany">
                     {service.price}
                   </div>
@@ -371,34 +410,29 @@ export default function ServicesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-primary-black text-primary-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="section-padding bg-primary-charcoal text-primary-white">
+        <div className="section-max-width text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-6"
+            className="space-y-6 max-w-3xl mx-auto"
           >
-            <h2 className="text-4xl md:text-5xl font-serif font-bold">
+            <h2 className="text-h2 font-serif font-semibold text-primary-white">
               Ready to Get Started?
             </h2>
-            <p className="text-xl text-primary-white/70">
+            <p className="text-body text-primary-white/80">
               Let&apos;s discuss how we can bring your vision to life.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button
-                href="/booking"
-                size="lg"
-                variant="secondary"
-                icon={ArrowRight}
-              >
+              <Button href="/booking" size="lg" className="btn-primary">
                 Book a Call
               </Button>
               <Button
                 href="mailto:media@ciarajevans.com"
-                size="lg"
                 variant="outline"
-                className="border-primary-white text-primary-white hover:bg-primary-white hover:text-primary-black"
+                size="lg"
+                className="border-2 border-primary-white text-primary-white hover:bg-primary-white hover:text-primary-charcoal"
               >
                 Contact Us
               </Button>
@@ -411,4 +445,3 @@ export default function ServicesPage() {
     </main>
   )
 }
-

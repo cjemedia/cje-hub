@@ -10,10 +10,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl font-serif font-bold">CJE</span>
-              <span className="text-sm font-sans">MEDIA</span>
-            </div>
+            <img
+              src="/images/cje-media-logo.png"
+              alt="CJE Media"
+              className="h-auto w-[200px]"
+            />
             <p className="text-primary-white/70 text-sm">
               Where creativity, clarity, and connection meet.
             </p>

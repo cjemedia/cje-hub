@@ -4,8 +4,9 @@ import { motion } from 'framer-motion'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Button from '@/components/Button'
-import { ArrowRight, Sparkles, Users, Target, Mail, Phone } from 'lucide-react'
+import { ArrowRight, Sparkles, Users, Target } from 'lucide-react'
 import { useState } from 'react'
+import Image from 'next/image'
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -39,70 +40,83 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-primary-white">
       <Navigation />
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-white via-primary-white to-primary-charcoal/5 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center space-y-8"
-          >
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-5xl md:text-7xl font-serif font-bold text-primary-black"
-            >
-              Where Creativity,
-              <br />
-              <span className="text-primary-tiffany">Clarity</span>, and
-              <br />
-              Connection Meet
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-xl md:text-2xl text-primary-charcoal/70 max-w-3xl mx-auto"
-            >
-              Marketing agency and event experiences for purpose-driven brands,
-              creators, and entrepreneurs.
-            </motion.p>
+      {/* SECTION 1: HERO */}
+      <section className="min-h-screen flex items-center">
+        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-5 gap-12 items-center">
+            {/* Left side (40%) */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="lg:col-span-2 space-y-8"
             >
-              <Button href="/services" size="lg" icon={ArrowRight}>
-                Explore Services
-              </Button>
-              <Button href="/booking" variant="outline" size="lg">
-                Book a Call
+              <h1 className="text-h1 font-serif font-bold text-primary-charcoal">
+                Elevate Your Brand
+              </h1>
+              <p className="text-body text-primary-charcoal/80 leading-relaxed">
+                Strategic brand management and creative direction for ambitious
+                businesses
+              </p>
+              <Button href="/booking" size="lg" className="btn-primary">
+                Book a Consultation
               </Button>
             </motion.div>
-          </motion.div>
+
+            {/* Right side (60%) */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="lg:col-span-3 relative h-[600px] lg:h-[700px] rounded-2xl overflow-hidden"
+            >
+              <Image
+                src="/images/cje1.JPEG"
+                alt="Ciara J Evans"
+                fill
+                className="object-cover"
+                priority
+              />
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="py-24 bg-primary-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+      {/* SECTION 2: ABOUT */}
+      <section className="section-padding bg-primary-white">
+        <div className="section-max-width">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Image - Left */}
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.6 }}
+              className="relative h-[600px] rounded-2xl overflow-hidden"
             >
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-black mb-6">
-                About Ciara J Evans
+              <Image
+                src="/images/cje11.JPG"
+                alt="Ciara J Evans"
+                fill
+                className="object-cover"
+              />
+            </motion.div>
+
+            {/* Text - Right */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
+            >
+              <h2 className="text-h2 font-serif font-semibold text-primary-charcoal">
+                Meet Ciara
               </h2>
-              <div className="space-y-4 text-primary-charcoal/80 leading-relaxed">
+              <div className="space-y-4 text-body text-primary-charcoal/80 leading-relaxed">
                 <p>
                   At 26, Ciara J Evans is a dynamic creative director and
                   entrepreneur who has built CJE Media into a full-service
@@ -123,176 +137,239 @@ export default function Home() {
                   beautifully executed.
                 </p>
               </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="grid grid-cols-2 gap-6"
-            >
-              {[
-                { icon: Sparkles, label: 'Creative Strategy', value: '100+' },
-                { icon: Users, label: 'Happy Clients', value: '50+' },
-                { icon: Target, label: 'Events Hosted', value: '25+' },
-                { icon: ArrowRight, label: 'Years Experience', value: '5+' },
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-primary-charcoal/5 p-6 rounded-lg text-center"
-                >
-                  <stat.icon
-                    size={32}
-                    className="text-primary-tiffany mx-auto mb-3"
-                  />
-                  <div className="text-3xl font-serif font-bold text-primary-black mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-primary-charcoal/70">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
+              <blockquote className="text-2xl italic text-primary-tiffany font-serif border-l-4 border-primary-tiffany pl-6 py-4">
+                "Where creativity, clarity, and connection meet."
+              </blockquote>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-24 bg-primary-charcoal/5">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* SECTION 3: SERVICES GRID */}
+      <section className="section-padding bg-primary-gray">
+        <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary-black mb-4">
-              Let's Connect
+            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
+              Our Services
             </h2>
-            <p className="text-xl text-primary-charcoal/70">
-              Ready to bring your vision to life? Get in touch.
+            <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
+              Comprehensive brand solutions tailored to your vision
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <motion.a
-              href="mailto:media@ciarajevans.com"
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-primary-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow flex items-center space-x-4"
-            >
-              <div className="bg-primary-tiffany/10 p-3 rounded-lg">
-                <Mail size={24} className="text-primary-tiffany" />
-              </div>
-              <div>
-                <div className="font-semibold text-primary-black">Email</div>
-                <div className="text-primary-charcoal/70 text-sm">
-                  media@ciarajevans.com
-                </div>
-              </div>
-            </motion.a>
-
-            <motion.a
-              href="tel:7737278262"
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-primary-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow flex items-center space-x-4"
-            >
-              <div className="bg-primary-tiffany/10 p-3 rounded-lg">
-                <Phone size={24} className="text-primary-tiffany" />
-              </div>
-              <div>
-                <div className="font-semibold text-primary-black">Phone</div>
-                <div className="text-primary-charcoal/70 text-sm">
-                  (773) 727-8262
-                </div>
-              </div>
-            </motion.a>
-          </div>
-
-          <motion.form
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            onSubmit={handleSubmit}
-            className="bg-primary-white p-8 rounded-lg shadow-md"
-          >
-            <div className="space-y-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-primary-charcoal mb-2"
-                >
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-primary-charcoal mb-2"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-primary-charcoal mb-2"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  required
-                  rows={5}
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent resize-none"
-                />
-              </div>
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={isSubmitting}
+          <div className="grid md:grid-cols-3 gap-10">
+            {[
+              {
+                icon: Sparkles,
+                title: 'Brand Management',
+                description:
+                  'Full-service management to oversee your brand\'s growth, voice, and visibility. We handle strategy, content direction, partnerships, and performance tracking.',
+              },
+              {
+                icon: Users,
+                title: 'Social Media Strategy',
+                description:
+                  'We develop your campaign\'s creative vision, storyline, and rollout strategy. Perfect for launches, announcements, or brand moments.',
+              },
+              {
+                icon: Target,
+                title: 'Content Creation & Direction',
+                description:
+                  'We bring your campaign to life from concept to completion, including hiring and managing videographers, editors, and designers.',
+              },
+            ].map((service, index) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-primary-white p-8 rounded-2xl card-hover border-2 border-transparent hover:border-primary-tiffany"
               >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-              </Button>
-            </div>
-          </motion.form>
+                <div className="w-16 h-16 bg-primary-tiffany/10 rounded-lg flex items-center justify-center mb-6">
+                  <service.icon size={32} className="text-primary-tiffany" />
+                </div>
+                <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-4">
+                  {service.title}
+                </h3>
+                <p className="text-small text-primary-charcoal/70 mb-6 leading-relaxed">
+                  {service.description}
+                </p>
+                <a
+                  href="/services"
+                  className="text-primary-tiffany font-semibold inline-flex items-center space-x-2 hover:space-x-3 transition-all"
+                >
+                  <span>Learn More</span>
+                  <ArrowRight size={18} />
+                </a>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: PROCESS/PHILOSOPHY */}
+      <section className="section-padding bg-primary-charcoal text-primary-white">
+        <div className="section-max-width">
+          <div className="grid lg:grid-cols-5 gap-16 items-center">
+            {/* Text - Left (40%) */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-2 space-y-8"
+            >
+              <h2 className="text-h2 font-serif font-semibold text-primary-white">
+                How We Work
+              </h2>
+              <div className="space-y-6">
+                {[
+                  {
+                    title: 'Strategic Discovery',
+                    description:
+                      'We dive deep into your brand, audience, and goals to create a tailored strategy.',
+                  },
+                  {
+                    title: 'Creative Execution',
+                    description:
+                      'From concept to completion, we bring your vision to life with precision and style.',
+                  },
+                  {
+                    title: 'Ongoing Partnership',
+                    description:
+                      'We\'re with you for the long haul, ensuring consistent growth and brand evolution.',
+                  },
+                ].map((item, index) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="space-y-2"
+                  >
+                    <h4 className="text-xl font-semibold text-primary-tiffany">
+                      {item.title}
+                    </h4>
+                    <p className="text-body text-primary-white/80">
+                      {item.description}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Image - Right (55%) */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-3 relative h-[600px] rounded-2xl overflow-hidden"
+            >
+              <Image
+                src="/images/cje5.JPG"
+                alt="Ciara presenting"
+                fill
+                className="object-cover"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5: TESTIMONIAL/STATS */}
+      <section className="relative min-h-[600px] flex items-center justify-center">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/cje2.JPEG"
+            alt="Background"
+            fill
+            className="object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-primary-charcoal/40" />
+        </div>
+        <div className="relative z-10 section-max-width text-center">
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              { number: '50+', label: 'Brands Elevated' },
+              { number: '100+', label: 'Happy Clients' },
+              { number: '25+', label: 'Events Hosted' },
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="space-y-2"
+              >
+                <div className="text-7xl font-serif font-bold text-primary-tiffany">
+                  {stat.number}
+                </div>
+                <div className="text-2xl text-primary-white font-semibold">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 6: CALL TO ACTION */}
+      <section className="section-padding bg-primary-white">
+        <div className="section-max-width">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Image - Left (50%) */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="relative w-full aspect-square max-w-md mx-auto lg:mx-0"
+            >
+              <div className="absolute inset-0 rounded-full overflow-hidden">
+                <Image
+                  src="/images/cje6.JPG"
+                  alt="Ciara professional"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </motion.div>
+
+            {/* CTA Box - Right (50%) */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-8"
+            >
+              <h2 className="text-h2 font-serif font-semibold text-primary-charcoal">
+                Ready to Elevate Your Brand?
+              </h2>
+              <p className="text-body text-primary-charcoal/80 leading-relaxed">
+                Let's discuss how we can bring your vision to life through
+                strategic brand management and creative excellence.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button href="/booking" size="lg" className="btn-primary">
+                  Schedule Your Consultation
+                </Button>
+                <Button
+                  href="/services"
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white"
+                >
+                  View Services
+                </Button>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -300,4 +377,3 @@ export default function Home() {
     </main>
   )
 }
-

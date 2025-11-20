@@ -14,6 +14,7 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import Button from '@/components/Button'
+import HubHeader from '@/components/HubHeader'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -114,31 +115,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-primary-white">
-      {/* Header */}
-      <header className="bg-primary-white border-b border-primary-charcoal/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl font-serif font-bold text-primary-black">
-                CJE
-              </span>
-              <span className="text-sm font-sans text-primary-charcoal">HUB</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-primary-charcoal/70">
-                {user?.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-primary-charcoal/70 hover:text-primary-charcoal transition-colors"
-              >
-                <LogOut size={18} />
-                <span className="text-sm">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <HubHeader user={user} onLogout={handleLogout} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Welcome Section */}

@@ -78,11 +78,12 @@ export default function LoginPage() {
       >
         <div className="bg-primary-white rounded-lg shadow-xl p-8 border border-primary-charcoal/10">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <span className="text-3xl font-serif font-bold text-primary-black">
-                CJE
-              </span>
-              <span className="text-sm font-sans text-primary-charcoal">HUB</span>
+            <div className="flex items-center justify-center mb-6">
+              <img
+                src="/images/cje-media-logo.png"
+                alt="CJE Media"
+                className="h-auto w-[240px]"
+              />
             </div>
             <h1 className="text-3xl font-serif font-bold text-primary-black mb-2">
               Welcome Back

@@ -30,7 +30,7 @@ export default function Button({
 
   const variants = {
     primary:
-      'bg-primary-tiffany text-primary-white hover:bg-primary-tiffany/90 shadow-lg hover:shadow-xl',
+      'bg-primary-tiffany text-primary-white hover:bg-primary-tiffany-dark shadow-lg hover:shadow-xl',
     secondary:
       'bg-primary-charcoal text-primary-white hover:bg-primary-charcoal/90 shadow-lg hover:shadow-xl',
     outline:

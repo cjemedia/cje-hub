@@ -34,13 +34,12 @@ export default function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <span className="text-2xl font-serif font-bold text-primary-black group-hover:text-primary-tiffany transition-colors">
-              CJE
-            </span>
-            <span className="text-sm font-sans text-primary-charcoal group-hover:text-primary-tiffany transition-colors">
-              MEDIA
-            </span>
+          <Link href="/" className="group">
+            <img
+              src="/images/cje-media-logo.png"
+              alt="CJE Media"
+              className="h-12 w-auto max-w-[180px] transition-opacity group-hover:opacity-80"
+            />
           </Link>
 
           {/* Desktop Navigation */}
