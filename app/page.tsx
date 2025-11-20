@@ -81,41 +81,51 @@ export default function Home() {
             Connection Meet
           </motion.h1>
 
-          {/* Buttons - positioned at bottom of black band on mobile, normal flow on desktop */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="absolute bottom-0 left-0 right-0 z-30 sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-10 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md sm:max-w-none sm:w-auto px-4 sm:px-0 pb-4 sm:pb-0"
-          >
-            <Button href="/services" size="lg" className="hidden sm:flex btn-primary w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base">
+          {/* Buttons - Desktop only, shown above black band */}
+          <div className="hidden sm:flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <Button href="/services" size="lg" className="btn-primary sm:min-w-[200px] h-[56px]">
               Explore Services
             </Button>
             <Button
               href="/booking"
               variant="outline"
               size="lg"
-              className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white w-full sm:w-auto sm:min-w-[200px] h-[52px] sm:h-[56px] text-sm sm:text-base order-first sm:order-none"
+              className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white sm:min-w-[200px] h-[56px]"
             >
               Book a Call
             </Button>
-          </motion.div>
+          </div>
         </div>
 
         {/* Black band overlay */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20">
-          <div className="bg-black/95 py-8 sm:py-12 md:py-16 lg:py-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-semibold text-white leading-tight px-2">
-                Brand development, content direction, and elevated event experiences for for purpose-driven brands, creators, and entrepreneurs.
+        <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20">
+          <div className="bg-black/95 py-12 sm:py-12 md:py-16 lg:py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-semibold text-white leading-tight px-2 text-center mb-6 sm:mb-0">
+                Brand development, content direction, and elevated event experiences for purpose-driven brands, creators, and entrepreneurs.
               </h2>
+              
+              {/* Buttons - Mobile only, shown in black band below text */}
+              <div className="flex sm:hidden flex-col gap-3 max-w-md mx-auto mt-6">
+                <Button href="/services" size="lg" className="btn-primary w-full h-[44px] text-xs">
+                  Explore Services
+                </Button>
+                <Button
+                  href="/booking"
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-white text-white hover:bg-white hover:text-black w-full h-[44px] text-xs"
+                >
+                  Book a Call
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: ABOUT - Tiffany Blue Background */}
-      <section className="section-padding bg-[#81D8D0] py-12 sm:py-16 md:py-24 lg:py-32">
+      {/* SECTION 2: ABOUT - Charcoal Background */}
+      <section className="section-padding bg-[#2D2D2D] py-12 sm:py-16 md:py-24 lg:py-32">
         <div className="section-max-width">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             {/* Image - Left */}
@@ -174,8 +184,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 3: SERVICES GRID - Charcoal Background */}
-      <section className="section-padding bg-[#2D2D2D] py-12 sm:py-16 md:py-24 lg:py-32">
+      {/* SECTION 3: SERVICES GRID - Tiffany Blue Background */}
+      <section className="section-padding bg-[#81D8D0] py-12 sm:py-16 md:py-24 lg:py-32">
         <div className="section-max-width">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -183,10 +193,10 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2 font-serif font-semibold text-white mb-3 sm:mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2 font-serif font-semibold text-primary-charcoal mb-3 sm:mb-4">
               Our Services
             </h2>
-            <p className="text-sm sm:text-base lg:text-body text-white/80 max-w-2xl mx-auto px-4">
+            <p className="text-sm sm:text-base lg:text-body text-primary-charcoal/80 max-w-2xl mx-auto px-4">
               Comprehensive brand solutions tailored to your vision
             </p>
           </motion.div>
@@ -218,15 +228,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-[#3D3D3D] p-6 sm:p-8 rounded-xl sm:rounded-2xl card-hover border-2 border-transparent hover:border-primary-tiffany"
+                className="bg-primary-white p-6 sm:p-8 rounded-xl sm:rounded-2xl card-hover border-2 border-transparent hover:border-primary-charcoal"
               >
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary-tiffany/20 rounded-lg flex items-center justify-center mb-4 sm:mb-6">
                   <service.icon size={24} className="sm:w-8 sm:h-8 text-primary-tiffany" />
                 </div>
-                <h3 className="text-xl sm:text-2xl lg:text-h3 font-serif font-semibold text-white mb-3 sm:mb-4">
+                <h3 className="text-xl sm:text-2xl lg:text-h3 font-serif font-semibold text-primary-charcoal mb-3 sm:mb-4">
                   {service.title}
                 </h3>
-                <p className="text-sm sm:text-base lg:text-small text-white/80 mb-4 sm:mb-6 leading-relaxed">
+                <p className="text-sm sm:text-base lg:text-small text-primary-charcoal/80 mb-4 sm:mb-6 leading-relaxed">
                   {service.description}
                 </p>
                 <a
