@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic'
 async function getMessages() {
   const supabase = createServiceClient()
   const { data, error } = await supabase
-    .select('*')
     .from('contact_messages')
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (error) {
