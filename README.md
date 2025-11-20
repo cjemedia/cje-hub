@@ -39,3 +39,4 @@ npm run dev
 
 The project is configured for Vercel deployment. Connect your repository and set environment variables in the Vercel dashboard.
 
+ 
