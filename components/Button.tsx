@@ -11,6 +11,7 @@ interface ButtonProps {
   icon?: LucideIcon
   className?: string
   type?: 'button' | 'submit' | 'reset'
+  disabled?: boolean
 }
 
 export default function Button({
@@ -22,6 +23,7 @@ export default function Button({
   icon: Icon,
   className = '',
   type = 'button',
+  disabled = false,
 }: ButtonProps) {
   const baseStyles =
     'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-tiffany'
@@ -41,7 +43,10 @@ export default function Button({
     lg: 'px-8 py-4 text-lg',
   }
 
-  const classes = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`
+  const disabledStyles = disabled
+    ? 'opacity-50 cursor-not-allowed pointer-events-none'
+    : ''
+  const classes = `${baseStyles} ${variants[variant]} ${sizes[size]} ${disabledStyles} ${className}`
 
   const content = (
     <>
@@ -65,8 +70,9 @@ export default function Button({
       type={type}
       onClick={onClick}
       className={classes}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      disabled={disabled}
+      whileHover={disabled ? {} : { scale: 1.02 }}
+      whileTap={disabled ? {} : { scale: 0.98 }}
     >
       {content}
     </motion.button>
