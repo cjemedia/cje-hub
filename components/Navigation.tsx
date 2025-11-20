@@ -5,6 +5,12 @@ import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+type NavItem = {
+  href: string
+  label: string
+  external?: boolean
+}
+
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -17,12 +23,12 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
     { href: '/booking', label: 'Book a Call' },
   ]
-  const clientLogin = { href: 'https://agency.ciarajevans.com', label: 'Client Login', external: true }
+  const clientLogin: NavItem = { href: 'https://agency.ciarajevans.com', label: 'Client Login', external: true }
 
   return (
     <nav
