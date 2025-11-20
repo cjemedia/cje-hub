@@ -5,7 +5,7 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Button from '@/components/Button'
 import { ArrowRight, Sparkles, Users, Target } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 export default function Home() {
@@ -15,6 +15,21 @@ export default function Home() {
     message: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [bgPosition, setBgPosition] = useState('center center')
+
+  useEffect(() => {
+    const updateBgPosition = () => {
+      if (window.innerWidth < 640) {
+        setBgPosition('center center')
+      } else {
+        setBgPosition('center 40%')
+      }
+    }
+    
+    updateBgPosition()
+    window.addEventListener('resize', updateBgPosition)
+    return () => window.removeEventListener('resize', updateBgPosition)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,9 +61,12 @@ export default function Home() {
       {/* SECTION 1: HERO */}
       <section
         className="relative min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center"
-        style={{ backgroundImage: "url('/images/cje14.png')", backgroundPosition: 'center 40%' }}
+        style={{ 
+          backgroundImage: "url('/images/cje14.png')", 
+          backgroundPosition: bgPosition
+        }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/40 to-white/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white/40 sm:from-white/50 sm:via-white/40 sm:to-white/50" />
 
         <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 flex flex-col items-center text-center space-y-6 sm:space-y-8">
           <motion.h1
