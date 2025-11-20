@@ -216,8 +216,8 @@ export default function ServicesPage() {
                       index === 0
                         ? '/images/cje3.JPG'
                         : index === 1
-                        ? '/images/cje7.JPG'
-                        : '/images/cje4.JPG'
+                        ? '/images/cje1.JPEG'
+                        : '/images/cje9.JPG'
                     }
                     alt={service.title}
                     fill
@@ -425,14 +425,14 @@ export default function ServicesPage() {
               Let&apos;s discuss how we can bring your vision to life.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button href="/booking" size="lg" className="btn-primary">
+              <Button href="/booking" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[220px] h-[56px]">
                 Book a Call
               </Button>
               <Button
                 href="mailto:media@ciarajevans.com"
                 variant="outline"
                 size="lg"
-                className="border-2 border-primary-white text-primary-white hover:bg-primary-white hover:text-primary-charcoal"
+                className="border-2 border-primary-white text-primary-white hover:bg-primary-white hover:text-primary-charcoal w-full sm:w-auto sm:min-w-[220px] h-[56px]"
               >
                 Contact Us
               </Button>

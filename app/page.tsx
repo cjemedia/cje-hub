@@ -40,59 +40,56 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-primary-white">
+    <main className="min-h-screen bg-primary-white overflow-x-hidden">
       <Navigation />
 
       {/* SECTION 1: HERO */}
-      <section className="min-h-screen flex items-center">
-        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            {/* Left side (larger - 7 columns) */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="lg:col-span-7 space-y-8"
-            >
-              <h1 className="text-h1 font-serif font-bold text-primary-charcoal leading-tight">
-                Where Creativity,<br />
-                <span className="text-primary-tiffany">Clarity</span>, and<br />
-                Connection Meet
-              </h1>
-              <p className="text-body text-primary-charcoal/80 leading-relaxed">
-                Marketing agency and event experiences for purpose-driven brands,
-                creators, and entrepreneurs.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button href="/services" size="lg" className="btn-primary">
-                  Explore Services
-                </Button>
-                <Button
-                  href="/booking"
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white"
-                >
-                  Book a Call
-                </Button>
-              </div>
-            </motion.div>
+      <section
+        className="relative min-h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat bg-fixed flex items-center"
+        style={{ backgroundImage: "url('/images/cje14.PNG')", backgroundPosition: 'center 40%' }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/40 to-white/50" />
 
-            {/* Right side (slimmer - 5 columns) */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="lg:col-span-5 relative h-[600px] lg:h-[700px] rounded-2xl overflow-hidden"
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 md:pt-32 md:pb-20 flex flex-col items-center text-center space-y-8">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-h1 font-serif font-bold text-primary-charcoal leading-tight"
+          >
+            Where Creativity,<br />
+            <span className="text-primary-tiffany">Clarity</span>, and<br />
+            Connection Meet
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
+          >
+            <Button href="/services" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[200px] h-[56px]">
+              Explore Services
+            </Button>
+            <Button
+              href="/booking"
+              variant="outline"
+              size="lg"
+              className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white w-full sm:w-auto sm:min-w-[200px] h-[56px]"
             >
-              <Image
-                src="/images/cje1.JPEG"
-                alt="Ciara J Evans"
-                fill
-                className="object-cover"
-                priority
-              />
-            </motion.div>
+              Book a Call
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Black band overlay */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20">
+          <div className="bg-black/95 py-12 md:py-16 lg:py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif font-semibold text-white leading-tight">
+                Brand development, content direction, and elevated event experiences for for purpose-driven brands, creators, and entrepreneurs.
+              </h2>
+            </div>
           </div>
         </div>
       </section>
@@ -284,7 +281,7 @@ export default function Home() {
               className="lg:col-span-3 relative h-[600px] rounded-2xl overflow-hidden border-4 border-white"
             >
               <Image
-                src="/images/cje5.JPG"
+                src="/images/cje4.JPG"
                 alt="Ciara presenting"
                 fill
                 className="object-cover"
@@ -332,7 +329,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="relative w-full aspect-square max-w-md mx-auto lg:mx-0"
+              className="relative w-full aspect-square max-w-lg mx-auto lg:ml-auto"
             >
               <div className="absolute inset-0 rounded-full overflow-hidden">
                 <Image
@@ -352,21 +349,21 @@ export default function Home() {
               className="space-y-8"
             >
               <h2 className="text-h2 font-serif font-semibold text-primary-charcoal">
-                Ready to Elevate Your Brand?
+                Ready to Elevate?
               </h2>
               <p className="text-body text-primary-charcoal/80 leading-relaxed">
                 Let's discuss how we can bring your vision to life through
                 strategic brand management and creative excellence.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button href="/booking" size="lg" className="btn-primary">
-                  Schedule Your Consultation
+                <Button href="/booking" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[220px] h-[56px]">
+                  Schedule Consultation
                 </Button>
                 <Button
                   href="/services"
                   variant="outline"
                   size="lg"
-                  className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white"
+                  className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white w-full sm:w-auto sm:min-w-[220px] h-[56px]"
                 >
                   View Services
                 </Button>

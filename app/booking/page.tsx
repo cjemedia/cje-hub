@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Button from '@/components/Button'
-import { Calendar, Clock, Video, Camera, ArrowRight } from 'lucide-react'
+import { Calendar, Clock, Video, Smartphone, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import Image from 'next/image'
 
@@ -127,12 +127,12 @@ export default function BookingPage() {
                     <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-4">
                       <Video size={32} className="text-primary-tiffany" />
                     </div>
-                    <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-2">
-                      Strategy Meeting
+                    <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-2 text-center">
+                      Vision Mapping<br />Session
                     </h3>
+                    <p className="text-sm font-semibold text-primary-charcoal/70 mb-2">30 min</p>
                     <p className="text-small text-primary-charcoal/70">
-                      Book a consultation call to discuss your project, goals,
-                      and how we can help bring your vision to life.
+                      Welcome to CJE Media, The Storytelling Marketing Agency! We are so excited to hear from you and hopefully help bring your vision to life! Web conferencing details will be provided upon confirmation.
                     </p>
                   </motion.button>
 
@@ -148,185 +148,48 @@ export default function BookingPage() {
                     className="p-8 rounded-2xl border-2 border-primary-charcoal/10 hover:border-primary-tiffany transition-all duration-300 text-left card-hover"
                   >
                     <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-4">
-                      <Camera size={32} className="text-primary-tiffany" />
+                      <Smartphone size={32} className="text-primary-tiffany" />
                     </div>
-                    <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-2">
-                      Content Shoot
+                    <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-2 text-center">
+                      Strategy Session<br />Clients Only
                     </h3>
+                    <p className="text-sm font-semibold text-primary-charcoal/70 mb-2">1 hr</p>
                     <p className="text-small text-primary-charcoal/70">
-                      Schedule a professional content shoot for your brand.
-                      We&apos;ll handle everything from concept to delivery.
+                      This weekly strategy session is for current CJE Media clients. We&apos;ll focus on your tailored marketing strategy, content planning, and storytelling, aligned with your brand and goals. Use this link to book your dedicated time each week.
                     </p>
                   </motion.button>
                 </div>
               )}
 
-              {/* Booking Form */}
+              {/* Booking Experience via Calendly */}
               {selectedType && (
-                <motion.form
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  onSubmit={handleSubmit}
-                  className="bg-primary-white border-2 border-primary-charcoal/10 rounded-2xl p-8 shadow-lg"
+                  className="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto border border-primary-charcoal/10"
                 >
-                  <div className="mb-6">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedType(null)}
-                      className="text-primary-tiffany hover:underline text-small flex items-center space-x-2"
-                    >
-                      <ArrowRight size={16} className="rotate-180" />
-                      <span>Change booking type</span>
-                    </button>
+                  <button
+                    onClick={() => setSelectedType(null)}
+                    className="text-primary-tiffany mb-6 flex items-center gap-2 hover:gap-3 transition-all font-semibold"
+                  >
+                    ← Change booking type
+                  </button>
+
+                  <div className="w-full rounded-lg overflow-hidden border border-gray-200">
+                    <iframe
+                      src={
+                        selectedType === 'meeting'
+                          ? 'https://calendly.com/media-ciarajevans/30min'
+                          : 'https://calendly.com/media-ciarajevans/strategy-session-cje-media-clients-only'
+                      }
+                      width="100%"
+                      height="1250"
+                      frameBorder="0"
+                      scrolling="no"
+                      title="Schedule with Calendly"
+                    />
                   </div>
-
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="name"
-                          className="block text-small font-semibold text-primary-charcoal mb-2"
-                        >
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          required
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
-                          }
-                          className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="email"
-                          className="block text-small font-semibold text-primary-charcoal mb-2"
-                        >
-                          Email *
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          required
-                          value={formData.email}
-                          onChange={(e) =>
-                            setFormData({ ...formData, email: e.target.value })
-                          }
-                          className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="phone"
-                        className="block text-small font-semibold text-primary-charcoal mb-2"
-                      >
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
-                        className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany transition-all"
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label
-                          htmlFor="date"
-                          className="block text-small font-semibold text-primary-charcoal mb-2"
-                        >
-                          Preferred Date *
-                        </label>
-                        <div className="relative">
-                          <Calendar
-                            size={20}
-                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-charcoal/40"
-                          />
-                          <input
-                            type="date"
-                            id="date"
-                            required
-                            min={new Date().toISOString().split('T')[0]}
-                            value={formData.date}
-                            onChange={(e) =>
-                              setFormData({ ...formData, date: e.target.value })
-                            }
-                            className="w-full pl-10 pr-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany transition-all"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="time"
-                          className="block text-small font-semibold text-primary-charcoal mb-2"
-                        >
-                          Preferred Time *
-                        </label>
-                        <div className="relative">
-                          <Clock
-                            size={20}
-                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-charcoal/40"
-                          />
-                          <input
-                            type="time"
-                            id="time"
-                            required
-                            value={formData.time}
-                            onChange={(e) =>
-                              setFormData({ ...formData, time: e.target.value })
-                            }
-                            className="w-full pl-10 pr-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany transition-all"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="block text-small font-semibold text-primary-charcoal mb-2"
-                      >
-                        Additional Details
-                      </label>
-                      <textarea
-                        id="message"
-                        rows={4}
-                        value={formData.message}
-                        onChange={(e) =>
-                          setFormData({ ...formData, message: e.target.value })
-                        }
-                        placeholder="Tell us about your project, goals, or any specific requirements..."
-                        className="w-full px-4 py-3 border-2 border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-primary-tiffany transition-all resize-none"
-                      />
-                    </div>
-
-                    <Button
-                      type="submit"
-                      size="lg"
-                      className="w-full btn-primary"
-                      icon={ArrowRight}
-                      disabled={isSubmitting || !selectedType}
-                    >
-                      {isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
-                    </Button>
-
-                    {!selectedType && (
-                      <p className="text-small text-primary-charcoal/60 text-center">
-                        Please select a booking type above
-                      </p>
-                    )}
-                  </div>
-                </motion.form>
+                </motion.div>
               )}
 
               {/* Alternative Contact */}

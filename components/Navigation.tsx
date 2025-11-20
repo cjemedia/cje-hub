@@ -21,8 +21,8 @@ export default function Navigation() {
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
     { href: '/booking', label: 'Book a Call' },
-    { href: 'https://agency.ciarajevans.com', label: 'CJE Hub', external: true },
   ]
+  const clientLogin = { href: 'https://agency.ciarajevans.com', label: 'Client Login', external: true }
 
   return (
     <nav
@@ -33,7 +33,7 @@ export default function Navigation() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-36 md:h-44">
+        <div className="flex items-center justify-between h-24 md:h-28">
           <Link href="/" className="group">
             <img
               src="/images/cje-media-logo.png"
@@ -56,6 +56,14 @@ export default function Navigation() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-tiffany group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
+            <Link
+              href={clientLogin.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary-tiffany text-primary-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              {clientLogin.label}
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -79,7 +87,7 @@ export default function Navigation() {
             className="md:hidden bg-primary-white border-t border-primary-charcoal/10"
           >
             <div className="px-4 py-6 space-y-4">
-              {navItems.map((item) => (
+              {navItems.concat(clientLogin).map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
