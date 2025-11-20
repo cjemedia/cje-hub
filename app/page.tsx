@@ -54,16 +54,28 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="lg:col-span-2 space-y-8"
             >
-              <h1 className="text-h1 font-serif font-bold text-primary-charcoal">
-                Elevate Your Brand
+              <h1 className="text-h1 font-serif font-bold text-primary-charcoal leading-tight">
+                Where Creativity,<br />
+                Clarity, and<br />
+                Connection Meet
               </h1>
               <p className="text-body text-primary-charcoal/80 leading-relaxed">
-                Strategic brand management and creative direction for ambitious
-                businesses
+                Marketing agency and event experiences for purpose-driven brands,
+                creators, and entrepreneurs.
               </p>
-              <Button href="/booking" size="lg" className="btn-primary">
-                Book a Consultation
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button href="/services" size="lg" className="btn-primary">
+                  Explore Services
+                </Button>
+                <Button
+                  href="/booking"
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white"
+                >
+                  Book a Call
+                </Button>
+              </div>
             </motion.div>
 
             {/* Right side (60%) */}
