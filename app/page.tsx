@@ -17,14 +17,13 @@ export default function Home() {
 
       {/* HERO SECTION - Completely Redesigned */}
       <section className="relative min-h-[60vh] sm:min-h-screen w-full flex items-center justify-center overflow-hidden">
-
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/cje14.png"
             alt="Ciara J Evans"
             fill
-            className="object-cover object-[center_20%] sm:object-[center_41%] scale-125 sm:scale-100"
+            className="object-cover object-[center_35%] scale-125 sm:scale-100"
             priority
           />
           {/* Gradient Overlay */}
