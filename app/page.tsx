@@ -16,7 +16,7 @@ export default function Home() {
       <Navigation />
 
       {/* HERO SECTION - Completely Redesigned */}
-      <section className="relative min-h-[60vh] sm:min-h-screen w-full flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[50vh] sm:min-h-screen w-full flex items-center justify-center overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -41,9 +41,16 @@ export default function Home() {
               className="space-y-6"
             >
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-tight">
-                Where Creativity,{' '}
-                <span className="text-primary-tiffany">Clarity</span>, and
-                Connection Meet
+                <span className="md:hidden">
+                  {/* Mobile layout - shows below 768px */}
+                  Where Creativity,<br />
+                  <span className="text-primary-tiffany">Clarity</span>, and<br />
+                  Connection Meet
+                </span>
+                <span className="hidden md:inline">
+                  {/* Desktop layout - shows above 768px */}
+                  Where Creativity, <span className="text-primary-tiffany">Clarity</span>, and Connection Meet
+                </span>
               </h1>
               
               <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-light max-w-2xl">
