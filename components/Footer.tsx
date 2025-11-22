@@ -13,7 +13,7 @@ export default function Footer() {
             <img
               src="/images/cje-media-logo.png"
               alt="CJE Media"
-              className="h-auto w-[200px]"
+              className="h-auto w-[200px] brightness-0 invert"
             />
             <p className="text-primary-white/70 text-sm">
               Where creativity, clarity, and connection meet.

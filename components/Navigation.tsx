@@ -44,7 +44,7 @@ export default function Navigation() {
             <img
               src="/images/cje-media-logo.png"
               alt="CJE Media"
-              className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80"
+              className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0"
             />
           </Link>
 

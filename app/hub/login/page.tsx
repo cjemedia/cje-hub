@@ -82,7 +82,7 @@ export default function LoginPage() {
               <img
                 src="/images/cje-media-logo.png"
                 alt="CJE Media"
-                className="h-auto w-[240px]"
+                className="h-auto w-[240px] brightness-0"
               />
             </div>
             <h1 className="text-3xl font-serif font-bold text-primary-black mb-2">

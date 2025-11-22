@@ -68,7 +68,7 @@ export default function HubHeader({
               <img
                 src="/images/cje-media-logo.png"
                 alt="CJE Media"
-                className="h-16 sm:h-24 md:h-32 lg:h-40 w-auto max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] transition-opacity group-hover:opacity-80"
+                className="h-16 sm:h-24 md:h-32 lg:h-40 w-auto max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0"
               />
             </Link>
             {showBackButton && (
