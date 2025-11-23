@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           {/* Image Layer - in front of headline but behind buttons */}
-          <div className="absolute" style={{ zIndex: 20, pointerEvents: 'none', width: '190%', height: '322%', left: '-50%', top: '-70%' }}>
+          <div className="absolute" style={{ zIndex: 20, pointerEvents: 'none', width: '200%', height: '342%', left: '-60%', top: '-70%' }}>
   <Image
                 src="/images/cje14.png"
                 alt="Ciara J Evans"
