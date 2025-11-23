@@ -97,7 +97,8 @@ export default function Home() {
         </div>
 
         {/* DESKTOP */}
-        <div className="hidden sm:block relative w-full min-h-screen">
+        <div className="hidden sm:block relative w-full min-h-screen flex items-center justify-center">
+          
           {/* Layer 1: Headline - BEHIND image */}
           <div className="absolute inset-0 max-w-7xl mx-auto px-6 lg:px-8 py-32 flex items-center" style={{ zIndex: 1 }}>
             <div className="max-w-4xl">
