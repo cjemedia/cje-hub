@@ -18,7 +18,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#b8b8b8] via-[#9a9a9a] to-[#7a7a7a]">
         {/* MOBILE - Using isolation and transform */}
-        <div className="sm:hidden w-full min-h-[100vh] relative" style={{ isolation: 'isolate' }}>
+        <div className="sm:hidden w-full min-h-[120vh] relative" style={{ isolation: 'isolate' }}>
           {/* Headline Layer - behind image */}
           <div className="absolute inset-0 flex items-start justify-center pt-40 px-4 py-32" style={{ zIndex: 10 }}>
             <div className="max-w-4xl w-full">
