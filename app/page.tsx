@@ -28,16 +28,18 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
               >
                 <h1 className="text-6xl font-serif font-bold text-white leading-tight drop-shadow-lg">
-                  Where Creativity,<br />
+                  Where<br />
+                  Creativity,<br />
                   <span className="text-primary-tiffany">Clarity</span>, and<br />
-                  Connection Meet
+                  Connection<br />
+                  Meet
                 </h1>
               </motion.div>
             </div>
           </div>
 
           {/* Image Layer - in front of headline but behind buttons */}
-          <div className="absolute" style={{ zIndex: 20, pointerEvents: 'none', width: '190%', height: '320%', left: '-50%', top: '-70%' }}>
+          <div className="absolute" style={{ zIndex: 20, pointerEvents: 'none', width: '190%', height: '322%', left: '-50%', top: '-70%' }}>
   <Image
                 src="/images/cje14.png"
                 alt="Ciara J Evans"
@@ -52,7 +54,7 @@ export default function Home() {
           {/* Buttons Layer - in front of image */}
           <div className="absolute inset-0 flex items-start justify-center px-4 py-32 pointer-events-none" style={{ zIndex: 30 }}>
             <div className="max-w-4xl w-full">
-              <div className="h-[600px]"></div>
+              <div className="h-[500px]"></div>
               
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -109,7 +111,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="space-y-11"
+                className="space-y-10"
               >
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-tight">
                   Where Creativity, <span className="text-primary-tiffany">Clarity</span>, and Connection Meet
@@ -147,7 +149,7 @@ export default function Home() {
           {/* Buttons Layer - in front of image */}
           <div className="absolute inset-0 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 pointer-events-none" style={{ zIndex: 30 }}>
             <div className="max-w-4xl">
-              <div className="h-[1px]"></div>
+              <div className="h-[600px]"></div>
 
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
