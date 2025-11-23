@@ -16,19 +16,18 @@ export default function Home() {
       <Navigation />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#e5e5e5] via-[#d4d4d4] to-[#a3a3a3]
-">
+      <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#b8b8b8] via-[#9a9a9a] to-[#7a7a7a]">
         {/* MOBILE - Using isolation and transform */}
         <div className="sm:hidden w-full min-h-screen relative" style={{ isolation: 'isolate' }}>
           {/* Headline Layer - behind image */}
-          <div className="absolute inset-0 flex items-start justify-center pt-60 px-4 py-32" style={{ zIndex: 10 }}>
+          <div className="absolute inset-0 flex items-start justify-center pt-40 px-4 py-32" style={{ zIndex: 10 }}>
             <div className="max-w-4xl w-full">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-4xl font-serif font-bold text-white leading-tight drop-shadow-lg">
+                <h1 className="text-6xl font-serif font-bold text-white leading-tight drop-shadow-lg">
                   Where Creativity,<br />
                   <span className="text-primary-tiffany">Clarity</span>, and<br />
                   Connection Meet
@@ -38,20 +37,22 @@ export default function Home() {
           </div>
 
           {/* Image Layer - in front of headline but behind buttons */}
-          <div className="absolute inset-0" style={{ zIndex: 20, pointerEvents: 'none' }}>
-            <Image
-              src="/images/cje14.png"
-              alt="Ciara J Evans"
-              fill
-              className="object-cover object-[center_35%] scale-125"
-              priority
-            />
-          </div>
+          <div className="absolute" style={{ zIndex: 20, pointerEvents: 'none', width: '190%', height: '320%', left: '-50%', top: '-70%' }}>
+  <Image
+                src="/images/cje14.png"
+                alt="Ciara J Evans"
+                fill
+                className="object-cover object-center"
+                priority
+                sizes="150vw" 
+              />
+            </div>
+          
 
           {/* Buttons Layer - in front of image */}
-          <div className="absolute inset-0 flex items-end justify-center px-4 py-32 pointer-events-none" style={{ zIndex: 30 }}>
+          <div className="absolute inset-0 flex items-start justify-center px-4 py-32 pointer-events-none" style={{ zIndex: 30 }}>
             <div className="max-w-4xl w-full">
-              <div className="h-[280px]"></div>
+              <div className="h-[600px]"></div>
               
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -59,7 +60,7 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
                 className="mb-6"
               >
-                <p className="text-lg text-white/90 font-light max-w-2xl drop-shadow-md">
+                <p className="text-lg text-white/90 font-normal max-w-2xl drop-shadow-md">
                   Brand development, content direction, and elevated event experiences for <span className="relative inline-block px-1 py-1">
                     <Image 
                       src="/images/hand-drawn-oval.png" 
@@ -132,13 +133,15 @@ export default function Home() {
 
           {/* Image Layer - in front of headline but behind buttons */}
           <div className="absolute inset-0" style={{ zIndex: 20, pointerEvents: 'none' }}>
-            <Image
-              src="/images/cje14.png"
-              alt="Ciara J Evans"
-              fill
-              className="object-cover object-[center_35%] scale-125 sm:scale-100"
-              priority
-            />
+            <div style={{ transform: 'scale(1.3)', width: '100%', height: '100%', position: 'relative' }}>
+              <Image
+                src="/images/cje14.png"
+                alt="Ciara J Evans"
+                fill
+                className="object-cover object-[center_35%]"
+                priority
+              />
+            </div>
           </div>
 
           {/* Buttons Layer - in front of image */}
