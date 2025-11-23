@@ -18,7 +18,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#b8b8b8] via-[#9a9a9a] to-[#7a7a7a]">
         {/* MOBILE - Using isolation and transform */}
-        <div className="sm:hidden w-full min-h-[120vh] relative" style={{ isolation: 'isolate' }}>
+        <div className="sm:hidden w-full min-h-[100vh] relative" style={{ isolation: 'isolate' }}>
           {/* Headline Layer - behind image */}
           <div className="absolute inset-0 flex items-start justify-center pt-40 px-4 py-32" style={{ zIndex: 10 }}>
             <div className="max-w-4xl w-full">
@@ -176,25 +176,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          style={{ zIndex: 40 }}
-        >
-          <div className="flex flex-col items-center gap-2 text-white/60">
-            <span className="text-sm">Scroll to explore</span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <ArrowRight className="rotate-90" size={20} />
-            </motion.div>
-          </div>
-        </motion.div>
       </section>
 
       {/* ALL OTHER SECTIONS EXACTLY THE SAME */}
