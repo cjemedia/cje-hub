@@ -16,18 +16,18 @@ export default function Home() {
       <Navigation />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#b8b8b8] via-[#9a9a9a] to-[#7a7a7a]">
-        {/* MOBILE - Using isolation and transform */}
-        <div className="sm:hidden w-full min-h-[100vh] relative" style={{ isolation: 'isolate' }}>
-          {/* Headline Layer - behind image */}
-          <div className="absolute inset-0 flex items-start justify-center pt-40 px-4 py-32" style={{ zIndex: 10 }}>
-            <div className="max-w-4xl w-full">
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#b8b8b8] via-[#9a9a9a] to-[#7a7a7a]">
+        {/* MOBILE */}
+        <div className="sm:hidden">
+          <div className="relative w-full" style={{ minHeight: '100vh' }}>
+            {/* Layer 1: Headline - BEHIND image */}
+            <div className="absolute inset-0 flex flex-col justify-between px-6 py-32" style={{ zIndex: 1 }}>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-6xl font-serif font-bold text-white leading-tight drop-shadow-lg">
+                <h1 className="text-6xl font-serif font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
                   Where<br />
                   Creativity,<br />
                   <span className="text-primary-tiffany">Clarity</span>, and<br />
@@ -36,67 +36,61 @@ export default function Home() {
                 </h1>
               </motion.div>
             </div>
-          </div>
 
-          {/* Image Layer - in front of headline but behind buttons */}
-          <div className="absolute" style={{ zIndex: 20, pointerEvents: 'none', width: '200%', height: '342%', left: '-60%', top: '-70%' }}>
-  <Image
-                src="/images/cje14.png"
-                alt="Ciara J Evans"
-                fill
-                className="object-cover object-center"
-                priority
-                sizes="150vw" 
-              />
+            {/* Layer 2: Ciara Image - IN FRONT of headline, BEHIND buttons */}
+            <div className="absolute inset-0" style={{ zIndex: 2 }}>
+              <div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-[500%] h-[100%]">
+                <Image
+                  src="/images/cje14.png"
+                  alt="Ciara J Evans"
+                  fill
+                  className="object-contain object-center"
+                  priority
+                />
+              </div>
             </div>
-          
 
-          {/* Buttons Layer - in front of image */}
-          <div className="absolute inset-0 flex items-start justify-center px-4 py-32 pointer-events-none" style={{ zIndex: 30 }}>
-            <div className="max-w-4xl w-full">
-              <div className="h-[500px]"></div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="mb-6"
-              >
-                <p className="text-lg text-white/90 font-normal max-w-2xl drop-shadow-md">
-                  Brand development, content direction, and elevated event experiences for <span className="relative inline-block px-1 py-1">
-                    <Image 
-                      src="/images/hand-drawn-oval.png" 
-                      alt="" 
-                      fill 
-                      className="object-fill scale-150 pointer-events-none"
-                      style={{ zIndex: -1 }}
-                    />
-                    <span className="relative whitespace-nowrap" style={{ zIndex: 10 }}>purpose-driven</span>
-                  </span> brands, creators, and entrepreneurs.
-                </p>
-              </motion.div>
-
+            {/* Layer 3: CTA Section - IN FRONT of everything */}
+            <div className="absolute inset-0 flex flex-col justify-end px-6 pb-32" style={{ zIndex: 3 }}>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="flex flex-col gap-4 pointer-events-auto"
+                className="space-y-6"
               >
-                <Button 
-                  href="/booking" 
-                  size="lg" 
-                  className="btn-primary text-base px-6 h-14 w-full"
-                >
-                  Book a Call
-                </Button>
-                <Button
-                  href="/services"
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-white text-white hover:bg-white hover:text-primary-charcoal text-base px-6 h-14 w-full"
-                >
-                  Explore Services
-                </Button>
+                <p className="text-lg text-white font-normal drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  Brand development, content direction, and elevated event experiences for{' '}
+                  <span className="relative inline-block">
+                    <span className="absolute inset-0 -inset-x-8 -inset-y-8 pointer-events-none" style={{ zIndex: -1 }}>
+                      <Image 
+                        src="/images/hand-drawn-oval.png" 
+                        alt="" 
+                        fill
+                        className="object-contain"
+                      />
+                    </span>
+                    <span className="relative">purpose-driven</span>
+                  </span>{' '}
+                  brands, creators, and entrepreneurs.
+                </p>
+
+                <div className="flex flex-col gap-4">
+                  <Button 
+                    href="/booking" 
+                    size="lg" 
+                    className="btn-primary text-base px-6 h-14 w-full"
+                  >
+                    Book a Call
+                  </Button>
+                  <Button
+                    href="/services"
+                    variant="outline"
+                    size="lg"
+                    className="border-2 border-white text-white hover:bg-white hover:text-primary-charcoal text-base px-6 h-14 w-full"
+                  >
+                    Explore Services
+                  </Button>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -104,8 +98,8 @@ export default function Home() {
 
         {/* DESKTOP */}
         <div className="hidden sm:block relative w-full min-h-screen">
-          {/* Headline Layer - behind image */}
-          <div className="absolute inset-0 flex items-start max-w-7xl mx-auto pt-70 px-4 sm:px-6 lg:px-8 py-32 sm:py-40" style={{ zIndex: 10 }}>
+          {/* Layer 1: Headline - BEHIND image */}
+          <div className="absolute inset-0 max-w-7xl mx-auto px-6 lg:px-8 py-32 flex items-center" style={{ zIndex: 1 }}>
             <div className="max-w-4xl">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -113,49 +107,49 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
                 className="space-y-10"
               >
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-tight">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                   Where Creativity, <span className="text-primary-tiffany">Clarity</span>, and Connection Meet
                 </h1>
                 
-                <p className="text-xl md:text-2xl text-white/90 font-light max-w-2xl">
-                  Brand development, content direction, and elevated event experiences for <span className="relative inline-block px-1 py-1">
-                    <Image 
-                      src="/images/hand-drawn-oval.png" 
-                      alt="" 
-                      fill 
-                      className="object-fill scale-150 pointer-events-none"
-                      style={{ zIndex: -1 }}
-                    />
-                    <span className="relative whitespace-nowrap" style={{ zIndex: 10 }}>purpose-driven</span>
-                  </span> brands, creators, and entrepreneurs.
+                <p className="text-xl md:text-2xl text-white/90 font-light max-w-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                  Brand development, content direction, and elevated event experiences for{' '}
+                  <span className="relative inline-block">
+                    <span className="absolute inset-0 -inset-x-10 -inset-y-10 pointer-events-none" style={{ zIndex: -1 }}>
+                      <Image 
+                        src="/images/hand-drawn-oval.png" 
+                        alt="" 
+                        fill
+                        className="object-contain"
+                      />
+                    </span>
+                    <span className="relative">purpose-driven</span>
+                  </span>{' '}
+                  brands, creators, and entrepreneurs.
                 </p>
               </motion.div>
             </div>
           </div>
 
-          {/* Image Layer - in front of headline but behind buttons */}
-          <div className="absolute inset-0" style={{ zIndex: 20, pointerEvents: 'none' }}>
-            <div style={{ transform: 'scale(1.3)', width: '100%', height: '100%', position: 'relative' }}>
-              <Image
-                src="/images/cje14.png"
-                alt="Ciara J Evans"
-                fill
-                className="object-cover object-[center_35%]"
-                priority
-              />
-            </div>
+          {/* Layer 2: Ciara Image - RIGHT BESIDE HEADLINE */}
+          <div className="absolute left-[35%] top-1/2 -translate-y-1/2 w-[130%] h-[140%]" style={{ zIndex: 2 }}>
+            <Image
+              src="/images/cje14.png"
+              alt="Ciara J Evans"
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
 
-          {/* Buttons Layer - in front of image */}
-          <div className="absolute inset-0 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 pointer-events-none" style={{ zIndex: 30 }}>
+          {/* Layer 3: Buttons - IN FRONT of everything */}
+          <div className="absolute inset-0 max-w-7xl mx-auto px-6 lg:px-8 py-32 flex items-center" style={{ zIndex: 3 }}>
             <div className="max-w-4xl">
-              <div className="h-[600px]"></div>
-
+              <div style={{ height: '420px' }}></div>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="flex flex-row gap-4 pointer-events-auto"
+                className="flex flex-row gap-4"
               >
                 <Button 
                   href="/booking" 
@@ -176,9 +170,27 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50"
+        >
+          <div className="flex flex-col items-center gap-2 text-white/60">
+            <span className="text-sm">Scroll to explore</span>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <ArrowRight className="rotate-90" size={20} />
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* ALL OTHER SECTIONS EXACTLY THE SAME */}
+      {/* ALL OTHER SECTIONS */}
       <section className="section-padding bg-primary-white py-16 sm:py-24 lg:py-32">
         <div className="section-max-width">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
