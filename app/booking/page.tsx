@@ -113,7 +113,7 @@ function BookingContent() {
               animate={{ opacity: 1, x: 0 }}
               className="lg:col-span-3 order-1 lg:order-2"
             >
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-6 sm:mb-8 pt-8 sm:pt-12 md:pt-16">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-h1 font-serif font-bold text-primary-charcoal mb-3 sm:mb-4">
                   Book a Call
                 </h1>
