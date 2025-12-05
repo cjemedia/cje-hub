@@ -10,4 +10,3 @@ curl -X POST "https://api.vercel.com/v1/integrations/deploy/${PROJECT_ID}/${DEPL
 
 echo ""
 echo "Deployment triggered! Check your Vercel dashboard for status."
-
