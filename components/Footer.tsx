@@ -5,7 +5,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-primary-black text-primary-white">
+    <footer className="bg-dark-light text-white border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
@@ -15,8 +15,8 @@ export default function Footer() {
               alt="CJE Media"
               className="h-auto w-[200px] brightness-0 invert"
             />
-            <p className="text-primary-white/70 text-sm">
-              Where creativity, clarity, and connection meet.
+            <p className="text-white/70 text-sm">
+              Inspiring purpose-driven action through storytelling, speaking, and strategic visibility.
             </p>
           </div>
 
@@ -27,23 +27,31 @@ export default function Footer() {
               <li>
                 <Link
                   href="/"
-                  className="text-primary-white/70 hover:text-primary-tiffany transition-colors text-sm"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
                   Home
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/services"
-                  className="text-primary-white/70 hover:text-primary-tiffany transition-colors text-sm"
+                  href="/speaking"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
-                  Services
+                  Speaking
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/programs"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
+                >
+                  Programs
                 </Link>
               </li>
               <li>
                 <Link
                   href="/booking"
-                  className="text-primary-white/70 hover:text-primary-tiffany transition-colors text-sm"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
                   Book a Call
                 </Link>
@@ -53,7 +61,7 @@ export default function Footer() {
                   href="https://cje-gk7q2rsk7-cje-media.vercel.app/hub/login"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-white/70 hover:text-primary-tiffany transition-colors text-sm"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
                   CJE Hub
                 </Link>
@@ -66,7 +74,7 @@ export default function Footer() {
             <h3 className="font-serif text-lg mb-4">Contact</h3>
             <ul className="space-y-3">
               <li className="flex items-center space-x-3 text-primary-white/70 text-sm">
-                <Phone size={16} className="text-primary-tiffany" />
+                <Phone size={16} className="text-accent" />
                 <a
                   href="tel:7737278262"
                   className="hover:text-primary-tiffany transition-colors"
@@ -75,7 +83,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-center space-x-3 text-primary-white/70 text-sm">
-                <Mail size={16} className="text-primary-tiffany" />
+                <Mail size={16} className="text-accent" />
                 <a
                   href="mailto:media@ciarajevans.com"
                   className="hover:text-primary-tiffany transition-colors"
@@ -84,7 +92,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-center space-x-3 text-primary-white/70 text-sm">
-                <Globe size={16} className="text-primary-tiffany" />
+                <Globe size={16} className="text-accent" />
                 <a
                   href="https://www.ciarajevans.com"
                   target="_blank"
@@ -100,7 +108,7 @@ export default function Footer() {
                 href="https://instagram.com/ciaraj.media"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-white/70 hover:text-primary-tiffany transition-colors"
+                className="text-white/70 hover:text-accent transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram size={20} />
@@ -109,7 +117,7 @@ export default function Footer() {
                 href="https://linkedin.com/in/ciarajevans"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-white/70 hover:text-primary-tiffany transition-colors"
+                className="text-white/70 hover:text-accent transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin size={20} />
@@ -118,7 +126,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-primary-white/10 mt-12 pt-8 text-center text-sm text-primary-white/50">
+        <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/50">
           <p>© {currentYear} CJE Media LLC. All rights reserved.</p>
         </div>
       </div>

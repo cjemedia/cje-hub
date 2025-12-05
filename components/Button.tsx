@@ -26,15 +26,15 @@ export default function Button({
   disabled = false,
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-tiffany'
+    'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent'
 
   const variants = {
     primary:
-      'bg-primary-tiffany text-primary-white hover:bg-primary-tiffany-dark shadow-lg hover:shadow-xl',
+      'bg-accent text-dark hover:opacity-90 shadow-lg hover:shadow-xl',
     secondary:
-      'bg-primary-charcoal text-primary-white hover:bg-primary-charcoal/90 shadow-lg hover:shadow-xl',
+      'bg-dark-light text-white hover:bg-dark-lighter shadow-lg hover:shadow-xl',
     outline:
-      'border-2 border-primary-tiffany text-primary-tiffany hover:bg-primary-tiffany hover:text-primary-white',
+      'border-2 border-accent text-accent hover:bg-accent hover:text-dark',
   }
 
   const sizes = {

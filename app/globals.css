@@ -10,7 +10,7 @@
   }
   
   body {
-    @apply bg-primary-white text-primary-charcoal antialiased;
+    @apply bg-dark text-white antialiased;
     font-family: 'Inter', 'Proxima Nova', sans-serif;
     font-size: 18px;
     font-weight: 400;
@@ -22,7 +22,7 @@
     font-size: 72px;
     font-weight: 700;
     line-height: 1.2;
-    color: #2D2D2D;
+    color: #FFFFFF;
   }
 
   h2 {
@@ -30,7 +30,7 @@
     font-size: 48px;
     font-weight: 600;
     line-height: 1.3;
-    color: #2D2D2D;
+    color: #FFFFFF;
   }
 
   h3 {
@@ -38,7 +38,7 @@
     font-size: 36px;
     font-weight: 600;
     line-height: 1.4;
-    color: #2D2D2D;
+    color: #FFFFFF;
   }
 
   p {
@@ -86,11 +86,11 @@
   }
 
   .btn-primary {
-    @apply bg-primary-tiffany text-primary-white px-8 py-4 rounded-lg text-base font-semibold transition-all duration-300;
+    @apply bg-accent text-dark px-8 py-4 rounded-lg text-base font-semibold transition-all duration-300;
   }
 
   .btn-primary:hover {
-    @apply bg-primary-tiffany-dark scale-105;
+    @apply opacity-90 scale-105;
   }
 
   .card-hover {
@@ -108,15 +108,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-primary-white;
+  @apply bg-dark;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-charcoal/30 rounded-full;
+  @apply bg-white/30 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary-charcoal/50;
+  @apply bg-white/50;
 }
 
 /* Smooth transitions */

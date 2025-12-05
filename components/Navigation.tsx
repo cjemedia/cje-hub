@@ -25,8 +25,11 @@ export default function Navigation() {
 
   const navItems: NavItem[] = [
     { href: '/', label: 'Home' },
-    { href: '/services', label: 'Services' },
-    { href: '/booking', label: 'Book a Call' },
+    { href: '/speaking', label: 'Speaking' },
+    { href: '/programs', label: 'Programs' },
+    { href: '/shop', label: 'Shop' },
+    { href: '/organizations', label: 'Organizations' },
+    { href: '/about', label: 'About' },
   ]
   const clientLogin: NavItem = { href: 'https://cje-gk7q2rsk7-cje-media.vercel.app/hub/dashboard', label: 'Client Login', external: true }
 
@@ -34,7 +37,7 @@ export default function Navigation() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-primary-white/95 backdrop-blur-sm shadow-sm'
+          ? 'bg-dark/95 backdrop-blur-sm shadow-sm border-b border-white/10'
           : 'bg-transparent'
       }`}
     >
@@ -44,29 +47,35 @@ export default function Navigation() {
             <img
               src="/images/cje-media-logo.png"
               alt="CJE Media"
-              className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0"
+              className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0 invert"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 target={item.external ? '_blank' : undefined}
                 rel={item.external ? 'noopener noreferrer' : undefined}
-                className="text-primary-charcoal hover:text-primary-tiffany font-medium transition-colors relative group"
+                className="text-white/80 hover:text-white font-medium transition-colors relative group"
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-tiffany group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
+            <Link
+              href="/booking"
+              className="bg-accent text-dark px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:opacity-90 transition-all"
+            >
+              Book Ciara
+            </Link>
             <Link
               href={clientLogin.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-primary-tiffany text-primary-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="text-white/60 hover:text-white text-sm font-medium transition-colors"
             >
               {clientLogin.label}
             </Link>
@@ -75,7 +84,7 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-primary-charcoal hover:text-primary-tiffany transition-colors"
+            className="md:hidden text-white hover:text-accent transition-colors"
             aria-label="Toggle menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -90,21 +99,37 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-primary-white border-t border-primary-charcoal/10"
+            className="md:hidden bg-dark-light border-t border-white/10"
           >
             <div className="px-4 py-6 space-y-4">
-              {navItems.concat(clientLogin).map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   target={item.external ? '_blank' : undefined}
                   rel={item.external ? 'noopener noreferrer' : undefined}
                   onClick={() => setIsOpen(false)}
-                  className="block text-primary-charcoal hover:text-primary-tiffany font-medium transition-colors py-2"
+                  className="block text-white/80 hover:text-white font-medium transition-colors py-2"
                 >
                   {item.label}
                 </Link>
               ))}
+              <Link
+                href="/booking"
+                onClick={() => setIsOpen(false)}
+                className="block bg-accent text-dark px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-4"
+              >
+                Book Ciara
+              </Link>
+              <Link
+                href={clientLogin.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsOpen(false)}
+                className="block text-white/60 hover:text-white text-sm font-medium transition-colors py-2"
+              >
+                {clientLogin.label}
+              </Link>
             </div>
           </motion.div>
         )}

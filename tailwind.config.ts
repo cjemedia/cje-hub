@@ -17,6 +17,12 @@ const config: Config = {
           "tiffany-dark": "#6BC3BB", // 10% darker for hover
           gray: "#F9F9F9",
         },
+        dark: {
+          DEFAULT: "#0A0A0A", // Near-black background
+          light: "#1A1A1A", // Slightly lighter for cards/sections
+          lighter: "#2A2A2A", // Even lighter for hover states
+        },
+        accent: "#81D8D0", // Tiffany Blue - keeping as accent
       },
       fontFamily: {
         serif: ["Playfair Display", "Cormorant Garamond", "serif"],
