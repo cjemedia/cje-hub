@@ -231,7 +231,7 @@ export default function ServicesPage() {
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-h1 font-serif font-bold text-primary-white text-center px-4"
+          className="relative z-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-h1  font-bold text-primary-white text-center px-4"
         >
           Services
         </motion.h1>
@@ -246,7 +246,7 @@ export default function ServicesPage() {
             viewport={{ once: true }}
             className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2 font-serif font-semibold text-primary-charcoal mb-3 sm:mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-h2  font-semibold text-primary-charcoal mb-3 sm:mb-4">
               CJE Experiences
             </h2>
             <p className="text-sm sm:text-base lg:text-body text-primary-charcoal/70 max-w-2xl mx-auto px-4">
@@ -295,7 +295,7 @@ export default function ServicesPage() {
                       : 'border-r-0 lg:border-r-4 border-t-4 lg:border-t-0 border-primary-tiffany pr-0 lg:pr-8 pt-4 lg:pt-0'
                   }`}
                 >
-                  <h3 className="text-2xl sm:text-3xl lg:text-h3 font-serif font-semibold text-primary-charcoal">
+                  <h3 className="text-2xl sm:text-3xl lg:text-h3  font-semibold text-primary-charcoal">
                     {service.title}
                   </h3>
                   <p className="text-sm sm:text-base lg:text-body text-primary-charcoal/80 leading-relaxed">
@@ -353,7 +353,7 @@ export default function ServicesPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-h2 font-serif font-semibold text-white mb-4">
+            <h2 className="text-h2  font-semibold text-white mb-4">
               CJE Media
             </h2>
             <p className="text-body text-white/90 max-w-2xl mx-auto">
@@ -375,7 +375,7 @@ export default function ServicesPage() {
                 <div className="bg-white/20 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
                   <service.icon size={32} className="text-white" />
                 </div>
-                <h3 className="text-h3 font-serif font-semibold text-white mb-4">
+                <h3 className="text-h3  font-semibold text-white mb-4">
                   {service.title}
                 </h3>
                 <p className="text-small text-white/90 mb-6 leading-relaxed">
@@ -414,7 +414,7 @@ export default function ServicesPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-h2 font-serif font-semibold text-primary-charcoal mb-4">
+            <h2 className="text-h2  font-semibold text-primary-charcoal mb-4">
               Custom Solutions
             </h2>
             <p className="text-body text-primary-charcoal/70 max-w-2xl mx-auto">
@@ -436,7 +436,7 @@ export default function ServicesPage() {
                 <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
                   <service.icon size={32} className="text-primary-tiffany" />
                 </div>
-                <h3 className="text-h3 font-serif font-semibold text-primary-charcoal mb-4">
+                <h3 className="text-h3  font-semibold text-primary-charcoal mb-4">
                   {service.title}
                 </h3>
                 <p className="text-small text-primary-charcoal/70 mb-6 leading-relaxed">
@@ -480,7 +480,7 @@ export default function ServicesPage() {
             viewport={{ once: true }}
             className="space-y-6 max-w-3xl mx-auto"
           >
-            <h2 className="text-h2 font-serif font-semibold text-primary-white">
+            <h2 className="text-h2  font-semibold text-primary-white">
               Ready to Get Started?
             </h2>
             <p className="text-body text-primary-white/80">
@@ -520,7 +520,7 @@ export default function ServicesPage() {
             >
               ×
             </button>
-            <h3 className="text-3xl font-serif font-semibold text-primary-charcoal mb-4 text-center">
+            <h3 className="text-3xl  font-semibold text-primary-charcoal mb-4 text-center">
               Send Us a Message
             </h3>
             <p className="text-sm text-primary-charcoal/70 text-center mb-6">

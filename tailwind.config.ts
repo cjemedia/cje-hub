@@ -25,8 +25,7 @@ const config: Config = {
         accent: "#81D8D0", // Tiffany Blue - keeping as accent
       },
       fontFamily: {
-        serif: ["Playfair Display", "Cormorant Garamond", "serif"],
-        sans: ["Inter", "Proxima Nova", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
       },
       fontSize: {
         h1: "72px",

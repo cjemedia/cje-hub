@@ -99,7 +99,7 @@ function BookingContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="text-2xl sm:text-3xl md:text-4xl lg:text-h2 font-serif font-semibold text-primary-white text-center px-4 sm:px-8"
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-h2  font-semibold text-primary-white text-center px-4 sm:px-8"
                   >
                     Let&apos;s Work Together
                   </motion.h2>
@@ -114,7 +114,7 @@ function BookingContent() {
               className="lg:col-span-3 order-1 lg:order-2"
             >
               <div className="mb-6 sm:mb-8 pt-16 sm:pt-20 md:pt-8 lg:pt-8">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-h1 font-serif font-bold text-primary-charcoal mb-3 sm:mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-h1  font-bold text-primary-charcoal mb-3 sm:mb-4">
                   Book a Call
                 </h1>
                 <p className="text-sm sm:text-base lg:text-body text-primary-charcoal/80">
@@ -140,7 +140,7 @@ function BookingContent() {
                     <div className="bg-primary-tiffany/10 w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0">
                       <Video size={24} className="sm:w-8 sm:h-8 text-primary-tiffany" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl lg:text-h3 font-serif font-semibold text-primary-charcoal mb-2 text-center sm:text-left">
+                    <h3 className="text-xl sm:text-2xl lg:text-h3  font-semibold text-primary-charcoal mb-2 text-center sm:text-left">
                       Vision Mapping<br />Session
                     </h3>
                     <p className="text-xs sm:text-sm font-semibold text-primary-charcoal/70 mb-2 text-center sm:text-left">30 min</p>
@@ -163,7 +163,7 @@ function BookingContent() {
                     <div className="bg-primary-tiffany/10 w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0">
                       <Smartphone size={24} className="sm:w-8 sm:h-8 text-primary-tiffany" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl lg:text-h3 font-serif font-semibold text-primary-charcoal mb-2 text-center sm:text-left">
+                    <h3 className="text-xl sm:text-2xl lg:text-h3  font-semibold text-primary-charcoal mb-2 text-center sm:text-left">
                       Strategy Session<br />Clients Only
                     </h3>
                     <p className="text-xs sm:text-sm font-semibold text-primary-charcoal/70 mb-2 text-center sm:text-left">1 hr</p>

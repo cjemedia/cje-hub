@@ -29,9 +29,8 @@ export default function Navigation() {
     { href: '/programs', label: 'Programs' },
     { href: '/shop', label: 'Shop' },
     { href: '/organizations', label: 'Organizations' },
-    { href: '/about', label: 'About' },
   ]
-  const clientLogin: NavItem = { href: 'https://cje-gk7q2rsk7-cje-media.vercel.app/hub/dashboard', label: 'Client Login', external: true }
+  const clientLogin: NavItem = { href: '/hub/login', label: 'Client Login', external: false }
 
   return (
     <nav
@@ -73,9 +72,9 @@ export default function Navigation() {
             </Link>
             <Link
               href={clientLogin.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/60 hover:text-white text-sm font-medium transition-colors"
+              target={clientLogin.external ? '_blank' : undefined}
+              rel={clientLogin.external ? 'noopener noreferrer' : undefined}
+              className="bg-dark-light text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:bg-dark-lighter transition-all"
             >
               {clientLogin.label}
             </Link>
@@ -123,10 +122,10 @@ export default function Navigation() {
               </Link>
               <Link
                 href={clientLogin.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={clientLogin.external ? '_blank' : undefined}
+                rel={clientLogin.external ? 'noopener noreferrer' : undefined}
                 onClick={() => setIsOpen(false)}
-                className="block text-white/60 hover:text-white text-sm font-medium transition-colors py-2"
+                className="block bg-dark-light text-white px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-4"
               >
                 {clientLogin.label}
               </Link>

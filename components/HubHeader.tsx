@@ -81,7 +81,7 @@ export default function HubHeader({
             )}
             {title && (
               <div className="min-w-0">
-                <h1 className="text-lg sm:text-2xl lg:text-3xl font-serif font-bold text-primary-black truncate">{title}</h1>
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-primary-black truncate">{title}</h1>
                 {subtitle && <p className="text-xs sm:text-sm text-primary-charcoal/70 mt-1 sm:mt-2 truncate">{subtitle}</p>}
               </div>
             )}

@@ -22,7 +22,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-serif text-lg mb-4">Quick Links</h3>
+            <h3 className="text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -71,7 +71,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-serif text-lg mb-4">Contact</h3>
+            <h3 className="text-lg mb-4">Contact</h3>
             <ul className="space-y-3">
               <li className="flex items-center space-x-3 text-primary-white/70 text-sm">
                 <Phone size={16} className="text-accent" />
