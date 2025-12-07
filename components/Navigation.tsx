@@ -25,10 +25,10 @@ export default function Navigation() {
 
   const navItems: NavItem[] = [
     { href: '/', label: 'Home' },
-    { href: '/speaking', label: 'Speaking' },
-    { href: '/programs', label: 'Programs' },
-    { href: '/shop', label: 'Shop' },
-    { href: '/organizations', label: 'Organizations' },
+    { href: '/events', label: 'Events' },
+    { href: '/coaching', label: 'Coaching' },
+    { href: '/tools', label: 'Tools' },
+    { href: '/partnerships', label: 'Partnerships' },
   ]
   const clientLogin: NavItem = { href: '/hub/login', label: 'Client Login', external: false }
 

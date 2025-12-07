@@ -34,18 +34,18 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/speaking"
+                  href="/events"
                   className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
-                  Speaking
+                  Events
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/programs"
+                  href="/coaching"
                   className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
-                  Programs
+                  Coaching
                 </Link>
               </li>
               <li>
