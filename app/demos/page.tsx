@@ -158,6 +158,7 @@ export default function DemosGallery() {
           </Link>
         </div>
       </div>
+      </div>
       <Footer />
     </main>
   )
