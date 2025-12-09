@@ -70,7 +70,7 @@ export default function RealtorListings() {
     <main className="min-h-screen bg-black">
       {/* Demo Banner */}
       <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
-        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+        This is a CJE demo site. <a href="/demos" className="underline">View all demos</a>
       </div>
       {/* Navigation */}
       <nav className="bg-black border-b border-[#A27414]/30 sticky top-0 z-50">

@@ -140,9 +140,9 @@ export default function Home() {
           </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Sparkles, title: 'Speaking & Events', description: 'Keynotes, workshops, and emcee services that inspire purpose-driven action. Engaging presentations tailored to your audience and event goals.' },
-              { icon: Users, title: 'Coaching', description: '1:1 coaching, cohort programs, and digital courses designed to help you discover your purpose, build your brand, and achieve your goals.' },
-              { icon: Target, title: 'Branding & Creative', description: 'Custom websites, client portals, business tools, brand identity consulting, and creative direction to bring your vision to life.' },
+              { icon: Sparkles, title: 'Speaking & Events', description: 'Keynotes, workshops, and emcee services that inspire purpose-driven action. Engaging presentations tailored to your audience and event goals.', link: '/events' },
+              { icon: Users, title: 'Coaching', description: '1:1 coaching, cohort programs, and digital courses designed to help you discover your purpose, build your brand, and achieve your goals.', link: '/coaching' },
+              { icon: Target, title: 'Branding & Creative', description: 'Custom websites, client portals, business tools, brand identity consulting, and creative direction to bring your vision to life.', link: '/branding' },
             ].map((service, index) => (
               <motion.div 
                 key={service.title}
@@ -155,7 +155,7 @@ export default function Home() {
                 <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-accent/30 transition-colors"><service.icon size={32} className="text-accent" /></div>
                 <h3 className="text-2xl font-bold text-white mb-4">{service.title}</h3>
                 <p className="text-white/80 leading-relaxed mb-6">{service.description}</p>
-                <a href="/services" className="text-accent font-semibold inline-flex items-center gap-2 hover:gap-3 transition-all"><span>Learn More</span><ArrowRight size={18} /></a>
+                <a href={service.link} className="text-accent font-semibold inline-flex items-center gap-2 hover:gap-3 transition-all"><span>Learn More</span><ArrowRight size={18} /></a>
               </motion.div>
             ))}
           </div>
@@ -258,7 +258,6 @@ export default function Home() {
               <p className="text-lg sm:text-xl text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0">Let's discuss how we can bring your vision to life through strategic brand management and creative excellence.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button href="/booking?type=speaking" size="lg" className="btn-primary text-base px-6 h-14 w-full sm:w-[240px]">Schedule Consultation</Button>
-                <Button href="/services" variant="outline" size="lg" className="border-2 border-accent text-accent hover:bg-accent hover:text-dark text-base px-6 h-14 w-full sm:w-[240px]">View Services</Button>
               </div>
             </motion.div>
           </div>

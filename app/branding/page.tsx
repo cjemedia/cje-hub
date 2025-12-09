@@ -73,9 +73,18 @@ export default function BrandingPage() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
               CJE Media
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
               Custom websites, portals, and brand identity, built for your vision.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button href="/booking?type=website" size="lg" className="btn-primary">
+                <span>Book a Consultation</span>
+                <ArrowRight className="ml-2" size={20} />
+              </Button>
+              <a href="/booking?inquiry=true" className="border border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition-colors text-center inline-flex items-center justify-center">
+                Contact Us
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>

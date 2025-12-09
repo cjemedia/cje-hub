@@ -33,7 +33,7 @@ export default function RestaurantDemo() {
     <main className="min-h-screen bg-[#1a1612] text-white">
       {/* Demo Banner */}
       <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
-        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+        This is a CJE demo site. <a href="/demos" className="underline">View all demos</a>
       </div>
       {/* Simple Navigation */}
       <nav className="bg-black/60 backdrop-blur-sm border-b border-amber-900/30 sticky top-0 z-50">
