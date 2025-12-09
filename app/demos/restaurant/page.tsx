@@ -31,6 +31,10 @@ export default function RestaurantDemo() {
 
   return (
     <main className="min-h-screen bg-[#1a1612] text-white">
+      {/* Demo Banner */}
+      <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
+        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+      </div>
       {/* Simple Navigation */}
       <nav className="bg-black/60 backdrop-blur-sm border-b border-amber-900/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -156,27 +160,34 @@ export default function RestaurantDemo() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+              <div className="mb-6">
+                <span className="text-xs text-amber-400/60 uppercase tracking-widest">Our Story</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
                 A Culinary Journey
               </h2>
               <p className="text-lg text-gray-300 mb-4 leading-relaxed">
                 At Ember, we believe dining is an experience that engages all the senses. Our chef-driven menu features seasonal ingredients sourced from local farms, prepared with precision and passion.
               </p>
-              <p className="text-lg text-gray-300 mb-6 leading-relaxed">
+              <p className="text-lg text-gray-300 mb-8 leading-relaxed">
                 Each dish tells a story, combining traditional techniques with modern innovation to create unforgettable flavors.
               </p>
-              <div className="flex items-center gap-8 text-gray-400">
+              <div className="flex flex-wrap items-center gap-6 text-gray-400">
                 <div className="flex items-center gap-2">
-                  <UtensilsCrossed size={20} />
+                  <UtensilsCrossed size={20} className="text-amber-400" />
                   <span>Fine Dining</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock size={20} />
+                  <Clock size={20} className="text-amber-400" />
                   <span>Seasonal Menu</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin size={20} className="text-amber-400" />
+                  <span>Local Sourcing</span>
                 </div>
               </div>
             </div>
-            <div className="relative h-[500px] rounded-2xl overflow-hidden">
+            <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
               <Image
                 src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80"
                 alt="Chef preparing food"
@@ -192,35 +203,43 @@ export default function RestaurantDemo() {
       <section className="py-24 bg-black/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <div className="mb-4">
+              <span className="text-xs text-amber-400/60 uppercase tracking-widest">Signature Dishes</span>
+            </div>
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
               Featured Dishes
             </h2>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              A selection of our signature creations
+            <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              A selection of our signature creations, each crafted with the finest ingredients and culinary artistry.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {featuredDishes.map((dish, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-[#1a1612] rounded-xl overflow-hidden border border-amber-900/30 hover:border-amber-700/50 transition-all group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-[#1a1612] rounded-xl overflow-hidden border border-amber-900/30 hover:border-amber-700/50 transition-all group shadow-lg hover:shadow-2xl"
               >
-                <div className="relative h-64">
+                <div className="relative h-64 overflow-hidden">
                   <Image
                     src={dish.image}
                     alt={dish.name}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-xl font-bold text-white">{dish.name}</h3>
-                    <span className="text-amber-400 font-semibold">{dish.price}</span>
+                    <span className="text-amber-400 font-semibold text-lg">{dish.price}</span>
                   </div>
-                  <p className="text-gray-400 text-sm">{dish.description}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">{dish.description}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
           <div className="text-center mt-12">

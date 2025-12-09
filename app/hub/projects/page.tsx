@@ -1,128 +1,246 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, FileText, Download, CheckCircle, Clock } from 'lucide-react'
-import HubHeader from '@/components/HubHeader'
+import {
+  ArrowLeft,
+  FileText,
+  Download,
+  Mic,
+  BookOpen,
+  PartyPopper,
+  MessageCircle,
+  Users,
+  Globe,
+  Monitor,
+  Settings,
+  Sparkles,
+  Palette,
+  type LucideIcon,
+} from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useHubUser } from '@/components/hub/HubUserProvider'
+import { StatusBadge } from '@/components/StatusBadge'
+import { format } from 'date-fns'
+import type { Project, ServiceType } from '@/types/database'
+
+const serviceTypeConfig: Record<
+  string,
+  { icon: LucideIcon; label: string; color: string }
+> = {
+  speaking_engagement: { icon: Mic, label: 'Speaking', color: '#81D8D0' },
+  workshop: { icon: BookOpen, label: 'Workshop', color: '#81D8D0' },
+  event_hosting: { icon: PartyPopper, label: 'Event Hosting', color: '#81D8D0' },
+  coaching_1on1: { icon: MessageCircle, label: '1:1 Coaching', color: '#81D8D0' },
+  coaching_cohort: { icon: Users, label: 'Cohort Program', color: '#81D8D0' },
+  website: { icon: Globe, label: 'Website', color: '#81D8D0' },
+  client_portal: { icon: Monitor, label: 'Portal', color: '#81D8D0' },
+  business_tools: { icon: Settings, label: 'Tools', color: '#81D8D0' },
+  brand_consulting: { icon: Sparkles, label: 'Branding', color: '#81D8D0' },
+  creative_direction: { icon: Palette, label: 'Creative', color: '#81D8D0' },
+}
+
+type FilterType = 'all' | ServiceType
 
 export default function ProjectsPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [projects, setProjects] = useState<any[]>([])
+  const { user } = useHubUser()
+  const [projects, setProjects] = useState<Project[]>([])
+  const [filter, setFilter] = useState<FilterType>('all')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const getUser = async () => {
+    const loadProjects = async () => {
+      if (!user) return
       const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
 
-      if (!user) {
-        router.push('/hub/login')
-        return
+      let query = supabase
+        .from('projects')
+        .select('*')
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (filter !== 'all') {
+        query = query.eq('service_type', filter)
       }
 
-      setUser(user)
-      // TODO: Fetch projects from Supabase
-      // const { data } = await supabase
-      //   .from('projects')
-      //   .select('*')
-      //   .eq('client_id', user.id)
-      // setProjects(data || [])
+      const { data } = await query
+
+      setProjects(data || [])
+      setLoading(false)
     }
 
-    getUser()
-  }, [router])
+    loadProjects()
+  }, [user, filter])
+
+  // Get unique service types for filter tabs
+  const serviceTypes = Array.from(
+    new Set(projects.map((p) => p.service_type).filter(Boolean) as ServiceType[])
+  )
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] p-8">
+        <div className="min-h-[60vh] flex items-center justify-center text-[#a1a1a1]">
+          Loading projects...
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <main className="min-h-screen bg-primary-white">
-      <HubHeader
-        user={user}
-        showBackButton
-        backHref="/hub/dashboard"
-        title="Projects & Deliverables"
-      />
+    <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <Link
+          href="/hub/dashboard"
+          className="inline-flex items-center gap-2 text-[#a1a1a1] hover:text-white mb-4 transition-colors"
+        >
+          <ArrowLeft size={18} />
+          Back to Dashboard
+        </Link>
+        <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
+          Projects
+        </h1>
+        <p className="text-[#a1a1a1]">
+          View and manage your active projects and deliverables.
+        </p>
+      </motion.div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12">
-        {projects.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-6 sm:p-8 lg:p-12 text-center"
+      {/* Filter Tabs */}
+      {serviceTypes.length > 0 && (
+        <div className="flex gap-2 mb-6 border-b border-[#333333] overflow-x-auto">
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+              filter === 'all'
+                ? 'border-[#81D8D0] text-[#81D8D0]'
+                : 'border-transparent text-[#a1a1a1] hover:text-white'
+            }`}
           >
-            <FileText size={36} className="sm:w-12 sm:h-12 text-primary-charcoal/30 mx-auto mb-3 sm:mb-4" />
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-primary-black mb-2">
-              No Projects Yet
-            </h2>
-            <p className="text-sm sm:text-base text-primary-charcoal/70">
-              Your active projects and deliverables will appear here once they're
-              assigned.
-            </p>
-          </motion.div>
-        ) : (
-          <div className="space-y-4 sm:space-y-6">
-            {projects.map((project) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-4 sm:p-6 lg:p-8"
+            All
+          </button>
+          {serviceTypes.map((serviceType) => {
+            const config = serviceTypeConfig[serviceType]
+            if (!config) return null
+            const Icon = config.icon
+            return (
+              <button
+                key={serviceType}
+                onClick={() => setFilter(serviceType)}
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                  filter === serviceType
+                    ? 'border-[#81D8D0] text-[#81D8D0]'
+                    : 'border-transparent text-[#a1a1a1] hover:text-white'
+                }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary-black mb-2 break-words">
-                      {project.name}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-xs sm:text-sm text-primary-charcoal/70">
-                      <span
-                        className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm ${
-                          project.status === 'active'
-                            ? 'bg-primary-tiffany/10 text-primary-tiffany'
-                            : project.status === 'completed'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <Icon size={16} />
+                {config.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
-                {project.deliverables && project.deliverables.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-sm sm:text-base text-primary-black mb-3 sm:mb-4">
-                      Deliverables
-                    </h4>
-                    <div className="space-y-2 sm:space-y-3">
-                      {project.deliverables.map((deliverable: any, idx: number) => (
-                        <div
-                          key={idx}
-                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-primary-charcoal/5 rounded-lg gap-2 sm:gap-0"
-                        >
-                          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                            <FileText size={18} className="sm:w-5 sm:h-5 text-primary-tiffany flex-shrink-0" />
-                            <span className="text-sm sm:text-base text-primary-charcoal truncate">
-                              {deliverable.name}
-                            </span>
-                          </div>
-                          <button className="flex items-center justify-center sm:justify-start space-x-2 text-primary-tiffany hover:underline text-sm sm:text-base">
-                            <Download size={16} className="sm:w-[18px] sm:h-[18px]" />
-                            <span>Download</span>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+      {/* Projects List */}
+      {projects.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-12 text-center"
+        >
+          <FileText className="w-16 h-16 text-[#a1a1a1]/30 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">No Projects Yet</h2>
+          <p className="text-[#a1a1a1]">
+            Your active projects and deliverables will appear here once they're
+            assigned.
+          </p>
+        </motion.div>
+      ) : (
+        <div className="space-y-4">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
+function ProjectCard({ project }: { project: Project }) {
+  const config = project.service_type
+    ? serviceTypeConfig[project.service_type]
+    : null
+  const Icon = config?.icon || FileText
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 hover:border-[#81D8D0]/50 transition-colors"
+    >
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-3">
+            {config && (
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${config.color}20`, color: config.color }}
+              >
+                <Icon size={20} />
+              </div>
+            )}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-1">
+                {project.name}
+              </h3>
+              <div className="flex items-center gap-2">
+                {config && (
+                  <span
+                    className="text-xs px-2 py-1 rounded-full"
+                    style={{ backgroundColor: `${config.color}20`, color: config.color }}
+                  >
+                    {config.label}
+                  </span>
+                )}
+                <StatusBadge status={project.status} />
+              </div>
+            </div>
+          </div>
+
+          {project.description && (
+            <p className="text-sm text-[#a1a1a1] mb-4">{project.description}</p>
+          )}
+
+          <div className="flex items-center gap-4 text-sm text-[#a1a1a1]">
+            {project.start_date && (
+              <span>
+                Started: {format(new Date(project.start_date), 'MMM d, yyyy')}
+              </span>
+            )}
+            {project.end_date && (
+              <span>
+                Ends: {format(new Date(project.end_date), 'MMM d, yyyy')}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Deliverables section would go here if available */}
+      {/* For now, we'll add a placeholder */}
+      <div className="mt-4 pt-4 border-t border-[#333333]">
+        <Link
+          href={`/hub/projects/${project.id}`}
+          className="text-sm text-[#81D8D0] hover:text-[#81D8D0]/80 flex items-center gap-2"
+        >
+          <Download size={16} />
+          View Deliverables
+        </Link>
+      </div>
+    </motion.div>
+  )
+}

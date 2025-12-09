@@ -11,6 +11,10 @@ export default function SalonDemo() {
 
   return (
     <main className="min-h-screen bg-[#FAF8F5]">
+      {/* Demo Banner */}
+      <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
+        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+      </div>
       {/* Simple Navigation */}
       <nav className="bg-white/95 backdrop-blur-md border-b border-rose-200/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -144,12 +148,16 @@ export default function SalonDemo() {
               { name: 'Haircuts & Styling', price: '$75+', icon: Scissors },
               { name: 'Color Services', price: '$120+', icon: Sparkles },
               { name: 'Hair Treatments', price: '$65+', icon: Star },
-            ].map((service) => {
+            ].map((service, index) => {
               const Icon = service.icon
               return (
-                <div
+                <motion.div
                   key={service.name}
-                  className="bg-[#FAF8F5] p-10 border border-rose-100/50 hover:border-[#D4A574]/30 transition-all duration-300 group"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-[#FAF8F5] p-10 border border-rose-100/50 hover:border-[#D4A574]/30 transition-all duration-300 group shadow-sm hover:shadow-lg"
                 >
                   <div className="w-14 h-14 border border-[#D4A574]/30 flex items-center justify-center mb-8 group-hover:border-[#D4A574] transition-colors">
                     <Icon size={24} className="text-[#8B4A6B]" />
@@ -165,7 +173,7 @@ export default function SalonDemo() {
                     View Details
                     <span className="text-[#D4A574]">→</span>
                   </Link>
-                </div>
+                </motion.div>
               )
             })}
           </div>
@@ -201,9 +209,13 @@ export default function SalonDemo() {
                 rating: 5,
               },
             ].map((testimonial, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-white p-10 border border-rose-100/50"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white p-10 border border-rose-100/50 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex gap-1 mb-6">
                   {[...Array(testimonial.rating)].map((_, i) => (
@@ -212,7 +224,7 @@ export default function SalonDemo() {
                 </div>
                 <p className="text-gray-700 mb-8 font-light leading-relaxed italic text-[15px]">"{testimonial.quote}"</p>
                 <p className="text-[#2C2C2C] font-light tracking-wide">— {testimonial.author}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

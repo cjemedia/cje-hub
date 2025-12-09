@@ -32,6 +32,7 @@ export default function ProgramsPage() {
     'Mindset Transformation',
     'Brand Identity',
     'Visibility Strategy',
+    'Community Building',
     'Action Plan Creation',
   ]
 
@@ -41,6 +42,8 @@ export default function ProgramsPage() {
     'Public Speaking',
     'Confidence Building',
     'Personal Mission',
+    'Brand Strategy',
+    'Content Strategy',
   ]
 
   return (
@@ -99,7 +102,7 @@ export default function ProgramsPage() {
               <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center mb-6">
                 <GraduationCap size={32} className="text-accent" />
               </div>
-              <h3 className="text-3xl font-bold text-white mb-4">Your Scholarship Era</h3>
+              <h3 className="text-3xl font-bold text-white mb-4">Scholarship Szn</h3>
               <p className="text-white/80 mb-6 leading-relaxed">
                 A comprehensive course for students, parents, and educators focused on scholarship readiness and application success.
               </p>
@@ -114,8 +117,8 @@ export default function ProgramsPage() {
                   ))}
                 </ul>
               </div>
-              <Button href="/booking" variant="outline" size="md">
-                Learn More
+              <Button href="/booking?type=scholarship&inquiry=true" variant="outline" size="md">
+                Join Waitlist
               </Button>
             </motion.div>
 
@@ -145,7 +148,7 @@ export default function ProgramsPage() {
                   ))}
                 </ul>
               </div>
-              <Button href="/booking" variant="outline" size="md">
+              <Button href="/booking?type=brand" variant="outline" size="md">
                 Learn More
               </Button>
             </motion.div>
@@ -211,7 +214,7 @@ export default function ProgramsPage() {
                 </ul>
               </div>
             </div>
-            <Button href="/booking" size="lg" className="btn-primary w-full md:w-auto">
+            <Button href="/booking?type=accelerator&inquiry=true" size="lg" className="btn-primary w-full md:w-auto">
               <span>Join Waitlist</span>
               <ArrowRight className="ml-2" size={20} />
             </Button>
@@ -273,7 +276,7 @@ export default function ProgramsPage() {
                 </div>
               </div>
 
-              <Button href="/booking" size="lg" className="btn-primary">
+              <Button href="/booking?type=coaching" size="lg" className="btn-primary">
                 <span>Apply Now</span>
                 <ArrowRight className="ml-2" size={20} />
               </Button>

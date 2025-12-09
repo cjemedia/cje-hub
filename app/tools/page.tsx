@@ -40,7 +40,7 @@ export default function ShopPage() {
     },
     {
       icon: GraduationCap,
-      title: 'Scholarship Resume + Essay Blueprint',
+      title: 'Scholarship Resume & Essay Blueprint',
       description: 'Templates and guides for creating standout scholarship resumes and compelling application essays.',
       status: 'coming-soon',
     },
@@ -127,7 +127,7 @@ export default function ShopPage() {
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
               Looking for personalized resources or have questions about upcoming products? Let's connect and discuss how we can support your journey.
             </p>
-            <Button href="/booking" size="lg" className="btn-primary">
+            <Button href="/booking?type=brand" size="lg" className="btn-primary">
               <span>Get in Touch</span>
               <ArrowRight className="ml-2" size={20} />
             </Button>

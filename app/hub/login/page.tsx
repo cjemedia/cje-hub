@@ -80,8 +80,8 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-6">
               <img
-                src="/images/cje-media-logo.png"
-                alt="CJE Media"
+                src="/images/cje-logo.png"
+                alt="The CJE Experience"
                 className="h-auto w-[240px] brightness-0"
               />
             </div>

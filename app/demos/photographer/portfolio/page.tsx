@@ -11,19 +11,23 @@ export default function PhotographerPortfolio() {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null)
 
   const portfolioImages = [
-    'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
-    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80',
-    'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&q=80',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80',
+    'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&q=80',
     'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80',
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
     'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80',
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80',
     'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80',
+    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80',
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80',
   ]
 
   return (
     <main className="min-h-screen bg-white">
+      {/* Demo Banner */}
+      <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
+        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+      </div>
       {/* Simple Navigation */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

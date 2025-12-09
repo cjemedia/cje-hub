@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ciara J Evans | CJE Media & Experiences",
-  description: "Where creativity, clarity, and connection meet. Marketing agency and event experiences for purpose-driven brands.",
-  keywords: ["marketing agency", "event planning", "brand strategy", "content creation", "CJE Media", "CJE Experiences"],
+  title: "Ciara J Evans | The CJE Experience",
+  description: "Where creativity, clarity, and connection meet. Purpose-driven storytelling, speaking, and strategic visibility.",
+  keywords: ["purpose coach", "speaker", "host", "brand strategy", "content creation", "The CJE Experience", "Ciara J Evans"],
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",

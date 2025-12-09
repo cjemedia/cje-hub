@@ -11,8 +11,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <img
-              src="/images/cje-media-logo.png"
-              alt="CJE Media"
+              src="/images/cje-logo.png"
+              alt="The CJE Experience"
               className="h-auto w-[200px] brightness-0 invert"
             />
             <p className="text-white/70 text-sm">
@@ -127,7 +127,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/50">
-          <p>© {currentYear} CJE Media LLC. All rights reserved.</p>
+          <p>© {currentYear} The CJE Experience. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -8,49 +8,139 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function RestaurantMenu() {
   const [isOpen, setIsOpen] = useState(false)
+  
+  // Menu built from actual food photos - descriptions match what's in the images
   const menuSections = [
     {
       category: 'Appetizers',
       items: [
-        { name: 'Burrata & Prosciutto', description: 'Fresh burrata, prosciutto di parma, arugula, balsamic reduction', price: '$18' },
-        { name: 'Tuna Tartare', description: 'Fresh tuna, avocado, yuzu, crispy wonton', price: '$22' },
-        { name: 'Foie Gras', description: 'Pan-seared foie gras, fig compote, brioche', price: '$28' },
-        { name: 'Oysters', description: 'Half dozen fresh oysters, mignonette, lemon', price: '$24' },
+        { 
+          name: 'Burrata & Prosciutto', 
+          description: 'Creamy burrata cheese, thinly sliced prosciutto, arugula, cherry tomatoes, balsamic reduction, extra virgin olive oil', 
+          price: '$18', 
+          image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80' 
+        },
+        { 
+          name: 'Tuna Tartare', 
+          description: 'Fresh diced tuna, avocado, cucumber, sesame oil, soy sauce, microgreens, crispy wonton chips', 
+          price: '$22', 
+          image: 'https://images.unsplash.com/photo-1574781330855-d0db8cc4a8d2?w=800&q=80' 
+        },
+        { 
+          name: 'Artisan Bruschetta', 
+          description: 'Grilled sourdough, heirloom tomatoes, fresh basil, garlic, mozzarella, aged balsamic', 
+          price: '$15', 
+          image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&q=80' 
+        },
+        { 
+          name: 'Pan-Seared Scallops', 
+          description: 'Large sea scallops, cauliflower purée, crispy pancetta, pea shoots, lemon beurre blanc', 
+          price: '$28', 
+          image: 'https://images.unsplash.com/photo-1609501676725-7186f3a1f24f?w=800&q=80' 
+        },
       ],
     },
     {
       category: 'Mains',
       items: [
-        { name: 'Wagyu Beef Tenderloin', description: 'Premium wagyu, roasted vegetables, red wine reduction', price: '$68' },
-        { name: 'Lobster Thermidor', description: 'Fresh lobster, cognac cream sauce, gratinated', price: '$45' },
-        { name: 'Duck Confit', description: 'Slow-cooked duck leg, cherry gastrique, roasted potatoes', price: '$38' },
-        { name: 'Truffle Risotto', description: 'Creamy arborio rice, black truffle, parmesan', price: '$32' },
-        { name: 'Sea Bass', description: 'Pan-seared sea bass, fennel, lemon beurre blanc', price: '$36' },
-        { name: 'Rack of Lamb', description: 'Herb-crusted lamb, mint pesto, roasted root vegetables', price: '$42' },
+        { 
+          name: 'Grilled Salmon', 
+          description: 'Wild-caught salmon, roasted vegetables, quinoa pilaf, lemon herb butter, dill', 
+          price: '$36', 
+          image: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&q=80' 
+        },
+        { 
+          name: 'Braised Beef Short Rib', 
+          description: 'Slow-braised short ribs, creamy polenta, roasted root vegetables, red wine jus, fresh herbs', 
+          price: '$44', 
+          image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=800&q=80' 
+        },
+        { 
+          name: 'Roasted Chicken', 
+          description: 'Herb-roasted half chicken, garlic mashed potatoes, seasonal vegetables, natural jus', 
+          price: '$32', 
+          image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80' 
+        },
+        { 
+          name: 'Wild Mushroom Risotto', 
+          description: 'Creamy arborio rice, mixed wild mushrooms, parmesan, truffle oil, fresh parsley', 
+          price: '$34', 
+          image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80' 
+        },
+        { 
+          name: 'Prime Ribeye Steak', 
+          description: 'Grilled ribeye, roasted potatoes, grilled asparagus, béarnaise sauce, red wine reduction', 
+          price: '$52', 
+          image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80' 
+        },
       ],
     },
     {
       category: 'Desserts',
       items: [
-        { name: 'Chocolate Soufflé', description: 'Warm chocolate soufflé, vanilla ice cream', price: '$14' },
-        { name: 'Crème Brûlée', description: 'Classic vanilla crème brûlée, fresh berries', price: '$12' },
-        { name: 'Tiramisu', description: 'Traditional Italian tiramisu, espresso, cocoa', price: '$13' },
-        { name: 'Cheese Selection', description: 'Artisan cheese board, honey, crackers', price: '$18' },
+        { 
+          name: 'Warm Chocolate Cake', 
+          description: 'Molten chocolate center, vanilla ice cream, fresh berries, chocolate sauce, mint', 
+          price: '$16', 
+          image: 'https://images.unsplash.com/photo-1606312619070-d48b4b2b0c8a?w=800&q=80' 
+        },
+        { 
+          name: 'Classic Cheesecake', 
+          description: 'New York style cheesecake, mixed berry compote, graham cracker crust, whipped cream', 
+          price: '$14', 
+          image: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=800&q=80' 
+        },
+        { 
+          name: 'Tiramisu', 
+          description: 'Espresso-soaked ladyfingers, mascarpone cream, cocoa powder, coffee beans, dark chocolate shavings', 
+          price: '$15', 
+          image: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&q=80' 
+        },
+        { 
+          name: 'Vanilla Crème Brûlée', 
+          description: 'Rich vanilla custard, caramelized sugar top, fresh berries, mint sprig', 
+          price: '$13', 
+          image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea4e6f1?w=800&q=80' 
+        },
       ],
     },
     {
-      category: 'Drinks',
+      category: 'Beverages',
       items: [
-        { name: 'Wine Selection', description: 'Curated wines by the glass or bottle', price: '$12-$200' },
-        { name: 'Craft Cocktails', description: 'Signature cocktails, classic favorites', price: '$16' },
-        { name: 'Champagne', description: 'Selection of premium champagnes', price: '$25-$500' },
-        { name: 'Espresso & Coffee', description: 'Italian espresso, specialty coffee', price: '$6' },
+        { 
+          name: 'Wine Selection', 
+          description: 'Curated selection of wines by the glass or bottle, featuring local and international varietals', 
+          price: '$12-$250', 
+          image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80' 
+        },
+        { 
+          name: 'Craft Cocktails', 
+          description: 'House-crafted cocktails, classic favorites, seasonal specialties, premium spirits', 
+          price: '$16', 
+          image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=800&q=80' 
+        },
+        { 
+          name: 'Champagne & Sparkling', 
+          description: 'Selection of premium champagnes and sparkling wines, by the glass or bottle', 
+          price: '$28-$600', 
+          image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&q=80' 
+        },
+        { 
+          name: 'Espresso & Coffee', 
+          description: 'Italian espresso, single-origin coffee, cappuccino, latte, macchiato', 
+          price: '$7', 
+          image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=800&q=80' 
+        },
       ],
     },
   ]
 
   return (
     <main className="min-h-screen bg-[#1a1612] text-white">
+      {/* Demo Banner */}
+      <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
+        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+      </div>
       {/* Simple Navigation */}
       <nav className="bg-black/60 backdrop-blur-sm border-b border-amber-900/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -134,6 +224,8 @@ export default function RestaurantMenu() {
             src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&q=80"
             alt="Food presentation"
             fill
+            priority
+            sizes="100vw"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-black/60" />
@@ -151,10 +243,17 @@ export default function RestaurantMenu() {
       </section>
 
       {/* Menu Content */}
-      <section className="py-20">
+      <section className="py-12 sm:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {menuSections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="mb-16 last:mb-0">
+            <motion.div 
+              key={sectionIndex} 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: sectionIndex * 0.1 }}
+              className="mb-16 last:mb-0"
+            >
               <div className="flex items-center gap-4 mb-8">
                 <UtensilsCrossed size={28} className="text-amber-400" />
                 <h2 className="text-3xl sm:text-4xl font-bold text-white">
@@ -162,23 +261,29 @@ export default function RestaurantMenu() {
                 </h2>
                 <div className="flex-1 h-px bg-gradient-to-r from-amber-900/50 to-transparent" />
               </div>
-              <div className="space-y-6">
+              <div className="space-y-6 sm:space-y-8">
                 {section.items.map((item, itemIndex) => (
-                  <div
+                  <motion.div
                     key={itemIndex}
-                    className="flex items-start justify-between gap-6 py-4 border-b border-amber-900/20 last:border-0 hover:bg-white/5 transition-colors rounded-lg px-4 -mx-4"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: itemIndex * 0.05 }}
+                    className="py-6 border-b border-amber-900/20 last:border-0 hover:bg-white/5 transition-colors rounded-lg px-4"
                   >
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-white mb-2">{item.name}</h3>
+                    <div className="w-full">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 mb-2">
+                        <h3 className="text-xl font-semibold text-white">{item.name}</h3>
+                        <span className="text-amber-400 font-bold text-lg whitespace-nowrap">
+                          {item.price}
+                        </span>
+                      </div>
                       <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
                     </div>
-                    <span className="text-amber-400 font-bold text-lg whitespace-nowrap">
-                      {item.price}
-                    </span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -218,4 +323,3 @@ export default function RestaurantMenu() {
     </main>
   )
 }
-

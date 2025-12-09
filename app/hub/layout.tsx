@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { HubUserProvider } from '@/components/hub/HubUserProvider'
+import Sidebar from '@/components/hub/Sidebar'
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -32,7 +33,10 @@ export default async function HubLayout({ children }: { children: React.ReactNod
         role,
       }}
     >
-      {children}
+      <div className="flex min-h-screen bg-[#0a0a0a]">
+        <Sidebar />
+        <main className="flex-1">{children}</main>
+      </div>
     </HubUserProvider>
   )
 }

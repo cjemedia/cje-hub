@@ -59,7 +59,7 @@ export default function CalendarPage() {
             <iframe
               src="https://calendar.google.com/calendar/embed?src=media%40ciarajevans.com&ctz=America%2FChicago"
               className="w-full h-[500px] sm:h-[600px] lg:h-[700px] border-0"
-              title="CJE Media Calendar"
+              title="The CJE Experience Calendar"
             />
           </div>
         </div>

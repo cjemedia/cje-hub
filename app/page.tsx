@@ -45,7 +45,7 @@ export default function Home() {
               <p className="text-accent uppercase tracking-[0.2em] text-xs">Speaker • Host • Creator</p>
               <h2 className="text-3xl text-white font-light">Ciara J. Evans</h2>
               <div className="pt-2">
-                <Button href="/booking" size="lg" className="btn-primary">
+                <Button href="/booking?type=speaking" size="lg" className="btn-primary">
                   Book Ciara
                 </Button>
               </div>
@@ -92,7 +92,7 @@ export default function Home() {
           <div className="space-y-8 lg:space-y-12">
             {/* Heading above photo */}
             <div className="text-center lg:text-left">
-              <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-4"><span className="text-accent font-semibold text-sm">About CJE Media</span></div>
+              <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-4"><span className="text-accent font-semibold text-sm">About The CJE Experience</span></div>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">Meet Ciara</h2>
             </div>
             
@@ -114,12 +114,12 @@ export default function Home() {
                 className="space-y-6"
               >
                 <div className="space-y-4 text-base sm:text-lg text-white/80 leading-relaxed">
-                <p>Ciara J Evans is a dynamic creative director and entrepreneur who has built CJE Media into a full-service marketing agency and CJE Experiences into a transformative event company.</p>
-                <p>With a passion for purpose-driven storytelling, Ciara helps content creators, celebrities, attorneys, and entrepreneurs build brands that resonate. Her approach blends strategic thinking with creative excellence, ensuring every project aligns with your vision and values.</p>
-                <p>Beyond strategy, Ciara is an accomplished public speaker and MC, bringing energy and authenticity to every stage she graces. Her work is for the culture—authentic, impactful, and beautifully executed.</p>
+                <p>Ciara J Evans is a dynamic creative director and entrepreneur who has built The CJE Experience into a transformative platform for purpose-driven storytelling, speaking, and strategic visibility.</p>
+                <p>With a passion for purpose-driven storytelling, Ciara helps content creators, celebrities, professionals, and entrepreneurs build brands that resonate. Her approach blends strategic thinking with creative excellence, ensuring every project aligns with your vision and values.</p>
+                <p>Beyond strategy, Ciara is an accomplished public speaker and emcee, bringing energy and authenticity to every stage she graces. Her work is for the culture. Authentic, impactful, and beautifully executed.</p>
               </div>
               <blockquote className="text-2xl sm:text-3xl italic text-white border-l-4 border-accent pl-6 py-4 mt-8">"Inspiring purpose-driven action through storytelling, speaking, and strategic visibility."</blockquote>
-              <Button href="/booking" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center"><span>Work With Ciara</span><ArrowRight className="ml-2" size={18} /></Button>
+              <Button href="/booking?type=speaking" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center"><span>Work With Ciara</span><ArrowRight className="ml-2" size={18} /></Button>
               </motion.div>
             </div>
           </div>
@@ -140,9 +140,9 @@ export default function Home() {
           </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: Sparkles, title: 'Brand Management', description: 'Full-service management to oversee your brand\'s growth, voice, and visibility. We handle strategy, content direction, partnerships, and performance tracking.' },
-              { icon: Users, title: 'Social Media Strategy', description: 'We develop your campaign\'s creative vision, storyline, and rollout strategy. Perfect for launches, announcements, or brand moments.' },
-              { icon: Target, title: 'Content Creation & Direction', description: 'We bring your campaign to life from concept to completion, including hiring and managing videographers, editors, and designers.' },
+              { icon: Sparkles, title: 'Speaking & Events', description: 'Keynotes, workshops, and emcee services that inspire purpose-driven action. Engaging presentations tailored to your audience and event goals.' },
+              { icon: Users, title: 'Coaching', description: '1:1 coaching, cohort programs, and digital courses designed to help you discover your purpose, build your brand, and achieve your goals.' },
+              { icon: Target, title: 'Branding & Creative', description: 'Custom websites, client portals, business tools, brand identity consulting, and creative direction to bring your vision to life.' },
             ].map((service, index) => (
               <motion.div 
                 key={service.title}
@@ -175,9 +175,10 @@ export default function Home() {
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">How We Work</h2>
               <div className="space-y-8">
                 {[
-                  { number: '01', title: 'Strategic Discovery', description: 'We dive deep into your brand, audience, and goals to create a tailored strategy.' },
-                  { number: '02', title: 'Creative Execution', description: 'From concept to completion, we bring your vision to life with precision and style.' },
-                  { number: '03', title: 'Ongoing Partnership', description: 'We\'re with you for the long haul, ensuring consistent growth and brand evolution.' },
+                  { number: '01', title: 'Discovery', description: 'We learn about your vision and goals to understand what you want to achieve.' },
+                  { number: '02', title: 'Strategy', description: 'Custom approach tailored to your needs, whether it\'s speaking, coaching, or branding.' },
+                  { number: '03', title: 'Execution', description: 'Bringing your vision to life with precision, authenticity, and impact.' },
+                  { number: '04', title: 'Launch', description: 'Delivering results that resonate and create meaningful change.' },
                 ].map((item, index) => (
                   <motion.div 
                     key={item.title}
@@ -195,7 +196,7 @@ export default function Home() {
                   </motion.div>
                 ))}
               </div>
-              <Button href="/booking" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center mt-8"><span>Start Your Project</span><ArrowRight className="ml-2" size={18} /></Button>
+              <Button href="/booking?type=website" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center mt-8"><span>Start Your Project</span><ArrowRight className="ml-2" size={18} /></Button>
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, x: 50 }} 
@@ -256,7 +257,7 @@ export default function Home() {
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">Ready to Elevate Your Brand?</h2>
               <p className="text-lg sm:text-xl text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0">Let's discuss how we can bring your vision to life through strategic brand management and creative excellence.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button href="/booking" size="lg" className="btn-primary text-base px-6 h-14 w-full sm:w-[240px]">Schedule Consultation</Button>
+                <Button href="/booking?type=speaking" size="lg" className="btn-primary text-base px-6 h-14 w-full sm:w-[240px]">Schedule Consultation</Button>
                 <Button href="/services" variant="outline" size="lg" className="border-2 border-accent text-accent hover:bg-accent hover:text-dark text-base px-6 h-14 w-full sm:w-[240px]">View Services</Button>
               </div>
             </motion.div>

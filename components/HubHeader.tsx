@@ -66,9 +66,9 @@ export default function HubHeader({
             <Link href="/hub/dashboard" className="group flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/cje-media-logo.png"
-                alt="CJE Media"
-                className="h-16 sm:h-24 md:h-32 lg:h-40 w-auto max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0"
+                src="/images/cje-logo.png"
+                alt="The CJE Experience"
+                className="h-16 sm:h-24 md:h-32 lg:h-40 w-auto max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0 invert"
               />
             </Link>
             {showBackButton && (

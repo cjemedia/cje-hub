@@ -41,6 +41,10 @@ export default function SalonServices() {
 
   return (
     <main className="min-h-screen bg-[#FAF8F5]">
+      {/* Demo Banner */}
+      <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
+        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+      </div>
       {/* Simple Navigation */}
       <nav className="bg-white/95 backdrop-blur-md border-b border-rose-200/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,82 +122,100 @@ export default function SalonServices() {
       </nav>
 
       {/* Header */}
-      <section className="bg-gradient-to-r from-rose-500 to-pink-500 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-serif font-bold text-white mb-4">
-            Our Services
-          </h1>
-          <p className="text-xl text-white/90">
-            Professional hair and beauty services tailored to you
-          </p>
+      <section className="py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="mb-4">
+              <span className="text-xs font-light tracking-[0.3em] text-[#8B4A6B]/60 uppercase">Our Services</span>
+            </div>
+            <h1 className="text-5xl sm:text-6xl font-serif font-light text-[#2C2C2C] mb-6 tracking-tight">
+              Services & Pricing
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+              A curated selection of luxury hair and beauty services, executed with precision and artistry.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Services List */}
-      <section className="py-20">
+      <section className="py-20 bg-[#FAF8F5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {services.map((category, catIndex) => {
             const CategoryIcon = category.icon
             return (
-              <div key={catIndex} className="mb-16">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center">
-                    <CategoryIcon size={24} className="text-rose-600" />
+              <motion.div 
+                key={catIndex} 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: catIndex * 0.1 }}
+                className="mb-20 last:mb-0"
+              >
+                <div className="flex items-center gap-4 mb-12">
+                  <div className="w-14 h-14 border border-[#D4A574]/30 flex items-center justify-center">
+                    <CategoryIcon size={24} className="text-[#8B4A6B]" />
                   </div>
-                  <h2 className="text-3xl font-serif font-bold text-gray-900">
+                  <h2 className="text-4xl font-serif font-light text-[#2C2C2C] tracking-tight">
                     {category.category}
                   </h2>
                 </div>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-8">
                   {category.items.map((service, index) => (
-                    <div
+                    <motion.div
                       key={index}
-                      className="bg-white p-6 rounded-xl border border-pink-100 hover:shadow-lg transition-all"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: (catIndex * 0.1) + (index * 0.05) }}
+                      className="bg-white p-8 border border-rose-100/50 hover:border-[#D4A574]/30 transition-all duration-300 shadow-sm hover:shadow-lg"
                     >
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-6">
                         <div className="flex-1">
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          <h3 className="text-2xl font-serif font-light text-[#2C2C2C] mb-3 tracking-wide">
                             {service.name}
                           </h3>
-                          <p className="text-gray-600 text-sm mb-3">{service.description}</p>
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span>{service.duration}</span>
-                            <span className="text-rose-600 font-bold text-lg">{service.price}</span>
+                          <p className="text-gray-600 text-sm mb-4 font-light leading-relaxed">{service.description}</p>
+                          <div className="flex items-center gap-6 text-sm">
+                            <span className="text-gray-500 font-light">{service.duration}</span>
+                            <span className="text-[#8B4A6B] font-light text-xl">{service.price}</span>
                           </div>
                         </div>
                       </div>
-                      <button className="w-full mt-4 bg-rose-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-rose-600 transition-colors flex items-center justify-center gap-2">
+                      <button className="w-full mt-6 bg-[#8B4A6B] text-white px-6 py-4 rounded-lg font-light tracking-wide hover:bg-[#A05C7F] transition-colors flex items-center justify-center gap-2">
                         <Calendar size={18} />
                         Book Now
                       </button>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-white border-t border-pink-100">
+      <section className="py-32 bg-[#8B4A6B]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-serif font-bold text-gray-900 mb-4">
-            Questions? We're Here to Help
+          <h2 className="text-5xl sm:text-6xl font-serif font-light text-white mb-8 tracking-tight">
+            Ready to Transform
+            <br />
+            Your Look?
           </h2>
-          <p className="text-gray-600 mb-8">
-            Contact us to discuss your hair goals and find the perfect service for you.
+          <p className="text-lg text-white/90 mb-12 font-light max-w-xl mx-auto leading-relaxed">
+            Book your appointment today and experience the Belle difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/demos/salon"
-              className="bg-gray-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              className="inline-flex items-center gap-3 bg-white text-[#8B4A6B] px-8 py-4 font-light tracking-wide hover:bg-[#FAF8F5] transition-all duration-300 shadow-xl"
             >
               Back to Home
             </Link>
             <Link
               href="/demos/salon/portal"
-              className="bg-rose-500 text-white px-8 py-3 rounded-lg font-medium hover:bg-rose-600 transition-colors"
+              className="inline-flex items-center gap-3 bg-white/10 text-white border border-white/30 px-8 py-4 font-light tracking-wide hover:bg-white/20 transition-all duration-300"
             >
               Client Portal
             </Link>
@@ -202,25 +224,25 @@ export default function SalonServices() {
       </section>
 
       {/* Simple Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-[#2C2C2C] text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-xl font-serif font-bold mb-4">Belle Salon</h3>
-              <p className="text-gray-400">Where beauty meets elegance.</p>
+              <h3 className="text-2xl font-serif font-light mb-4 tracking-wider">BELLE</h3>
+              <p className="text-gray-400 font-light">Where beauty meets elegance.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Hours</h4>
-              <p className="text-gray-400">Tue-Sat: 9am - 7pm</p>
-              <p className="text-gray-400">Sun-Mon: Closed</p>
+              <h4 className="font-light mb-4 tracking-wide text-sm uppercase">Hours</h4>
+              <p className="text-gray-400 font-light">Tue-Sat: 9am - 7pm</p>
+              <p className="text-gray-400 font-light">Sun-Mon: Closed</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <p className="text-gray-400">(555) 123-4567</p>
-              <p className="text-gray-400">hello@bellesalon.com</p>
+              <h4 className="font-light mb-4 tracking-wide text-sm uppercase">Contact</h4>
+              <p className="text-gray-400 font-light">(555) 123-4567</p>
+              <p className="text-gray-400 font-light">hello@bellesalon.com</p>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+          <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500 text-sm font-light">
             <p>© 2024 Belle Salon. Demo Site.</p>
           </div>
         </div>

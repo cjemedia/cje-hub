@@ -105,32 +105,6 @@ export default function OrganizationsPage() {
         </div>
       </section>
 
-      {/* PRICING MENTION */}
-      <section className="section-padding bg-dark">
-        <div className="section-max-width">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <div className="bg-dark-light p-8 lg:p-12 rounded-2xl border-2 border-white/10">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Investment
-              </h2>
-              <p className="text-xl text-white/80 mb-8">
-                Packages start at <span className="text-accent font-semibold">$750</span>
-              </p>
-              <p className="text-lg text-white/70 mb-8 leading-relaxed">
-                All programs are customized to meet your organization's specific needs, goals, and budget. 
-                We work with you to create a solution that delivers maximum impact.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* CTA SECTION */}
       <section className="section-padding bg-dark-light">
         <div className="section-max-width">
@@ -147,7 +121,7 @@ export default function OrganizationsPage() {
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
               Ready to bring purpose-driven transformation to your organization? Let's discuss your needs and create a customized proposal.
             </p>
-            <Button href="/booking" size="lg" className="btn-primary">
+            <Button href="/booking?type=organization" size="lg" className="btn-primary">
               <span>Get Started</span>
               <ArrowRight className="ml-2" size={20} />
             </Button>

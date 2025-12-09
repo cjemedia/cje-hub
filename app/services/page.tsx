@@ -344,7 +344,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* CJE Media - Tiffany Blue Background */}
+      {/* The CJE Experience - Tiffany Blue Background */}
       <section className="section-padding bg-[#81D8D0] py-32">
         <div className="section-max-width">
           <motion.div
@@ -354,7 +354,7 @@ export default function ServicesPage() {
             className="text-center mb-16"
           >
             <h2 className="text-h2  font-semibold text-white mb-4">
-              CJE Media
+              The CJE Experience
             </h2>
             <p className="text-body text-white/90 max-w-2xl mx-auto">
               This suite of services is designed to build, nurture, and amplify
@@ -487,7 +487,7 @@ export default function ServicesPage() {
               Let&apos;s discuss how we can bring your vision to life.
             </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <Button href="/booking" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[220px] h-[56px]">
+                <Button href="/booking?type=website" size="lg" className="btn-primary w-full sm:w-auto sm:min-w-[220px] h-[56px]">
                 Book a Call
               </Button>
                 <Button

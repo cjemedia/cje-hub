@@ -28,6 +28,7 @@ export default function Navigation() {
     { href: '/events', label: 'Events' },
     { href: '/coaching', label: 'Coaching' },
     { href: '/tools', label: 'Tools' },
+    { href: '/branding', label: 'Branding' },
     { href: '/partnerships', label: 'Partnerships' },
   ]
   const clientLogin: NavItem = { href: '/hub/login', label: 'Client Login', external: false }
@@ -44,8 +45,8 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-24 md:h-28">
           <Link href="/" className="group">
             <img
-              src="/images/cje-media-logo.png"
-              alt="CJE Media"
+              src="/images/cje-logo.png"
+              alt="The CJE Experience"
               className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0 invert"
             />
           </Link>
@@ -58,14 +59,14 @@ export default function Navigation() {
                 href={item.href}
                 target={item.external ? '_blank' : undefined}
                 rel={item.external ? 'noopener noreferrer' : undefined}
-                className="text-white/80 hover:text-white font-medium transition-colors relative group"
+                className="text-sm text-white/80 hover:text-white font-medium transition-colors relative group"
               >
                 {item.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
             <Link
-              href="/booking"
+              href="/booking?type=speaking"
               className="bg-accent text-dark px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:opacity-90 transition-all"
             >
               Book Ciara
@@ -114,7 +115,7 @@ export default function Navigation() {
                 </Link>
               ))}
               <Link
-                href="/booking"
+                href="/booking?type=speaking"
                 onClick={() => setIsOpen(false)}
                 className="block bg-accent text-dark px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-4"
               >

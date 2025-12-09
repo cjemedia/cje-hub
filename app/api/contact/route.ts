@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const formattedInquiry =
       inquiryArray.length > 0 ? inquiryArray.join(', ') : 'Not specified'
 
-    // Send email to CJE Media
+    // Send email to The CJE Experience
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #0ABAB5;">New Contact Form Submission</h2>
@@ -58,13 +58,13 @@ export async function POST(request: NextRequest) {
         <h2 style="color: #0ABAB5;">Thank You for Reaching Out!</h2>
         <p>Hi ${senderName},</p>
         <p>We've received your message and will get back to you soon.</p>
-        <p>Best regards,<br>CJE Media Team</p>
+        <p>Best regards,<br>The CJE Experience Team</p>
       </div>
     `
 
     await sendEmail({
       to: senderEmail,
-      subject: 'Thank you for contacting CJE Media',
+      subject: 'Thank you for contacting The CJE Experience',
       html: confirmationHtml,
     })
 

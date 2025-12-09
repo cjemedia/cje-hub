@@ -30,7 +30,7 @@ export default function SpeakingPage() {
       description: 'Discover how to leverage your unique experiences and stories to build a compelling personal brand.',
     },
     {
-      title: 'The Scholarship Era: Becoming the Candidate Who Stands Out',
+      title: 'Scholarship Szn: Becoming the Top-Tier Candidate',
       description: 'Essential strategies for students, parents, and educators on standing out in competitive scholarship applications.',
     },
     {
@@ -55,11 +55,11 @@ export default function SpeakingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-6">
-              <span className="text-accent font-semibold text-sm">Speaking & Hosting</span>
-            </div>
+            <p className="text-accent uppercase tracking-widest text-sm mb-6">
+              SPEAKING • HOSTING
+            </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Speaking & Hosting
+              The CJE Experience
             </h1>
             <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
               Inspiring purpose-driven action through powerful storytelling, engaging presentations, and authentic connection. 
@@ -163,7 +163,7 @@ export default function SpeakingPage() {
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
               Ready to bring purpose-driven inspiration to your audience? Let's discuss how Ciara can make your next event unforgettable.
             </p>
-            <Button href="/booking" size="lg" className="btn-primary">
+            <Button href="/booking?type=speaking" size="lg" className="btn-primary">
               <span>Book a Call</span>
               <ArrowRight className="ml-2" size={20} />
             </Button>

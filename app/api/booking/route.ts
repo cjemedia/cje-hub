@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const bookingTypeLabel =
       type === 'meeting' ? 'Strategy Meeting' : 'Content Shoot'
 
-    // Email to CJE Media
+    // Email to The CJE Experience
     const adminEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #0ABAB5;">New Booking Request</h2>
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
           <li><strong>Duration:</strong> ${duration} minutes</li>
         </ul>
         <p>We'll confirm your appointment soon!</p>
-        <p>Best regards,<br>CJE Media Team</p>
+        <p>Best regards,<br>The CJE Experience Team</p>
       </div>
     `
 

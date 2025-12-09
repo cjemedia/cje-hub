@@ -11,13 +11,17 @@ export default function PhotographerDemo() {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null)
 
   const portfolioImages = [
-    'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80',
-    'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80',
-    'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&q=80',
+    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80',
+    'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=800&q=80',
+    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80',
   ]
 
   return (
     <main className="min-h-screen bg-white">
+      {/* Demo Banner */}
+      <div className="bg-[#81D8D0] text-dark text-center py-2 text-sm">
+        This is a demo site. <a href="/demos" className="underline">View all demos</a>
+      </div>
       {/* Simple Navigation */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,7 +102,7 @@ export default function PhotographerDemo() {
       <section className="relative h-screen overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=80"
+            src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1600&q=80"
             alt="Photography hero"
             fill
             className="object-cover"
@@ -132,12 +136,19 @@ export default function PhotographerDemo() {
       <section className="py-32 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <h2 className="text-4xl sm:text-5xl font-light text-black mb-8 tracking-tight">
-                About
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="mb-4">
+                <span className="text-xs text-black/40 uppercase tracking-widest">About</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-light text-black mb-8 tracking-tight leading-tight">
+                Alex Martin
               </h2>
               <p className="text-lg text-gray-600 mb-6 leading-relaxed font-light">
-                I'm Alex Martin, a photographer specializing in editorial, portrait, and event photography. My work focuses on authentic moments and emotional storytelling.
+                I'm a photographer specializing in editorial, portrait, and event photography. My work focuses on authentic moments and emotional storytelling.
               </p>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed font-light">
                 With over a decade of experience, I've worked with brands, publications, and individuals to create imagery that resonates.
@@ -150,15 +161,20 @@ export default function PhotographerDemo() {
                   <Mail size={24} />
                 </a>
               </div>
-            </div>
-            <div className="relative h-[600px]">
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative h-[600px]"
+            >
               <Image
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"
                 alt="Alex Martin"
                 fill
                 className="object-cover"
               />
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -203,12 +219,17 @@ export default function PhotographerDemo() {
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-16">
-            <h2 className="text-4xl sm:text-5xl font-light text-black tracking-tight">
-              Recent Work
-            </h2>
+            <div>
+              <div className="mb-4">
+                <span className="text-xs text-black/40 uppercase tracking-widest">Portfolio</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-light text-black tracking-tight leading-tight">
+                Recent Work
+              </h2>
+            </div>
             <Link
               href="/demos/photographer/portfolio"
-              className="text-black hover:text-gray-600 font-light tracking-wide flex items-center gap-2"
+              className="text-black hover:text-gray-600 font-light tracking-wide flex items-center gap-2 transition-colors"
             >
               View All
               <ArrowRight size={18} />
@@ -216,18 +237,23 @@ export default function PhotographerDemo() {
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {portfolioImages.map((image, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="relative h-[500px] cursor-pointer group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="relative h-[500px] cursor-pointer group overflow-hidden"
                 onClick={() => setLightboxImage(image)}
               >
                 <Image
                   src={image}
                   alt={`Portfolio ${index + 1}`}
                   fill
-                  className="object-cover group-hover:opacity-90 transition-opacity"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-              </div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              </motion.div>
             ))}
           </div>
         </div>

@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Scissors, UtensilsCrossed, Home, Camera } from 'lucide-react'
+import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
+import { Scissors, UtensilsCrossed, Camera, Home } from 'lucide-react'
 
 export default function DemosGallery() {
   const demos = [
@@ -31,18 +33,6 @@ export default function DemosGallery() {
       description: 'Sophisticated restaurant site with full menu and reservation booking.',
     },
     {
-      id: 'realtor',
-      name: 'Realtor',
-      icon: Home,
-      preview: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80',
-      style: 'Clean, professional, trustworthy',
-      colors: 'Navy, white, modern',
-      features: ['Property listings', 'Search & filter', 'Agent contact'],
-      hasPortal: false,
-      pages: ['Home', 'Listings'],
-      description: 'Professional real estate site with property listings and agent information.',
-    },
-    {
       id: 'photographer',
       name: 'Photographer',
       icon: Camera,
@@ -54,10 +44,24 @@ export default function DemosGallery() {
       pages: ['Home', 'Portfolio', 'Client Portal'],
       description: 'Minimalist photographer portfolio with client portal for proof selection.',
     },
+    {
+      id: 'realtor',
+      name: 'Realtor',
+      icon: Home,
+      preview: 'https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=1200&q=80',
+      style: 'Luxury, elegant, sophisticated',
+      colors: 'Black, gold, minimal accents',
+      features: ['Property listings', 'Search & filter', 'Agent contact'],
+      hasPortal: false,
+      pages: ['Home', 'Listings'],
+      description: 'Luxury real estate site with property listings and agent information.',
+    },
   ]
 
   return (
-    <main className="min-h-screen bg-dark py-16">
+    <main className="min-h-screen bg-dark">
+      <Navigation />
+      <div className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-5xl sm:text-6xl font-bold text-white mb-4">Website Demos</h1>
@@ -154,6 +158,7 @@ export default function DemosGallery() {
           </Link>
         </div>
       </div>
+      <Footer />
     </main>
   )
 }
