@@ -56,6 +56,14 @@ export default function Footer() {
                   Book a Call
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
