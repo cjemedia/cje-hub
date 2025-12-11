@@ -20,7 +20,7 @@ export default function DeliverablesPage() {
       const { data } = await supabase
         .from('deliverables')
         .select('*')
-        .eq('client_id', user.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       setDeliverables(data || [])

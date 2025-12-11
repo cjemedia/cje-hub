@@ -56,17 +56,13 @@ export default function OrganizationsPage() {
               <span className="text-accent font-semibold text-sm">For Organizations</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Partner With Ciara
+              Partner With Ciara J.
             </h1>
             <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
               Workshops, training, and speaking services for teams, schools, and organizations. 
               Bring purpose-driven transformation to your institution with customized programs that inspire and empower.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button href="/booking?type=organization" size="lg" className="btn-primary">
-                <span>Get Started</span>
-                <ArrowRight className="ml-2" size={20} />
-              </Button>
+            <div className="flex justify-center">
               <a href="/booking?inquiry=true" className="border border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition-colors text-center inline-flex items-center justify-center">
                 Contact Us
               </a>

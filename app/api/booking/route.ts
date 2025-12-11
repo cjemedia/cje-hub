@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get client info
+    // Get user info
     const { data: client } = await supabase
-      .from('clients')
+      .from('users')
       .select('*')
       .eq('id', user.id)
       .single()
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert({
-        client_id: user.id,
+        user_id: user.id,
         type,
         date,
         time,

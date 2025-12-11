@@ -68,11 +68,7 @@ export default function ProgramsPage() {
               Transform your life and career through purpose-driven courses, cohort programs, and personalized coaching. 
               Designed for students, professionals, and creatives ready to unlock their potential.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button href="/booking?type=coaching" size="lg" className="btn-primary">
-                <span>Explore Programs</span>
-                <ArrowRight className="ml-2" size={20} />
-              </Button>
+            <div className="flex justify-center">
               <a href="/booking?inquiry=true" className="border border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition-colors text-center inline-flex items-center justify-center">
                 Contact Us
               </a>
@@ -111,7 +107,7 @@ export default function ProgramsPage() {
               <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center mb-6">
                 <GraduationCap size={32} className="text-accent" />
               </div>
-              <h3 className="text-3xl font-bold text-white mb-4">Scholarship Szn</h3>
+              <h3 className="text-3xl font-bold text-white mb-4">Your Scholarship Era</h3>
               <p className="text-white/80 mb-6 leading-relaxed">
                 A comprehensive course for students, parents, and educators focused on scholarship readiness and application success.
               </p>
@@ -157,8 +153,8 @@ export default function ProgramsPage() {
                   ))}
                 </ul>
               </div>
-              <Button href="/booking?type=brand" variant="outline" size="md">
-                Learn More
+              <Button href="/booking?type=brand&inquiry=true" variant="outline" size="md">
+                Join Waitlist
               </Button>
             </motion.div>
           </div>
@@ -286,7 +282,7 @@ export default function ProgramsPage() {
               </div>
 
               <Button href="/booking?type=coaching" size="lg" className="btn-primary">
-                <span>Apply Now</span>
+                <span>Start Your Journey</span>
                 <ArrowRight className="ml-2" size={20} />
               </Button>
             </div>

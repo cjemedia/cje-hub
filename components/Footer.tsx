@@ -56,16 +56,6 @@ export default function Footer() {
                   Book a Call
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="https://cje-gk7q2rsk7-cje-media.vercel.app/hub/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/70 hover:text-accent transition-colors text-sm"
-                >
-                  CJE Hub
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -126,8 +116,14 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/50">
+        <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/50 flex flex-col md:flex-row items-center justify-center gap-3">
           <p>© {currentYear} The CJE Experience. All rights reserved.</p>
+          <Link
+            href="/privacy"
+            className="text-white/70 hover:text-accent transition-colors"
+          >
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </footer>

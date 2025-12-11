@@ -1,344 +1,593 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useMemo, useState, useEffect, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import {
-  Calendar,
-  Clock,
-  Camera,
-  Video,
-  ArrowLeft,
-  CheckCircle,
-} from 'lucide-react'
-import Button from '@/components/Button'
-import HubHeader from '@/components/HubHeader'
-import { format } from 'date-fns'
+import { Calendar, ArrowRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { useHubUser } from '@/components/hub/HubUserProvider'
+import { createClient } from '@/lib/supabase/client'
 
-function BookingPageContent() {
+// Inquiry type mapping
+const inquiryTypes: Record<string, string> = {
+  existing_project: 'Existing Project',
+  speaking: 'Speaking Engagement',
+  workshop: 'Workshop / Training',
+  hosting: 'Event Hosting / Emcee',
+  coaching: '1:1 Coaching',
+  accelerator: 'Purpose Accelerator Cohort',
+  scholarship: 'Your Scholarship Era Course',
+  website: 'Custom Website',
+  portal: 'Client Portal',
+  tools: 'Business Tools',
+  brand: 'Brand Identity Consulting',
+  creative: 'Creative Direction',
+  organization: 'Organization / Corporate Inquiry',
+}
+
+function BookingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [user, setUser] = useState<any>(null)
-  const [selectedType, setSelectedType] = useState<'meeting' | 'content-shoot' | null>(
-    (searchParams.get('type') as 'meeting' | 'content-shoot') || null
-  )
+  const { user } = useHubUser()
+  const typeParam = searchParams.get('type')
+  const inquiryParam = searchParams.get('inquiry')
+  
+  const initialType = useMemo(() => {
+    if (typeParam && inquiryTypes[typeParam]) {
+      return inquiryTypes[typeParam]
+    }
+    return null
+  }, [typeParam])
+
+  const [selectedType, setSelectedType] = useState<string | null>(initialType)
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [selectedTime, setSelectedTime] = useState<string>('')
+  const [availableSlots, setAvailableSlots] = useState<string[]>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
+  const [submitAsInquiry, setSubmitAsInquiry] = useState(inquiryParam === 'true')
+  const [selectedProject, setSelectedProject] = useState<string>('')
+  const [projects, setProjects] = useState<any[]>([])
+  const [loadingProjects, setLoadingProjects] = useState(false)
   const [formData, setFormData] = useState({
-    date: '',
-    time: '',
-    duration: '60',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
     notes: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [bookings, setBookings] = useState<any[]>([])
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [bookingDetails, setBookingDetails] = useState<any>(null)
+  const [errorMessage, setErrorMessage] = useState<string>('')
 
+  // Update form data when user loads
   useEffect(() => {
-    const getUser = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+      }))
+    }
+  }, [user])
 
-      if (!user) {
-        router.push('/hub/login')
-        return
+  // Get min date (today)
+  const getMinDate = () => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  }
+
+  // Check if date is weekend
+  const isWeekend = (dateString: string) => {
+    const [year, month, day] = dateString.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+    const dayOfWeek = date.getDay()
+    return dayOfWeek === 0 || dayOfWeek === 6
+  }
+
+  // Fetch projects when "Existing Project" is selected
+  useEffect(() => {
+    if (selectedType === 'Existing Project' && user?.id) {
+      const fetchProjects = async () => {
+        setLoadingProjects(true)
+        try {
+          const supabase = createClient()
+          const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+
+          if (error) throw error
+          setProjects(data || [])
+        } catch (error) {
+          console.error('Error fetching projects:', error)
+          setProjects([])
+        } finally {
+          setLoadingProjects(false)
+        }
       }
 
-      setUser(user)
-
-      // Fetch existing bookings
-      const { data: bookingsData } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('client_id', user.id)
-        .order('date', { ascending: true })
-
-      setBookings(bookingsData || [])
+      fetchProjects()
+    } else {
+      setSelectedProject('')
+      setProjects([])
     }
+  }, [selectedType, user?.id])
 
-    getUser()
-  }, [router])
+  // Fetch available slots when date changes
+  useEffect(() => {
+    if (selectedDate && !isWeekend(selectedDate)) {
+      setLoadingSlots(true)
+      setSelectedTime('')
+      fetch(`/api/booking/availability?date=${selectedDate}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.availableSlots) {
+            setAvailableSlots(data.availableSlots)
+          } else {
+            setAvailableSlots([])
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching availability:', error)
+          setAvailableSlots([])
+        })
+        .finally(() => {
+          setLoadingSlots(false)
+        })
+    } else {
+      setAvailableSlots([])
+      setSelectedTime('')
+    }
+  }, [selectedDate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedType) return
+    
+    if (!selectedType || !formData.name || !formData.email) {
+      setErrorMessage('Please fill in all required fields')
+      setSubmitStatus('error')
+      return
+    }
+
+    // Validate project selection if "Existing Project" is selected
+    if (selectedType === 'Existing Project' && !selectedProject) {
+      setErrorMessage('Please select a project')
+      setSubmitStatus('error')
+      return
+    }
+
+    // If submitting as inquiry (no date/time), use contact API
+    if (submitAsInquiry || !selectedDate || !selectedTime) {
+      setIsSubmitting(true)
+      setSubmitStatus('idle')
+      setErrorMessage('')
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.notes || `Inquiry about: ${selectedType}${selectedDate ? `\nPreferred date: ${formatDate(selectedDate)}` : ''}${selectedTime ? `\nPreferred time: ${selectedTime}` : ''}`,
+            subject: `Booking Inquiry: ${selectedType}`,
+            inquiryType: selectedType,
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to submit inquiry')
+        }
+
+        setSubmitStatus('success')
+        setBookingDetails({
+          type: 'Inquiry',
+          email: formData.email,
+          message: 'We\'ll get back to you soon to schedule your consultation.',
+        })
+        
+        // Reset form
+        setFormData({ ...formData, phone: '', notes: '' })
+        setSelectedDate('')
+        setSelectedTime('')
+        setSelectedProject('')
+        setSubmitAsInquiry(false)
+        setSelectedType(null)
+      } catch (error: any) {
+        setSubmitStatus('error')
+        setErrorMessage(error.message || 'Failed to submit inquiry. Please try again.')
+      } finally {
+        setIsSubmitting(false)
+      }
+      return
+    }
+
+    // Otherwise, create a booking
+    if (!selectedDate || !selectedTime) {
+      setErrorMessage('Please select a date and time, or submit as inquiry')
+      setSubmitStatus('error')
+      return
+    }
 
     setIsSubmitting(true)
+    setSubmitStatus('idle')
+    setErrorMessage('')
+
     try {
-      const response = await fetch('/api/booking', {
+      const response = await fetch('/api/booking/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          date: selectedDate,
+          time: selectedTime,
           type: selectedType,
-          date: formData.date,
-          time: formData.time,
-          duration: parseInt(formData.duration),
           notes: formData.notes,
+          project_id: selectedType === 'Existing Project' ? selectedProject : undefined,
+          user_id: user?.id,
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to submit booking')
+        throw new Error(data.error || 'Failed to create booking')
       }
 
-      alert('Booking request submitted! We\'ll confirm your appointment soon.')
-      setFormData({ date: '', time: '', duration: '60', notes: '' })
-      router.push('/hub/dashboard')
-    } catch (error) {
-      alert('Failed to submit booking. Please try again.')
+      setSubmitStatus('success')
+      setBookingDetails(data.booking)
+      
+      // Reset form
+      setFormData({ ...formData, phone: '', notes: '' })
+      setSelectedDate('')
+      setSelectedTime('')
+      setSelectedProject('')
+      setSubmitAsInquiry(false)
+    } catch (error: any) {
+      setSubmitStatus('error')
+      setErrorMessage(error.message || 'Failed to create booking. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const formatDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
   return (
-    <main className="min-h-screen bg-primary-white">
-      <HubHeader
-        user={user}
-        showBackButton
-        backHref="/hub/dashboard"
-        title="Book a Session"
-      />
+    <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
+            Book a Session
+          </h1>
+          <p className="text-[#a1a1a1]">
+            Schedule your next consultation
+          </p>
+        </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Booking Type Selection */}
-        {!selectedType && (
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <motion.button
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedType('meeting')}
-              className="p-8 rounded-lg border-2 border-primary-charcoal/10 hover:border-primary-tiffany transition-all duration-300 text-left"
-            >
-              <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-4">
-                <Video size={32} className="text-primary-tiffany" />
+        {/* Success State */}
+        {submitStatus === 'success' && bookingDetails && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 mb-8"
+          >
+            <div className="flex items-start gap-4 mb-6">
+              <CheckCircle className="text-[#81D8D0] flex-shrink-0 mt-1" size={24} />
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  {bookingDetails.type === 'Inquiry' ? 'Inquiry Submitted' : 'Booking Confirmed'}
+                </h3>
+                <p className="text-white/70 text-sm mb-6 leading-relaxed">
+                  {bookingDetails.type === 'Inquiry' 
+                    ? bookingDetails.message || 'We\'ll get back to you soon to schedule your consultation.'
+                    : `A confirmation email has been sent to ${bookingDetails.email}.`
+                  }
+                </p>
+                {bookingDetails.type !== 'Inquiry' && (
+                  <div className="space-y-3 mb-6">
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Session Type</p>
+                      <p className="text-white">{bookingDetails.type}</p>
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Date & Time</p>
+                      <p className="text-white">{formatDate(bookingDetails.date)} at {bookingDetails.time}</p>
+                    </div>
+                  </div>
+                )}
+                <Link
+                  href="/hub/bookings"
+                  className="inline-flex items-center gap-2 bg-[#81D8D0] text-dark px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                >
+                  View My Bookings
+                  <ArrowRight size={18} />
+                </Link>
               </div>
-              <h3 className="text-2xl font-serif font-bold text-primary-black mb-2">
-                Strategy Meeting
-              </h3>
-              <p className="text-primary-charcoal/70">
-                Book a consultation call to discuss your project and goals.
-              </p>
-            </motion.button>
+            </div>
+          </motion.div>
+        )}
 
-            <motion.button
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelectedType('content-shoot')}
-              className="p-8 rounded-lg border-2 border-primary-charcoal/10 hover:border-primary-tiffany transition-all duration-300 text-left"
-            >
-              <div className="bg-primary-tiffany/10 w-16 h-16 rounded-lg flex items-center justify-center mb-4">
-                <Camera size={32} className="text-primary-tiffany" />
+        {/* Error State */}
+        {submitStatus === 'error' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500/20 border border-red-500/50 rounded-xl p-6 mb-8"
+          >
+            <div className="flex items-start gap-3">
+              <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Booking Failed</h3>
+                <p className="text-red-300 text-sm">{errorMessage}</p>
               </div>
-              <h3 className="text-2xl font-serif font-bold text-primary-black mb-2">
-                Content Shoot
-              </h3>
-              <p className="text-primary-charcoal/70">
-                Schedule a professional content shoot for your brand.
-              </p>
-            </motion.button>
-          </div>
+            </div>
+          </motion.div>
         )}
 
         {/* Booking Form */}
-        {selectedType && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="mb-6">
-              <button
-                onClick={() => setSelectedType(null)}
-                className="text-primary-tiffany hover:underline text-sm flex items-center space-x-1"
-              >
-                <ArrowLeft size={16} />
-                <span>Change booking type</span>
-              </button>
+        {submitStatus !== 'success' && (
+          <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 space-y-8">
+            {/* Inquiry Option */}
+            <div className="flex items-center gap-3 pb-6 border-b border-[#333333]">
+              <input
+                type="checkbox"
+                id="submit-as-inquiry"
+                checked={submitAsInquiry}
+                onChange={(e) => {
+                  setSubmitAsInquiry(e.target.checked)
+                  if (e.target.checked) {
+                    setSelectedDate('')
+                    setSelectedTime('')
+                  }
+                }}
+                className="w-4 h-4 accent-[#81D8D0] cursor-pointer"
+              />
+              <label htmlFor="submit-as-inquiry" className="text-white/70 text-sm cursor-pointer">
+                Not ready to select a date? Check this box and complete the contact form.
+              </label>
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-8 shadow-lg"
-            >
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label
-                      htmlFor="date"
-                      className="block text-sm font-medium text-primary-charcoal mb-2"
-                    >
-                      Date *
-                    </label>
-                    <div className="relative">
-                      <Calendar
-                        size={20}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-charcoal/40"
-                      />
-                      <input
-                        type="date"
-                        id="date"
-                        required
-                        min={new Date().toISOString().split('T')[0]}
-                        value={formData.date}
-                        onChange={(e) =>
-                          setFormData({ ...formData, date: e.target.value })
-                        }
-                        className="w-full pl-10 pr-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent"
-                      />
-                    </div>
-                  </div>
+            {/* 1. Inquiry Type */}
+            <div>
+              <label className="block text-white/60 text-xs uppercase tracking-wider mb-3">
+                1. Inquiry Type
+              </label>
+              <select
+                value={selectedType || ''}
+                onChange={(e) => {
+                  setSelectedType(e.target.value)
+                  if (e.target.value !== 'Existing Project') {
+                    setSelectedProject('')
+                  }
+                }}
+                className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
+                required
+              >
+                <option value="" className="bg-[#0a0a0a]">Select inquiry type...</option>
+                {Object.entries(inquiryTypes).map(([key, value]) => (
+                  <option key={key} value={value} className="bg-[#0a0a0a]">
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                  <div>
-                    <label
-                      htmlFor="time"
-                      className="block text-sm font-medium text-primary-charcoal mb-2"
-                    >
-                      Time *
-                    </label>
-                    <div className="relative">
-                      <Clock
-                        size={20}
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-charcoal/40"
-                      />
-                      <input
-                        type="time"
-                        id="time"
-                        required
-                        value={formData.time}
-                        onChange={(e) =>
-                          setFormData({ ...formData, time: e.target.value })
-                        }
-                        className="w-full pl-10 pr-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent"
-                      />
-                    </div>
+            {/* 1b. Select Project (if Existing Project is selected) */}
+            {selectedType === 'Existing Project' && (
+              <div>
+                <label className="block text-white/60 text-xs uppercase tracking-wider mb-3">
+                  Select Project
+                </label>
+                {loadingProjects ? (
+                  <div className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white/50">
+                    Loading projects...
                   </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="duration"
-                    className="block text-sm font-medium text-primary-charcoal mb-2"
-                  >
-                    Duration (minutes) *
-                  </label>
+                ) : projects.length > 0 ? (
                   <select
-                    id="duration"
+                    value={selectedProject}
+                    onChange={(e) => setSelectedProject(e.target.value)}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
                     required
-                    value={formData.duration}
-                    onChange={(e) =>
-                      setFormData({ ...formData, duration: e.target.value })
-                    }
-                    className="w-full px-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent"
                   >
-                    <option value="30">30 minutes</option>
-                    <option value="60">1 hour</option>
-                    <option value="90">1.5 hours</option>
-                    <option value="120">2 hours</option>
+                    <option value="" className="bg-[#0a0a0a]">Select a project...</option>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id} className="bg-[#0a0a0a]">
+                        {project.name || 'Untitled Project'}
+                        {project.service_type ? ` (${project.service_type.replace('_', ' ')})` : ''}
+                      </option>
+                    ))}
                   </select>
-                </div>
+                ) : (
+                  <div className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white/50">
+                    No projects found
+                  </div>
+                )}
+              </div>
+            )}
 
-                <div>
-                  <label
-                    htmlFor="notes"
-                    className="block text-sm font-medium text-primary-charcoal mb-2"
-                  >
-                    Additional Notes
-                  </label>
-                  <textarea
-                    id="notes"
-                    rows={4}
-                    value={formData.notes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, notes: e.target.value })
-                    }
-                    placeholder="Any specific requirements or topics you'd like to discuss..."
-                    className="w-full px-4 py-3 border border-primary-charcoal/20 rounded-lg focus:ring-2 focus:ring-primary-tiffany focus:border-transparent resize-none"
+            {/* 2. Select Date */}
+            {!submitAsInquiry && (
+              <div>
+                <label className="block text-white/60 text-xs uppercase tracking-wider mb-3">
+                  2. Select Date
+                </label>
+                <div className="relative">
+                  {/* Visual display */}
+                  <div className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-left flex items-center justify-between pointer-events-none">
+                    <div>
+                      {selectedDate ? (
+                        <span className="text-white font-medium">{formatDate(selectedDate)}</span>
+                      ) : (
+                        <span className="text-white/40">Select a date</span>
+                      )}
+                    </div>
+                    <Calendar className="text-white/50" size={18} />
+                  </div>
+                  {/* Invisible native date picker overlay */}
+                  <input
+                    type="date"
+                    min={getMinDate()}
+                    value={selectedDate}
+                    onChange={(e) => {
+                      const date = e.target.value
+                      if (date) {
+                        setSelectedDate(date)
+                        if (isWeekend(date)) {
+                          setSelectedTime('')
+                        }
+                      }
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    required
                   />
                 </div>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Booking Request'}
-                </Button>
+                {selectedDate && isWeekend(selectedDate) && (
+                  <p className="text-red-400 text-xs mt-2">Please select a weekday</p>
+                )}
               </div>
-            </form>
-          </motion.div>
-        )}
+            )}
 
-        {/* Existing Bookings */}
-        {bookings.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-12"
-          >
-            <h2 className="text-2xl font-serif font-bold text-primary-black mb-6">
-              Your Bookings
-            </h2>
-            <div className="space-y-4">
-              {bookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="bg-primary-white border-2 border-primary-charcoal/10 rounded-lg p-6"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center space-x-3 mb-2">
-                        {booking.type === 'meeting' ? (
-                          <Video size={20} className="text-primary-tiffany" />
-                        ) : (
-                          <Camera size={20} className="text-primary-tiffany" />
-                        )}
-                        <span className="font-semibold text-primary-black capitalize">
-                          {booking.type.replace('-', ' ')}
-                        </span>
-                      </div>
-                      <div className="text-sm text-primary-charcoal/70">
-                        {format(new Date(booking.date), 'MMMM d, yyyy')} at{' '}
-                        {booking.time}
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          booking.status === 'confirmed'
-                            ? 'bg-green-100 text-green-700'
-                            : booking.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-gray-100 text-gray-700'
+            {/* 3. Select Time */}
+            {!submitAsInquiry && selectedDate && !isWeekend(selectedDate) && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-white/60 text-xs uppercase tracking-wider">
+                    3. Select Time
+                  </label>
+                  <span className="text-white/40 text-xs">
+                    All times in Central Time (CT)
+                  </span>
+                </div>
+                {loadingSlots ? (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {[...Array(8)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-10 bg-[#0a0a0a] rounded-lg animate-pulse"
+                      />
+                    ))}
+                  </div>
+                ) : availableSlots.length > 0 ? (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {availableSlots.map((slot) => (
+                      <button
+                        key={slot}
+                        type="button"
+                        onClick={() => setSelectedTime(slot)}
+                        className={`h-10 rounded-lg font-medium text-sm transition-all ${
+                          selectedTime === slot
+                            ? 'bg-[#81D8D0] text-dark border border-[#81D8D0]'
+                            : 'bg-[#0a0a0a] text-white/70 border border-[#333333] hover:border-[#81D8D0]/50 hover:text-white'
                         }`}
                       >
-                        {booking.status}
-                      </span>
-                    </div>
+                        {slot}
+                      </button>
+                    ))}
                   </div>
-                </div>
-              ))}
+                ) : (
+                  <p className="text-white/50 text-sm">No available slots for this date</p>
+                )}
+              </div>
+            )}
+
+            {/* 4. Your Details */}
+            <div>
+              <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
+                4. Your Details
+              </label>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                  required
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone (optional)"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                />
+                <textarea
+                  placeholder="Tell us about your project (optional)"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={4}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
+                />
+              </div>
             </div>
-          </motion.div>
+
+            {/* 5. Submit Button */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={
+                  isSubmitting || 
+                  !selectedType || 
+                  !formData.name || 
+                  !formData.email ||
+                  (selectedType === 'Existing Project' && !selectedProject)
+                }
+                className="w-full bg-[#81D8D0] text-dark px-6 py-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    <span>{submitAsInquiry ? 'Submitting' : 'Confirming'}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{submitAsInquiry ? 'Submit Inquiry' : 'Confirm Booking'}</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         )}
       </div>
-    </main>
+    </div>
   )
 }
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={
-      <main className="min-h-screen bg-primary-white flex items-center justify-center">
-        <div className="text-primary-charcoal/70">Loading...</div>
-      </main>
-    }>
-      <BookingPageContent />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+          <div className="text-white/70">Loading...</div>
+        </div>
+      }
+    >
+      <BookingContent />
     </Suspense>
   )
 }
-

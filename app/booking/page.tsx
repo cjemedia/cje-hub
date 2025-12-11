@@ -15,7 +15,7 @@ const inquiryTypes: Record<string, string> = {
   hosting: 'Event Hosting / Emcee',
   coaching: '1:1 Coaching',
   accelerator: 'Purpose Accelerator Cohort',
-  scholarship: 'Scholarship Szn Course',
+  scholarship: 'Your Scholarship Era Course',
   website: 'Custom Website',
   portal: 'Client Portal',
   tools: 'Business Tools',
@@ -175,6 +175,7 @@ function BookingContent() {
           time: selectedTime,
           type: selectedType,
           notes: formData.notes,
+          user_id: null,
         }),
       })
 

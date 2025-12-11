@@ -37,12 +37,12 @@ export default function DashboardPage() {
       if (!user) return
       const supabase = createClient()
 
-      // Get upcoming bookings (matching by email)
+      // Get upcoming bookings (matching by user_id)
       const today = new Date().toISOString().split('T')[0]
       const { data: bookingsData } = await supabase
         .from('bookings')
         .select('*')
-        .eq('email', user.email || '')
+        .eq('user_id', user.id)
         .gte('booking_date', today)
         .in('status', ['pending', 'confirmed'])
         .order('booking_date', { ascending: true })
@@ -55,7 +55,7 @@ export default function DashboardPage() {
       const { count: sessionsCount } = await supabase
         .from('bookings')
         .select('*', { count: 'exact', head: true })
-        .eq('email', user.email || '')
+        .eq('user_id', user.id)
         .gte('booking_date', today)
         .in('status', ['pending', 'confirmed'])
 
@@ -63,14 +63,14 @@ export default function DashboardPage() {
       const { count: projectsCount } = await supabase
         .from('projects')
         .select('*', { count: 'exact', head: true })
-        .eq('client_id', user.id)
+        .eq('user_id', user.id)
         .in('status', ['confirmed', 'in_progress'])
 
       // Count deliverables/resources
       const { data: deliverablesData } = await supabase
         .from('deliverables')
         .select('id', { count: 'exact', head: true })
-        .eq('client_id', user.id)
+        .eq('user_id', user.id)
 
       setStats({
         upcomingSessions: sessionsCount || 0,
@@ -107,11 +107,11 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
-          Welcome back, {user?.name || 'there'}!
+        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+          Welcome back, {user?.name?.split(' ')[0] || 'there'}
         </h1>
         <p className="text-[#a1a1a1]">
-          Here's what's happening with your projects and bookings.
+          Here's what's happening with your projects
         </p>
       </motion.div>
 
@@ -186,7 +186,7 @@ export default function DashboardPage() {
             <Calendar className="w-12 h-12 text-[#a1a1a1]/30 mx-auto mb-4" />
             <p className="text-[#a1a1a1] mb-2">No upcoming sessions</p>
             <Link
-              href="/booking"
+              href="/hub/booking"
               className="text-sm text-[#81D8D0] hover:text-[#81D8D0]/80"
             >
               Book a session →
@@ -235,6 +235,7 @@ function BookingCard({ booking }: { booking: Booking }) {
     hosting: 'Event Hosting / Emcee',
     coaching: '1:1 Coaching',
     accelerator: 'Purpose Accelerator Cohort',
+    scholarship: 'Your Scholarship Era Course',
     website: 'Custom Website',
     portal: 'Client Portal',
     tools: 'Business Tools',

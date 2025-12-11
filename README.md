@@ -1,4 +1,4 @@
-# CJE Hub - Ciara J Evans Digital Platform
+# CJE Hub - Ciara J. Evans Digital Platform
 
 A comprehensive digital platform for CJE Media and CJE Experiences, featuring a main website and client portal.
 

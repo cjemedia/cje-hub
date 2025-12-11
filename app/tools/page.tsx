@@ -70,10 +70,15 @@ export default function ShopPage() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
               Shop
             </h1>
-            <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
               Purpose-driven resources, templates, and tools to accelerate your journey. 
               From brand building to scholarship success, find everything you need to take action.
             </p>
+            <div className="flex justify-center">
+              <a href="/booking?inquiry=true" className="border border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition-colors text-center inline-flex items-center justify-center">
+                Contact Us
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>

@@ -12,6 +12,7 @@ import {
   PartyPopper,
   MessageCircle,
   Users,
+  GraduationCap,
   Globe,
   Monitor,
   Settings,
@@ -35,6 +36,7 @@ const inquiryTypeConfig: Record<
   hosting: { icon: PartyPopper, label: 'Event Hosting / Emcee' },
   coaching: { icon: MessageCircle, label: '1:1 Coaching' },
   accelerator: { icon: Users, label: 'Purpose Accelerator Cohort' },
+  scholarship: { icon: GraduationCap, label: 'Your Scholarship Era Course' },
   website: { icon: Globe, label: 'Custom Website' },
   portal: { icon: Monitor, label: 'Client Portal' },
   tools: { icon: Settings, label: 'Business Tools' },
@@ -53,7 +55,7 @@ export default function BookingsPage() {
 
   useEffect(() => {
     const loadBookings = async () => {
-      if (!user?.email) return
+      if (!user?.id) return
       const supabase = createClient()
 
       const today = new Date().toISOString().split('T')[0]
@@ -61,7 +63,7 @@ export default function BookingsPage() {
       let query = supabase
         .from('bookings')
         .select('*')
-        .eq('email', user.email)
+        .eq('user_id', user.id)
         .order('booking_date', { ascending: false })
         .order('booking_time', { ascending: false })
 
@@ -146,7 +148,7 @@ export default function BookingsPage() {
               : "You haven't booked any sessions yet."}
           </p>
           <Link
-            href="/booking"
+            href="/hub/booking"
             className="inline-flex items-center gap-2 bg-[#81D8D0] text-[#0a0a0a] px-6 py-3 rounded-lg font-medium hover:bg-[#81D8D0]/90 transition-colors"
           >
             Book a Session

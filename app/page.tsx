@@ -46,7 +46,7 @@ export default function Home() {
               <h2 className="text-3xl text-white font-light">Ciara J. Evans</h2>
               <div className="pt-2">
                 <Button href="/booking?type=speaking" size="lg" className="btn-primary">
-                  Book Ciara
+                  Book Ciara J.
                 </Button>
               </div>
             </div>
@@ -65,7 +65,7 @@ export default function Home() {
                   <p className="text-white/60 max-w-md text-lg">Inspiring purpose-driven action through storytelling, speaking, and strategic visibility.</p>
                   <div className="mt-6">
                     <Button href="/booking" size="lg" className="btn-primary">
-                      Book Ciara
+                      Book Ciara J.
                     </Button>
                   </div>
                 </div>
@@ -93,7 +93,7 @@ export default function Home() {
             {/* Heading above photo */}
             <div className="text-center lg:text-left">
               <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-4"><span className="text-accent font-semibold text-sm">About The CJE Experience</span></div>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">Meet Ciara</h2>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">Meet Ciara J.</h2>
             </div>
             
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -104,7 +104,7 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
                 className="relative h-[500px] lg:h-[700px] rounded-2xl overflow-hidden"
               >
-                <Image src="/images/cje2.JPEG" alt="Ciara J Evans" fill className="object-cover" />
+                <Image src="/images/cje2.JPEG" alt="Ciara J. Evans" fill className="object-cover" />
               </motion.div>
               <motion.div 
                 initial={{ opacity: 0, x: 50 }} 
@@ -114,12 +114,12 @@ export default function Home() {
                 className="space-y-6"
               >
                 <div className="space-y-4 text-base sm:text-lg text-white/80 leading-relaxed">
-                <p>Ciara J Evans is a dynamic creative director and entrepreneur who has built The CJE Experience into a transformative platform for purpose-driven storytelling, speaking, and strategic visibility.</p>
+                <p>Ciara J. Evans is a dynamic creative director and entrepreneur who has built The CJE Experience into a transformative platform for purpose-driven storytelling, speaking, and strategic visibility.</p>
                 <p>With a passion for purpose-driven storytelling, Ciara helps content creators, celebrities, professionals, and entrepreneurs build brands that resonate. Her approach blends strategic thinking with creative excellence, ensuring every project aligns with your vision and values.</p>
                 <p>Beyond strategy, Ciara is an accomplished public speaker and emcee, bringing energy and authenticity to every stage she graces. Her work is for the culture. Authentic, impactful, and beautifully executed.</p>
               </div>
               <blockquote className="text-2xl sm:text-3xl italic text-white border-l-4 border-accent pl-6 py-4 mt-8">"Inspiring purpose-driven action through storytelling, speaking, and strategic visibility."</blockquote>
-              <Button href="/booking?type=speaking" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center"><span>Work With Ciara</span><ArrowRight className="ml-2" size={18} /></Button>
+              <Button href="/booking" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center"><span>Work With Ciara J.</span><ArrowRight className="ml-2" size={18} /></Button>
               </motion.div>
             </div>
           </div>
@@ -132,17 +132,17 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }} 
             viewport={{ once: true, margin: "-100px" }} 
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center lg:text-left mb-16"
           >
             <div className="inline-block px-4 py-2 bg-accent/20 rounded-full mb-4"><span className="text-accent font-semibold text-sm">What We Offer</span></div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">Our Services</h2>
-            <p className="text-lg text-white/80 max-w-2xl mx-auto">Comprehensive brand solutions tailored to your vision</p>
+            <p className="text-lg text-white/80 max-w-2xl lg:max-w-none">Comprehensive brand solutions tailored to your vision</p>
           </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { icon: Sparkles, title: 'Speaking & Events', description: 'Keynotes, workshops, and emcee services that inspire purpose-driven action. Engaging presentations tailored to your audience and event goals.', link: '/events' },
               { icon: Users, title: 'Coaching', description: '1:1 coaching, cohort programs, and digital courses designed to help you discover your purpose, build your brand, and achieve your goals.', link: '/coaching' },
-              { icon: Target, title: 'Branding & Creative', description: 'Custom websites, client portals, business tools, brand identity consulting, and creative direction to bring your vision to life.', link: '/branding' },
+              { icon: Target, title: 'Branding & Web', description: 'Custom websites, client portals, business tools, brand identity consulting, and creative direction to bring your vision to life.', link: '/branding' },
             ].map((service, index) => (
               <motion.div 
                 key={service.title}
@@ -196,7 +196,7 @@ export default function Home() {
                   </motion.div>
                 ))}
               </div>
-              <Button href="/booking?type=website" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center mt-8"><span>Start Your Project</span><ArrowRight className="ml-2" size={18} /></Button>
+              <Button href="/booking" className="btn-primary h-14 w-full sm:w-[240px] inline-flex items-center justify-center mt-8"><span>Start Your Project</span><ArrowRight className="ml-2" size={18} /></Button>
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, x: 50 }} 
@@ -257,7 +257,7 @@ export default function Home() {
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">Ready to Elevate Your Brand?</h2>
               <p className="text-lg sm:text-xl text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0">Let's discuss how we can bring your vision to life through strategic brand management and creative excellence.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button href="/booking?type=speaking" size="lg" className="btn-primary text-base px-6 h-14 w-full sm:w-[240px]">Schedule Consultation</Button>
+                <Button href="/booking" size="lg" className="btn-primary text-base px-6 h-14 w-full sm:w-[240px]">Schedule Consultation</Button>
               </div>
             </motion.div>
           </div>

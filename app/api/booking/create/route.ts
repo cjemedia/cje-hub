@@ -128,8 +128,8 @@ export async function POST(request: NextRequest) {
         booking_time: time,
         inquiry_type: type,
         google_event_id: calendarEvent?.eventId || null,
+        user_id: body.user_id || null, // capture logged-in user when available
         // Legacy columns for backward compatibility
-        client_id: null, // Public bookings don't have client_id
         type: legacyType, // Map to 'meeting' to satisfy check constraint
         date: date, // Keep for backward compatibility
         time: timeValue, // Convert to time format

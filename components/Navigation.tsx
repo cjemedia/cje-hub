@@ -31,7 +31,6 @@ export default function Navigation() {
     { href: '/branding', label: 'Branding' },
     { href: '/partnerships', label: 'Partnerships' },
   ]
-  const clientLogin: NavItem = { href: '/hub/login', label: 'Client Login', external: false }
 
   return (
     <nav
@@ -69,15 +68,7 @@ export default function Navigation() {
               href="/booking?type=speaking"
               className="bg-accent text-dark px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:opacity-90 transition-all"
             >
-              Book Ciara
-            </Link>
-            <Link
-              href={clientLogin.href}
-              target={clientLogin.external ? '_blank' : undefined}
-              rel={clientLogin.external ? 'noopener noreferrer' : undefined}
-              className="bg-dark-light text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:bg-dark-lighter transition-all"
-            >
-              {clientLogin.label}
+              Book Ciara J.
             </Link>
           </div>
 
@@ -119,16 +110,7 @@ export default function Navigation() {
                 onClick={() => setIsOpen(false)}
                 className="block bg-accent text-dark px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-4"
               >
-                Book Ciara
-              </Link>
-              <Link
-                href={clientLogin.href}
-                target={clientLogin.external ? '_blank' : undefined}
-                rel={clientLogin.external ? 'noopener noreferrer' : undefined}
-                onClick={() => setIsOpen(false)}
-                className="block bg-dark-light text-white px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-4"
-              >
-                {clientLogin.label}
+                Book Ciara J.
               </Link>
             </div>
           </motion.div>

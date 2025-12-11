@@ -6,8 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, MapPin, DollarSign, Users, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
+import Link from 'next/link'
 import Button from '@/components/Button'
-import HubHeader from '@/components/HubHeader'
 
 export default function EventsPage() {
   const router = useRouter()
@@ -23,7 +23,7 @@ export default function EventsPage() {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push('/hub/login')
+        router.push('/login')
         return
       }
 
@@ -47,14 +47,14 @@ export default function EventsPage() {
     
     // Get client info
     const { data: client } = await supabase
-      .from('clients')
+      .from('users')
       .select('*')
       .eq('id', user.id)
       .single()
 
     const { error } = await supabase.from('event_rsvps').insert({
       event_id: eventId,
-      client_id: user.id,
+      user_id: user.id,
       email: user.email,
       name: client?.name || user.email,
       status: 'pending',
@@ -72,23 +72,31 @@ export default function EventsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-primary-charcoal/70">Loading...</div>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-white/70">Loading...</div>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#2D2D2D]">
-      <HubHeader
-        user={user}
-        showBackButton
-        backHref="/hub/dashboard"
-        title="CJE Experiences"
-        subtitle="Upcoming events and experiences"
-      />
+    <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="mb-8">
+        <Link
+          href="/hub/dashboard"
+          className="inline-flex items-center gap-2 text-[#a1a1a1] hover:text-white mb-4 transition-colors"
+        >
+          <ArrowLeft size={18} />
+          Back to Dashboard
+        </Link>
+        <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
+          CJE Experiences
+        </h1>
+        <p className="text-[#a1a1a1]">
+          Upcoming events and experiences
+        </p>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto">
         {events.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -159,7 +167,7 @@ export default function EventsPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }
 

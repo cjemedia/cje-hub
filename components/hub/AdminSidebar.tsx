@@ -2,20 +2,19 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import {
   LayoutDashboard,
+  Users,
   Calendar,
-  CalendarPlus,
   FolderKanban,
-  Download,
   MessageSquare,
-  CalendarDays,
+  Receipt,
+  ArrowLeft,
   LogOut,
   ChevronUp,
   ChevronDown,
   ExternalLink,
-  X,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -23,29 +22,19 @@ import { useHubUser } from '@/components/hub/HubUserProvider'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/hub/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/hub/booking', icon: CalendarPlus, label: 'Book a Session' },
-  { href: '/hub/bookings', icon: Calendar, label: 'My Bookings' },
-  { href: '/hub/projects', icon: FolderKanban, label: 'Projects' },
-  { href: '/hub/deliverables', icon: Download, label: 'Resources' },
-  { href: '/hub/messages', icon: MessageSquare, label: 'Messages' },
-  { href: '/hub/events', icon: CalendarDays, label: 'Events' },
+  { href: '/admin', icon: LayoutDashboard, label: 'Admin Home' },
+  { href: '/admin/clients', icon: Users, label: 'Clients' },
+  { href: '/admin/bookings', icon: Calendar, label: 'Bookings' },
+  { href: '/admin/projects', icon: FolderKanban, label: 'Projects' },
+  { href: '/admin/messages', icon: MessageSquare, label: 'Messages' },
+  { href: '/admin/invoices', icon: Receipt, label: 'Invoices' },
 ]
 
-export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function AdminSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, role } = useHubUser()
   const [menuOpen, setMenuOpen] = useState(false)
-  const prevPathnameRef = useRef<string | null>(null)
-
-  // Close sidebar when route changes on mobile (but not on initial mount)
-  useEffect(() => {
-    if (prevPathnameRef.current !== null && prevPathnameRef.current !== pathname) {
-      onClose()
-    }
-    prevPathnameRef.current = pathname
-  }, [pathname, onClose])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -53,51 +42,27 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
     router.push('/login')
   }
 
-  const avatarInitial = user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'
+  const avatarInitial = user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'A'
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={onClose}
-        />
-      )}
-      <aside
-        className={cn(
-          'fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333333] min-h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        )}
-      >
-        {/* Mobile close button */}
-        <div className="flex items-center justify-between p-6 border-b border-[#333333] md:hidden">
-          <Link href="/hub/dashboard" className="flex items-center gap-3">
-            <img
-              src="/images/cje-logo.png"
-              alt="The CJE Experience"
-              className="h-8 w-auto brightness-0 invert"
-            />
-            <span className="text-white font-semibold text-sm">The CJE Experience</span>
-          </Link>
-          <button
-            onClick={onClose}
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            <X size={24} />
-          </button>
-        </div>
-        {/* Desktop logo */}
-        <div className="hidden md:block p-6 border-b border-[#333333]">
-          <Link href="/hub/dashboard" className="flex items-center gap-3">
-            <img
-              src="/images/cje-logo.png"
-              alt="The CJE Experience"
-              className="h-8 w-auto brightness-0 invert"
-            />
-            <span className="text-white font-semibold text-sm">The CJE Experience</span>
-          </Link>
-        </div>
+    <aside className="w-64 bg-[#1a1a1a] border-r border-[#333333] min-h-screen flex flex-col">
+      <div className="p-6 border-b border-[#333333]">
+        <Link href="/hub/dashboard" className="flex items-center gap-3 mb-4 text-[#a1a1a1] hover:text-white transition-colors">
+          <ArrowLeft size={18} />
+          <span className="text-sm">Back to Portal</span>
+        </Link>
+        <Link href="/admin" className="flex items-center gap-3">
+          <img
+            src="/images/cje-logo.png"
+            alt="The CJE Experience"
+            className="h-8 w-auto brightness-0 invert"
+          />
+          <div>
+            <span className="text-white font-semibold text-sm block">The CJE Experience</span>
+            <span className="text-[#81D8D0] text-xs">Admin Dashboard</span>
+          </div>
+        </Link>
+      </div>
 
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
@@ -144,8 +109,8 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
               {avatarInitial}
             </div>
             <div className="text-left flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate">{user?.name || 'User'}</p>
-              <p className="text-[#a1a1a1] text-xs capitalize">{role || 'Client'}</p>
+              <p className="text-white text-sm font-medium truncate">{user?.name || 'Admin'}</p>
+              <p className="text-[#a1a1a1] text-xs capitalize">{role || 'Admin'}</p>
             </div>
             {menuOpen ? <ChevronUp size={16} className="text-[#a1a1a1] flex-shrink-0" /> : <ChevronDown size={16} className="text-[#a1a1a1] flex-shrink-0" />}
           </button>
@@ -183,7 +148,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         </div>
       </div>
     </aside>
-    </>
   )
 }
 

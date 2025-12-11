@@ -30,7 +30,7 @@ export default function SpeakingPage() {
       description: 'Discover how to leverage your unique experiences and stories to build a compelling personal brand.',
     },
     {
-      title: 'Scholarship Szn: Becoming the Top-Tier Candidate',
+      title: 'Your Scholarship Era: Becoming the Top-Tier Candidate',
       description: 'Essential strategies for students, parents, and educators on standing out in competitive scholarship applications.',
     },
     {
@@ -63,13 +63,9 @@ export default function SpeakingPage() {
             </h1>
             <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
               Inspiring purpose-driven action through powerful storytelling, engaging presentations, and authentic connection. 
-              Whether you need a keynote speaker, workshop facilitator, or event host, Ciara brings energy, expertise, and impact to every stage.
+              Whether you need a keynote speaker, workshop facilitator, or event host, Ciara J. brings energy, expertise, and impact to every stage.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button href="/booking?type=speaking" size="lg" className="btn-primary">
-                <span>Book Ciara</span>
-                <ArrowRight className="ml-2" size={20} />
-              </Button>
+            <div className="flex justify-center">
               <a href="/booking?inquiry=true" className="border border-white text-white px-8 py-4 rounded-lg hover:bg-white/10 transition-colors text-center inline-flex items-center justify-center">
                 Contact Us
               </a>
@@ -167,10 +163,10 @@ export default function SpeakingPage() {
             className="text-center max-w-3xl mx-auto"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Book Ciara for Your Next Event
+              Book Ciara J. for Your Next Event
             </h2>
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
-              Ready to bring purpose-driven inspiration to your audience? Let's discuss how Ciara can make your next event unforgettable.
+              Ready to bring purpose-driven inspiration to your audience? Let's discuss how Ciara J. can make your next event unforgettable.
             </p>
             <Button href="/booking?type=speaking" size="lg" className="btn-primary">
               <span>Book a Call</span>

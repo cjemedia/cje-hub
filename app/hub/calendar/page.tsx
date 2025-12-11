@@ -19,7 +19,7 @@ export default function CalendarPage() {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        router.push('/hub/login')
+        router.push('/login')
         return
       }
 
@@ -43,7 +43,7 @@ export default function CalendarPage() {
       <HubHeader user={user} onLogout={async () => {
         const supabase = createClient()
         await supabase.auth.signOut()
-        router.push('/hub/login')
+        router.push('/login')
       }} />
 
       <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 space-y-4 sm:space-y-6">

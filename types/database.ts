@@ -31,7 +31,7 @@ export type ClientType = 'speaking' | 'coaching' | 'branding' | 'mixed'
 
 export interface Project {
   id: string
-  client_id: string
+  user_id: string
   name: string
   description?: string
   status: ProjectStatus
@@ -44,7 +44,7 @@ export interface Project {
 
 export interface Booking {
   id: string
-  client_id?: string
+  user_id?: string
   name: string
   email: string
   phone?: string
@@ -57,7 +57,7 @@ export interface Booking {
   created_at: string
 }
 
-export interface Client {
+export interface User {
   id: string
   email: string
   name: string

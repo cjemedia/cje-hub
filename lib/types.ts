@@ -7,7 +7,7 @@ export interface Service {
   features?: string[]
 }
 
-export interface Client {
+export interface User {
   id: string
   email: string
   name: string
@@ -17,7 +17,7 @@ export interface Client {
 
 export interface Project {
   id: string
-  client_id: string
+  user_id: string
   name: string
   status: 'active' | 'completed' | 'on-hold'
   deliverables?: any[]
@@ -37,7 +37,7 @@ export interface Event {
 
 export interface Booking {
   id: string
-  client_id: string
+  user_id: string
   type: 'meeting' | 'content-shoot'
   date: string
   time: string

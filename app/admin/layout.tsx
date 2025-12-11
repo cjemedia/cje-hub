@@ -1,11 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { HubUserProvider } from '@/components/hub/HubUserProvider'
-import SidebarWrapper from '@/components/hub/SidebarWrapper'
+import AdminSidebar from '@/components/hub/AdminSidebar'
 
-export default async function HubLayout({ children }: { children: React.ReactNode }) {
-  // This layout only applies to protected routes
-  // Public routes (login, forgot-password, reset-password) use (public)/layout.tsx
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
 
   const {
@@ -16,13 +14,18 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     redirect('/login')
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile } = await supabase
     .from('users')
     .select('id, name, role, email')
     .eq('id', user.id)
     .maybeSingle()
 
   const role = (profile?.role as 'client' | 'admin') ?? 'client'
+
+  // Only admins can access
+  if (role !== 'admin') {
+    redirect('/hub/dashboard')
+  }
 
   return (
     <HubUserProvider
@@ -35,9 +38,10 @@ export default async function HubLayout({ children }: { children: React.ReactNod
         role,
       }}
     >
-      <SidebarWrapper>
-        {children}
-      </SidebarWrapper>
+      <div className="flex min-h-screen bg-[#0a0a0a]">
+        <AdminSidebar />
+        <main className="flex-1">{children}</main>
+      </div>
     </HubUserProvider>
   )
 }

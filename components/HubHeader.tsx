@@ -36,7 +36,7 @@ export default function HubHeader({
     }
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/hub/login')
+    router.push('/login')
   }
 
   const clientMenu = [
