@@ -66,8 +66,6 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
     const allSlots = generateTimeSlots()
     const bookedSlots = new Set<string>()
 
-    console.log(`📅 Checking availability for ${date}: Found ${events.length} existing events`)
-
     // Mark slots as booked if they overlap with existing events
     events.forEach((event) => {
       let eventStart: Date | null = null
@@ -111,7 +109,6 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
         // Two ranges overlap if: start1 < end2 && start2 < end1
         if (slotTimeCT < eventEndCT && slotEndCT > eventStartCT) {
           bookedSlots.add(slot)
-          console.log(`  ❌ Slot ${slot} blocked by: ${event.summary || 'Untitled Event'}`)
         }
       })
     })
@@ -152,7 +149,6 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
       return true
     })
     
-    console.log(`✅ Available slots for ${date}: ${availableSlots.length} out of ${allSlots.length} total slots`)
     return availableSlots
   } catch (error) {
     console.error('❌ Error fetching available slots:', error)
@@ -188,7 +184,6 @@ export async function createCalendarEvent(booking: {
     try {
       const { credentials } = await oauth2Client.refreshAccessToken()
       oauth2Client.setCredentials(credentials)
-      console.log('Access token refreshed successfully')
     } catch (tokenError: any) {
       console.error('Error refreshing access token:', {
         message: tokenError?.message,
@@ -270,24 +265,10 @@ export async function createCalendarEvent(booking: {
       },
     }
 
-    console.log('Creating calendar event:', {
-      calendarId,
-      summary: event.summary,
-      start: event.start.dateTime,
-      end: event.end.dateTime,
-      attendees: event.attendees?.map(a => a.email),
-    })
-
     const response = await calendar.events.insert({
       calendarId,
       requestBody: event,
       sendUpdates: 'all', // Send calendar invites
-    })
-
-    console.log('Calendar event created:', {
-      eventId: response.data.id,
-      htmlLink: response.data.htmlLink,
-      status: response.data.status,
     })
 
     return {

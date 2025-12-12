@@ -98,7 +98,7 @@ export default function DeliverablesPage() {
                     )}
                   </div>
                 </div>
-                <button className="bg-[#81D8D0] text-[#0a0a0a] px-6 py-3 rounded-lg font-medium hover:bg-[#81D8D0]/90 transition-colors flex items-center gap-2">
+                <button className="bg-[#81D8D0] text-[#0a0a0a] px-6 py-3 rounded-lg font-medium hover:bg-[#81D8D0]/90 transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl">
                   <Download size={18} />
                   Download
                 </button>

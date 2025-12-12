@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { HubUserProvider } from '@/components/hub/HubUserProvider'
-import AdminSidebar from '@/components/hub/AdminSidebar'
+import AdminSidebarWrapper from '@/components/hub/AdminSidebarWrapper'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const { data: profile } = await supabase
     .from('users')
-    .select('id, name, role, email')
+    .select('id, name, role, email, avatar_url')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -34,14 +34,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           id: user.id,
           email: user.email,
           name: profile?.name || user.user_metadata?.full_name || '',
+          avatar_url: profile?.avatar_url || null,
         },
         role,
       }}
     >
-      <div className="flex min-h-screen bg-[#0a0a0a]">
-        <AdminSidebar />
-        <main className="flex-1">{children}</main>
-      </div>
+      <AdminSidebarWrapper>
+        {children}
+      </AdminSidebarWrapper>
     </HubUserProvider>
   )
 }

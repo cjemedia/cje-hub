@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { format } from 'date-fns'
@@ -18,6 +18,7 @@ import {
   Palette,
   type LucideIcon,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const serviceTypeConfig: Record<
   string,
@@ -41,33 +42,90 @@ export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [clients, setClients] = useState<{ id: string; name: string; email: string }[]>([])
+  const [form, setForm] = useState({
+    user_id: '',
+    name: '',
+    description: '',
+    service_type: '',
+    status: 'inquiry' as StatusFilter,
+    start_date: '',
+    end_date: '',
+  })
+  const router = useRouter()
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      const supabase = createClient()
+  const loadProjects = useCallback(async () => {
+    const supabase = createClient()
 
-      let query = supabase
-        .from('projects')
-        .select('*, users(name, email)')
-        .order('created_at', { ascending: false })
+    let query = supabase
+      .from('projects')
+      .select('*, users(name, email)')
+      .order('created_at', { ascending: false })
 
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter)
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error('Error loading projects:', error)
-        setProjects([])
-      } else {
-        setProjects(data || [])
-      }
-      setLoading(false)
+    if (statusFilter !== 'all') {
+      query = query.eq('status', statusFilter)
     }
 
-    loadProjects()
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error loading projects:', error)
+      setProjects([])
+    } else {
+      setProjects(data || [])
+    }
+    setLoading(false)
   }, [statusFilter])
+
+  useEffect(() => {
+    loadProjects()
+  }, [loadProjects])
+
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        const res = await fetch('/api/clients')
+        if (!res.ok) throw new Error('Failed to load clients')
+        const data = await res.json()
+        setClients(data || [])
+      } catch (error) {
+        console.error('Error loading clients:', error)
+      }
+    }
+    loadClients()
+  }, [])
+
+  const handleCreate = async () => {
+    if (!form.user_id || !form.name || !form.service_type || !form.status) return
+    setCreating(true)
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) {
+        throw new Error('Failed to create project')
+      }
+      await loadProjects()
+      setShowCreateModal(false)
+      setForm({
+        user_id: '',
+        name: '',
+        description: '',
+        service_type: '',
+        status: 'inquiry',
+        start_date: '',
+        end_date: '',
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setCreating(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -88,6 +146,14 @@ export default function AdminProjectsPage() {
           </div>
           <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">All Projects</h1>
           <p className="text-[#a1a1a1]">View and manage all client projects</p>
+        <div className="mt-4">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 bg-[#81D8D0] text-[#0a0a0a] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl"
+          >
+            New Project
+          </button>
+        </div>
         </div>
 
         {/* Filter Tabs */}
@@ -172,6 +238,135 @@ export default function AdminProjectsPage() {
           </div>
         </div>
       </div>
+
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">Create Project</h2>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-[#a1a1a1] hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Client</label>
+                <select
+                  value={form.user_id}
+                  onChange={(e) => setForm((prev) => ({ ...prev, user_id: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                >
+                  <option value="">Select client</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name || c.email} ({c.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Project Name</label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  placeholder="Project name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                  rows={3}
+                  placeholder="Optional description"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Service Type</label>
+                  <select
+                    value={form.service_type}
+                    onChange={(e) => setForm((prev) => ({ ...prev, service_type: e.target.value }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  >
+                    <option value="">Select service</option>
+                    <option value="speaking_engagement">Speaking</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="event_hosting">Event Hosting</option>
+                    <option value="coaching_1on1">1:1 Coaching</option>
+                    <option value="coaching_cohort">Cohort Program</option>
+                    <option value="website">Website</option>
+                    <option value="client_portal">Portal</option>
+                    <option value="business_tools">Business Tools</option>
+                    <option value="brand_consulting">Brand Consulting</option>
+                    <option value="creative_direction">Creative Direction</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Status</label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value as StatusFilter }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  >
+                    <option value="inquiry">Inquiry</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={form.start_date}
+                    onChange={(e) => setForm((prev) => ({ ...prev, start_date: e.target.value }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={form.end_date}
+                    onChange={(e) => setForm((prev) => ({ ...prev, end_date: e.target.value }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-white/50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={creating || !form.user_id || !form.name || !form.service_type}
+                className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              >
+                {creating ? 'Creating...' : 'Create Project'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

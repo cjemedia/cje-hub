@@ -270,7 +270,7 @@ function QuickLink({ href, icon: Icon, label }: { href: string; icon: any; label
       className="text-center p-4 bg-[#0a0a0a] border border-[#333333] rounded-lg hover:border-[#81D8D0]/50 transition-colors group"
     >
       <div className="flex flex-col items-center text-center">
-        <div className="bg-[#81D8D0]/10 text-[#81D8D0] w-12 h-12 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#81D8D0]/20 transition-colors">
+        <div className="bg-[#81D8D0]/10 text-[#81D8D0] w-12 h-12 rounded-lg flex items-center justify-center mb-3">
           <Icon size={22} />
         </div>
         <p className="text-white text-sm font-medium">{label}</p>

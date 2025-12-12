@@ -18,7 +18,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
 
   const { data: profile, error: profileError } = await supabase
     .from('users')
-    .select('id, name, role, email')
+    .select('id, name, role, email, avatar_url')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -31,6 +31,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
           id: user.id,
           email: user.email,
           name: profile?.name || user.user_metadata?.full_name || '',
+          avatar_url: profile?.avatar_url || null,
         },
         role,
       }}

@@ -1,10 +1,16 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Button from '@/components/Button'
-import { ArrowRight, Mic, Users, MessageSquare, Presentation, Radio } from 'lucide-react'
+import { ArrowRight, Mic, Users, MessageSquare, Presentation, Radio, Calendar, MapPin } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
+import Link from 'next/link'
+import Image from 'next/image'
+import { formatTime12Hour } from '@/lib/time-format'
 
 export default function SpeakingPage() {
   const formats = [
@@ -176,8 +182,121 @@ export default function SpeakingPage() {
         </div>
       </section>
 
+      {/* UPCOMING EVENTS SECTION */}
+      <UpcomingEventsSection />
+
       <Footer />
     </main>
+  )
+}
+
+function UpcomingEventsSection() {
+  const [events, setEvents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('status', 'approved')
+        .gte('date', new Date().toISOString())
+        .order('date', { ascending: true })
+        .limit(6)
+
+      if (!error && data) {
+        setEvents(data)
+      }
+      setLoading(false)
+    }
+
+    loadEvents()
+  }, [])
+
+  if (loading) {
+    return null
+  }
+
+  if (events.length === 0) {
+    return null
+  }
+
+  return (
+    <section className="section-padding bg-dark">
+      <div className="section-max-width">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
+            Upcoming Events
+          </h2>
+          <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            Join us for these upcoming experiences and gatherings
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {events.map((event, index) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <Link
+                href={`/events/${event.slug || event.id}`}
+                className="block bg-dark-light border-2 border-white/10 rounded-2xl overflow-hidden hover:border-accent transition-all duration-300 group"
+              >
+                {((event.image_urls && event.image_urls.length > 0) || event.image_url) && (
+                  <div className="relative w-full h-48 overflow-hidden">
+                    <Image
+                      src={(event.image_urls && event.image_urls[0]) || event.image_url}
+                      alt={event.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-accent transition-colors">
+                    {event.title}
+                  </h3>
+                  {event.description && (
+                    <p className="text-white/70 mb-4 line-clamp-2 text-sm">
+                      {event.description}
+                    </p>
+                  )}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-white/80 text-sm">
+                      <Calendar size={16} className="text-accent flex-shrink-0" />
+                      <span>
+                        {format(new Date(event.date), 'MMMM d, yyyy • h:mm a')}
+                        {event.end_time && ` - ${formatTime12Hour(event.end_time)}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/80 text-sm">
+                      <MapPin size={16} className="text-accent flex-shrink-0" />
+                      <span>{event.location}</span>
+                    </div>
+                    {event.ticket_link && (
+                      <div className="pt-2">
+                        <span className="text-accent text-sm font-semibold">Get Tickets →</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 

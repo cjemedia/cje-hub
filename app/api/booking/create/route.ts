@@ -3,13 +3,29 @@ import { createClient } from '@/lib/supabase/server'
 import { createCalendarEvent } from '@/lib/google-calendar'
 import { sendEmail } from '@/lib/resend'
 import { clientConfirmationEmail, adminNotificationEmail } from '@/lib/email-templates'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { addToMailchimp } from '@/lib/mailchimp'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || request.headers.get('x-real-ip') || 'unknown'
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
-    const { name, email, phone, date, time, type, notes } = body
+    const { name, email, phone, date, time, type, notes, subscribe, website } = body
+
+    // Honeypot spam trap
+    if (website) {
+      return NextResponse.json({ success: true })
+    }
 
     // Validate required fields
     if (!name || !email || !date || !time || !type) {
@@ -65,7 +81,6 @@ export async function POST(request: NextRequest) {
     // Create Google Calendar event FIRST (before saving to DB)
     let calendarEvent
     try {
-      console.log('Attempting to create calendar event...')
       calendarEvent = await createCalendarEvent({
         name,
         email,
@@ -73,10 +88,6 @@ export async function POST(request: NextRequest) {
         time,
         type,
         notes: notes || '',
-      })
-      console.log('✅ Calendar event created successfully:', {
-        eventId: calendarEvent?.eventId,
-        htmlLink: calendarEvent?.htmlLink,
       })
     } catch (error: any) {
       console.error('❌ Error creating calendar event:', {
@@ -94,7 +105,6 @@ export async function POST(request: NextRequest) {
     try {
       const { createServiceClient } = await import('@/lib/supabase/service')
       supabase = createServiceClient()
-      console.log('✅ Service client created successfully')
     } catch (serviceError: any) {
       console.error('❌ Failed to create service client:', serviceError?.message)
       return NextResponse.json(
@@ -116,7 +126,6 @@ export async function POST(request: NextRequest) {
     // Map all new inquiry types to 'meeting' for backward compatibility
     const legacyType = 'meeting'
     
-    console.log('💾 Attempting to save booking to database...')
     const { data: booking, error: dbError } = await supabase
       .from('bookings')
       .insert({
@@ -165,9 +174,6 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.log('✅ Booking saved to database successfully')
-    console.log('✅ Booking ID:', booking?.id)
-
     // Format date in local timezone to avoid timezone shift (used for both client and admin emails)
     const formatDateForEmail = (dateString: string) => {
       // Parse date string (YYYY-MM-DD) in local timezone
@@ -183,8 +189,6 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to client
     try {
-      console.log('📧 Attempting to send client confirmation email to:', email)
-      
       // Validate email format before sending
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(email)) {
@@ -209,11 +213,6 @@ export async function POST(request: NextRequest) {
         console.error('❌ Failed to send client confirmation email:', JSON.stringify(clientEmailResult.error, null, 2))
         console.error('❌ Email address that failed:', email)
         // Don't fail the booking, but log the error
-      } else {
-        console.log('✅ Client confirmation email sent successfully')
-        console.log('✅ Recipient:', email)
-        console.log('✅ Message ID:', clientEmailResult.data?.id)
-        console.log('✅ Check Resend dashboard for delivery status: https://resend.com/emails')
       }
     } catch (emailError: any) {
       console.error('❌ Error sending confirmation email:', {
@@ -233,8 +232,6 @@ export async function POST(request: NextRequest) {
       : ['media@ciarajevans.com']
     
     try {
-      console.log(`Attempting to send admin notification email(s) to: ${adminRecipients.join(', ')}`)
-      
       // Send to all recipients
       const emailPromises = adminRecipients.map(async (recipient) => {
         const result = await sendEmail({
@@ -259,8 +256,6 @@ export async function POST(request: NextRequest) {
       emailResults.forEach(({ recipient, result }) => {
         if (!result.success) {
           console.error(`❌ Failed to send admin notification email to ${recipient}:`, JSON.stringify(result.error, null, 2))
-        } else {
-          console.log(`✅ Admin notification email sent successfully to ${recipient}. Message ID:`, result.data?.id)
         }
       })
     } catch (emailError: any) {
@@ -268,6 +263,14 @@ export async function POST(request: NextRequest) {
         message: emailError?.message,
         error: emailError,
       })
+    }
+
+    // Add to Mailchimp if subscribed
+    if (subscribe && email) {
+      const nameParts = name.split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+      await addToMailchimp(email, firstName, lastName)
     }
 
     return NextResponse.json({

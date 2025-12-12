@@ -52,9 +52,9 @@ export default function OrganizationsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-6">
-              <span className="text-accent font-semibold text-sm">For Organizations</span>
-            </div>
+            <p className="text-accent uppercase tracking-widest text-sm mb-6">
+              For Organizations
+            </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
               Partner With Ciara J.
             </h1>

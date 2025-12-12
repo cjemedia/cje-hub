@@ -313,7 +313,7 @@ function BookingContent() {
                 )}
                 <Link
                   href="/hub/bookings"
-                  className="inline-flex items-center gap-2 bg-[#81D8D0] text-dark px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-2 bg-[#81D8D0] text-dark px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl"
                 >
                   View My Bookings
                   <ArrowRight size={18} />
@@ -556,7 +556,7 @@ function BookingContent() {
                   !formData.email ||
                   (selectedType === 'Existing Project' && !selectedProject)
                 }
-                className="w-full bg-[#81D8D0] text-dark px-6 py-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#81D8D0] text-dark px-6 py-4 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
               >
                 {isSubmitting ? (
                   <>

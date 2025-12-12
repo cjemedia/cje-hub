@@ -430,7 +430,7 @@ export default function AdminMessagesPage() {
                         <button
                           type="submit"
                           disabled={!newMessage.trim() || sending}
-                          className="bg-[#81D8D0] text-dark px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          className="bg-[#81D8D0] text-dark px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                         >
                           {sending ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
                         </button>

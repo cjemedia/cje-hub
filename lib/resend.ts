@@ -49,15 +49,6 @@ export async function sendEmail({
       return { success: false, error: 'No message ID returned from Resend' }
     }
 
-    console.log('Email sent successfully:', { 
-      to: recipients, 
-      subject, 
-      messageId: data.id,
-      from,
-      replyTo: replyTo || 'none',
-      // Log the actual email address to verify
-      actualRecipient: recipients[0]
-    })
     return { success: true, data }
   } catch (error) {
     console.error('Email send error:', error)

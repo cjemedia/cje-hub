@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -42,10 +43,14 @@ export default function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-24 md:h-28">
-          <Link href="/" className="group">
-            <img
+          <Link href="/" className="group" aria-label="The CJE Experience - Home">
+            <Image
               src="/images/cje-logo.png"
               alt="The CJE Experience"
+              width={500}
+              height={500}
+              priority
+              quality={85}
               className="h-32 md:h-40 w-auto max-w-[400px] md:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0 invert"
             />
           </Link>
@@ -65,8 +70,14 @@ export default function Navigation() {
               </Link>
             ))}
             <Link
+              href="/hub/dashboard"
+              className="border border-white/20 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:border-white/40 hover:bg-white/5 transition-all h-[44px] min-h-[44px] min-w-[140px] flex items-center justify-center whitespace-nowrap box-border"
+            >
+              Client Portal
+            </Link>
+            <Link
               href="/booking?type=speaking"
-              className="bg-accent text-dark px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:opacity-90 transition-all"
+              className="bg-accent text-dark px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg hover:opacity-90 transition-all h-[44px] min-h-[44px] min-w-[140px] flex items-center justify-center whitespace-nowrap box-border"
             >
               Book Ciara J.
             </Link>
@@ -105,6 +116,13 @@ export default function Navigation() {
                   {item.label}
                 </Link>
               ))}
+              <Link
+                href="/hub/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="block border border-white/20 text-white px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-4 hover:border-white/40 hover:bg-white/5 transition-all"
+              >
+                Client Portal
+              </Link>
               <Link
                 href="/booking?type=speaking"
                 onClick={() => setIsOpen(false)}

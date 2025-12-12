@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Mail, Phone, Globe, Instagram, Linkedin } from 'lucide-react'
 
 export default function Footer() {
@@ -10,9 +11,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand */}
           <div className="space-y-4">
-            <img
+            <Image
               src="/images/cje-logo.png"
               alt="The CJE Experience"
+              width={200}
+              height={200}
+              quality={85}
               className="h-auto w-[200px] brightness-0 invert"
             />
             <p className="text-white/70 text-sm">
@@ -58,10 +62,26 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/business-resources"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
+                >
+                  B.Y.O.B.
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/privacy"
                   className="text-white/70 hover:text-accent transition-colors text-sm"
                 >
                   Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-white/70 hover:text-accent transition-colors text-sm"
+                >
+                  Terms of Service
                 </Link>
               </li>
             </ul>
@@ -131,6 +151,13 @@ export default function Footer() {
             className="text-white/70 hover:text-accent transition-colors"
           >
             Privacy Policy
+          </Link>
+          <span className="text-white/30">•</span>
+          <Link
+            href="/terms"
+            className="text-white/70 hover:text-accent transition-colors"
+          >
+            Terms of Service
           </Link>
         </div>
       </div>

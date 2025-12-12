@@ -21,7 +21,6 @@ export default function LoginPage() {
     setError('')
 
     try {
-      console.log('Attempting login for:', email)
       const supabase = createClient()
       
       // Attempt login with timeout protection
@@ -51,11 +50,7 @@ export default function LoginPage() {
         return
       }
 
-      console.log('Login successful, user:', data?.user?.id)
-      
       if (data?.user && data?.session) {
-        console.log('Session established, checking role...')
-        
         // Fetch user's role from clients table
         const { data: client, error: clientError } = await supabase
           .from('users')

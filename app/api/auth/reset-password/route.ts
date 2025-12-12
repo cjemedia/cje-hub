@@ -65,22 +65,42 @@ export async function POST(request: NextRequest) {
       to: email,
       subject: 'Reset Your Password - The CJE Experience',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #81D8D0;">Reset Your Password</h2>
-          <p>You requested to reset your password for The CJE Experience account.</p>
-          <p>Click the button below to reset your password:</p>
-          <div style="margin: 30px 0;">
-            <a href="${resetUrl}" 
-               style="display: inline-block; padding: 12px 24px; background-color: #81D8D0; color: #000; text-decoration: none; border-radius: 6px; font-weight: bold;">
-              Reset Password
-            </a>
-          </div>
-          <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
-          <p style="color: #666; font-size: 12px; word-break: break-all;">${resetUrl}</p>
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            This link will expire in 1 hour. If you didn't request this, please ignore this email.
-          </p>
-        </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
+  <title>Reset Your Password - The CJE Experience</title>
+</head>
+<body style="background-color: #0a0a0a; margin: 0; padding: 40px 20px; font-family: Arial, sans-serif;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 40px;">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <img src="https://ciarajevans.com/images/cje-logo.png" alt="The CJE Experience" width="240" height="auto" style="max-width: 240px; width: 240px; height: auto; display: block; margin: 0 auto 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
+    </div>
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 30px; font-weight: 700; text-align: center;">Reset Your Password</h2>
+      <p style="color: rgba(255, 255, 255, 0.7); font-size: 16px; margin: 0; text-align: center;">
+        Follow the link below to reset your password
+      </p>
+    </div>
+    <p style="color: #ffffff; line-height: 1.6; margin-bottom: 8px;">You requested to reset your password for The CJE Experience account.</p>
+    <p style="color: #ffffff; line-height: 1.6; margin-bottom: 32px;">Click the button below to reset your password:</p>
+    <div style="margin: 30px 0; text-align: center;">
+      <a href="${resetUrl}" 
+         style="display: inline-block; padding: 14px 32px; background: #ffffff; background-color: #ffffff !important; color: #0a0a0a !important; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; border: 1px solid rgba(255, 255, 255, 0.2); mso-hide: all;">
+        Reset Password
+      </a>
+    </div>
+    <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-top: 24px;">Or copy and paste this link into your browser:</p>
+    <p style="color: #ffffff; font-size: 12px; word-break: break-all; background-color: #0a0a0a; padding: 12px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.2);">${resetUrl}</p>
+    <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-top: 24px;">
+      This link will expire in 1 hour. If you didn't request this, please ignore this email.
+    </p>
+  </div>
+</body>
+</html>
       `,
       from: 'The CJE Experience <booking@ciarajevans.com>',
     })

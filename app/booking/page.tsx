@@ -47,6 +47,8 @@ function BookingContent() {
     phone: '',
     notes: '',
   })
+  const [subscribe, setSubscribe] = useState(false)
+  const [honeypot, setHoneypot] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [bookingDetails, setBookingDetails] = useState<any>(null)
@@ -121,6 +123,8 @@ function BookingContent() {
             message: formData.notes || `Inquiry about: ${selectedType}${selectedDate ? `\nPreferred date: ${formatDate(selectedDate)}` : ''}${selectedTime ? `\nPreferred time: ${selectedTime}` : ''}`,
             subject: `Booking Inquiry: ${selectedType}`,
             inquiryType: selectedType,
+            subscribe: subscribe,
+            website: honeypot,
           }),
         })
 
@@ -139,6 +143,8 @@ function BookingContent() {
         
         // Reset form
         setFormData({ name: '', email: '', phone: '', notes: '' })
+        setSubscribe(false)
+        setHoneypot('')
         setSelectedDate('')
         setSelectedTime('')
         setSubmitAsInquiry(false)
@@ -167,16 +173,18 @@ function BookingContent() {
       const response = await fetch('/api/booking/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          date: selectedDate,
-          time: selectedTime,
-          type: selectedType,
-          notes: formData.notes,
-          user_id: null,
-        }),
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            date: selectedDate,
+            time: selectedTime,
+            type: selectedType,
+            notes: formData.notes,
+            user_id: null,
+            subscribe: subscribe,
+            website: honeypot,
+          }),
       })
 
       const data = await response.json()
@@ -190,6 +198,8 @@ function BookingContent() {
       
       // Reset form
       setFormData({ name: '', email: '', phone: '', notes: '' })
+      setSubscribe(false)
+      setHoneypot('')
       setSelectedDate('')
       setSelectedTime('')
       setSubmitAsInquiry(false)
@@ -229,7 +239,7 @@ function BookingContent() {
               <div className="relative h-[400px] sm:h-[550px] lg:h-[800px] rounded-xl sm:rounded-2xl overflow-hidden">
                 <Image
                   src="/images/cje10.JPG"
-                  alt="Let's Work Together"
+                  alt="Ciara J. Evans - Let's Work Together"
                   fill
                   className="object-cover"
                 />
@@ -240,12 +250,19 @@ function BookingContent() {
                     transition={{ delay: 0.3 }}
                     className="text-center px-4 sm:px-8"
                   >
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white mb-4">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white mb-4">
                       Let&apos;s Work Together
-                    </h2>
+                    </h1>
                     <p className="text-white/80 text-sm sm:text-base max-w-md mx-auto">
                       Schedule a consultation and let&apos;s discuss how we can bring your vision to life.
                     </p>
+                    <div className="mt-4 flex items-center justify-center gap-3 text-xs sm:text-sm text-white/70">
+                      <a href="/coaching" className="text-accent hover:text-accent/80 transition-colors">Explore Coaching</a>
+                      <span className="text-white/40">•</span>
+                      <a href="/events" className="text-accent hover:text-accent/80 transition-colors">See Events</a>
+                      <span className="text-white/40">•</span>
+                      <a href="/business-resources" className="text-accent hover:text-accent/80 transition-colors">Business Resources</a>
+                    </div>
                   </motion.div>
                 </div>
               </div>
@@ -517,6 +534,28 @@ function BookingContent() {
                         rows={4}
                         className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-accent transition-colors resize-none"
                       />
+                      {/* Honeypot field to catch bots */}
+                      <input
+                        type="text"
+                        name="website"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        style={{ position: 'absolute', left: '-9999px' }}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                      />
+                      <label className="flex items-start gap-3 cursor-pointer pt-2">
+                        <input
+                          type="checkbox"
+                          checked={subscribe}
+                          onChange={(e) => setSubscribe(e.target.checked)}
+                          className="mt-1 w-4 h-4 accent-accent cursor-pointer"
+                        />
+                        <span className="text-white/70 text-sm">
+                          Keep me updated on events and offerings
+                        </span>
+                      </label>
                     </div>
                   </div>
 

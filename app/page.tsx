@@ -11,32 +11,37 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-dark overflow-x-hidden">
       <Navigation />
+      <h1 className="sr-only">Ciara J. Evans | The CJE Experience</h1>
 
       {/* HERO SECTION - Option 4 Style */}
       <section className="relative min-h-[85vh] lg:min-h-screen bg-dark overflow-hidden">
         {/* Giant background text - only show on lg and up */}
         <div className="absolute inset-0 hidden lg:flex items-start justify-center pt-8 md:pt-16 pointer-events-none" style={{ zIndex: 1 }}>
-          <h1 className="text-[25vw] lg:text-[18vw] font-bold text-white/[0.06] select-none tracking-tight whitespace-nowrap">
+          <div className="text-[25vw] lg:text-[18vw] font-bold text-white/[0.06] select-none tracking-tight whitespace-nowrap" aria-hidden="true">
             PURPOSE
-          </h1>
+          </div>
         </div>
 
         {/* Mobile/Tablet layout */}
         <div className="lg:hidden absolute inset-0 flex flex-col justify-end" style={{ zIndex: 2 }}>
           {/* PURPOSE - behind head area */}
           <div className="absolute top-52 left-0 right-0 flex justify-center pointer-events-none">
-            <h1 className="text-[22vw] font-bold text-white/[0.06] select-none tracking-tight">
+            <div className="text-[22vw] font-bold text-white/[0.06] select-none tracking-tight" aria-hidden="true">
               PURPOSE
-            </h1>
+            </div>
           </div>
           
           {/* Image + Text container - sits at bottom */}
           <div className="relative">
             {/* Image */}
-            <img 
-              src="/images/cje19.png" 
-              alt="Ciara J. Evans" 
-              className="w-full h-auto object-contain scale-[1.36] brightness-[0.75]" 
+            <Image
+              src="/images/cje19.png"
+              alt="Ciara J. Evans headshot portrait"
+              width={1200}
+              height={1600}
+              priority
+              quality={85}
+              className="w-full h-auto object-contain scale-[1.36] brightness-[0.75]"
             />
 {/* Bottom gradient */}
 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -73,10 +78,14 @@ export default function Home() {
 
               {/* Ciara's image - right side */}
               <div className="absolute right-0 top-0 bottom-0 flex items-end justify-end">
-                <img 
-                  src="/images/cje19.png" 
-                  alt="Ciara J. Evans" 
-                  className="h-[90vh] w-auto object-contain object-bottom -mr-8 xl:-mr-16 brightness-[0.75]" 
+                <Image
+                  src="/images/cje19.png"
+                  alt="Ciara J. Evans headshot portrait"
+                  width={1200}
+                  height={1600}
+                  priority
+                  quality={85}
+                  className="h-[90vh] w-auto object-contain object-bottom -mr-8 xl:-mr-16 brightness-[0.75]"
                 />
                {/* Bottom gradient */}
 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -104,7 +113,14 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
                 className="relative h-[500px] lg:h-[700px] rounded-2xl overflow-hidden"
               >
-                <Image src="/images/cje2.JPEG" alt="Ciara J. Evans" fill className="object-cover" />
+                <Image 
+                  src="/images/cje2.JPEG" 
+                  alt="Ciara J. Evans professional headshot" 
+                  fill 
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  quality={85}
+                  className="object-cover" 
+                />
               </motion.div>
               <motion.div 
                 initial={{ opacity: 0, x: 50 }} 
@@ -155,7 +171,7 @@ export default function Home() {
                 <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-accent/30 transition-colors"><service.icon size={32} className="text-accent" /></div>
                 <h3 className="text-2xl font-bold text-white mb-4">{service.title}</h3>
                 <p className="text-white/80 leading-relaxed mb-6">{service.description}</p>
-                <a href={service.link} className="text-accent font-semibold inline-flex items-center gap-2 hover:gap-3 transition-all"><span>Learn More</span><ArrowRight size={18} /></a>
+                <a href={service.link} className="text-accent font-semibold inline-flex items-center gap-2 hover:gap-3 transition-all"><span>Learn More About {service.title}</span><ArrowRight size={18} /></a>
               </motion.div>
             ))}
           </div>
@@ -190,7 +206,7 @@ export default function Home() {
                   >
                     <div className="text-5xl font-bold text-accent/20">{item.number}</div>
                     <div className="flex-1">
-                      <h4 className="text-xl sm:text-2xl font-semibold text-accent mb-2">{item.title}</h4>
+                      <h3 className="text-xl sm:text-2xl font-semibold text-accent mb-2">{item.title}</h3>
                       <p className="text-white/80 leading-relaxed">{item.description}</p>
                     </div>
                   </motion.div>
@@ -205,7 +221,14 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="relative h-[600px] rounded-2xl overflow-hidden border-4 border-white"
             >
-              <Image src="/images/cje4.JPG" alt="Ciara presenting" fill className="object-cover" />
+              <Image 
+                src="/images/cje4.JPG" 
+                alt="Ciara J. Evans presenting at an event" 
+                fill 
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                quality={85}
+                className="object-cover" 
+              />
             </motion.div>
           </div>
         </div>
@@ -243,7 +266,16 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="relative w-full aspect-square max-w-lg mx-auto lg:ml-auto order-2 lg:order-1"
             >
-              <div className="absolute inset-0 rounded-full overflow-hidden shadow-2xl"><Image src="/images/cje6.JPG" alt="Ciara professional" fill className="object-cover" /></div>
+              <div className="absolute inset-0 rounded-full overflow-hidden shadow-2xl">
+                <Image 
+                  src="/images/cje6.JPG" 
+                  alt="Ciara J. Evans professional portrait" 
+                  fill 
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  quality={85}
+                  className="object-cover" 
+                />
+              </div>
               <div className="absolute -z-10 inset-0 bg-accent/20 rounded-full scale-105 blur-3xl" />
             </motion.div>
             <motion.div 

@@ -10,7 +10,7 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   return (
     <div className="flex min-h-screen bg-[#0a0a0a]">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="flex-1 relative">
+      <main className="flex-1 relative pt-16 md:pt-0 md:overflow-y-auto md:h-screen">
         {/* Mobile hamburger button */}
         {!sidebarOpen && (
           <button

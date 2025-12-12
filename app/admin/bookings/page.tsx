@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { StatusBadge } from '@/components/StatusBadge'
-import { Calendar, Clock, Search, Filter } from 'lucide-react'
+import { Calendar, Clock, Info, Mail, Phone } from 'lucide-react'
 
 const inquiryTypeLabels: Record<string, string> = {
   speaking: 'Speaking Engagement',
@@ -29,6 +29,7 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [filter, setFilter] = useState<FilterType>('all')
   const [loading, setLoading] = useState(true)
+  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -60,6 +61,28 @@ export default function AdminBookingsPage() {
 
     loadBookings()
   }, [filter])
+
+  const renderStatus = (status: string) => {
+    const base = 'px-2.5 py-1 rounded-full text-xs font-semibold border'
+    switch (status) {
+      case 'pending':
+        return <span className={`${base} bg-yellow-500/20 text-yellow-300 border-yellow-500/30`}>pending</span>
+      case 'confirmed':
+        return <span className={`${base} bg-[#81D8D0]/20 text-[#81D8D0] border-[#81D8D0]/30`}>confirmed</span>
+      case 'completed':
+        return <span className={`${base} bg-green-500/20 text-green-300 border-green-500/30`}>completed</span>
+      case 'cancelled':
+        return <span className={`${base} bg-red-500/20 text-red-300 border-red-500/30`}>cancelled</span>
+      case 'rescheduled':
+        return <span className={`${base} bg-amber-500/20 text-amber-300 border-amber-500/40`}>rescheduled</span>
+      default:
+        return <StatusBadge status={status} />
+    }
+  }
+
+  const toggleNotes = (id: string) => {
+    setExpandedNotes((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
 
   if (loading) {
     return (
@@ -99,67 +122,84 @@ export default function AdminBookingsPage() {
           ))}
         </div>
 
-        {/* Bookings Table */}
+        {/* Booking Cards */}
         <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-[#333333]">
-                <tr>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Client</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Email</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Date & Time</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Inquiry Type</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Status</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-[#a1a1a1]">
-                      No bookings found
-                    </td>
-                  </tr>
-                ) : (
-                  bookings.map((booking: any) => (
-                    <tr
-                      key={booking.id}
-                      className="border-b border-[#333333] hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <Link href={`/admin/bookings/${booking.id}`} className="text-white hover:text-[#81D8D0] transition-colors">
+          <div className="divide-y divide-[#333333]">
+            {bookings.length === 0 ? (
+              <div className="px-6 py-12 text-center text-[#a1a1a1]">No bookings found</div>
+            ) : (
+              bookings.map((booking: any) => {
+                const isExpanded = expandedNotes[booking.id]
+                const notes = booking.notes || ''
+                const truncated = notes.length > 140 && !isExpanded ? `${notes.slice(0, 140)}...` : notes
+                return (
+                  <div key={booking.id} className="p-5 space-y-3 hover:bg-white/5 transition-colors">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <Link href={`/admin/bookings/${booking.id}`} className="text-white font-semibold hover:text-[#81D8D0]">
                           {booking.users?.name || booking.name || 'N/A'}
                         </Link>
-                      </td>
-                      <td className="px-6 py-4 text-[#a1a1a1]">{booking.users?.email || booking.email || 'N/A'}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-white">
-                          <Calendar size={14} className="text-[#a1a1a1]" />
-                          <span className="text-sm">
-                            {booking.booking_date ? format(new Date(booking.booking_date), 'MMM d, yyyy') : 'TBD'}
-                          </span>
-                          {booking.booking_time && (
-                            <>
-                              <Clock size={14} className="text-[#a1a1a1] ml-2" />
-                              <span className="text-sm">{booking.booking_time}</span>
-                            </>
-                          )}
+                        <div className="flex items-center gap-2 text-sm text-[#a1a1a1]">
+                          <Mail size={14} />
+                          <span>{booking.users?.email || booking.email || 'N/A'}</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-white text-sm">
-                        {inquiryTypeLabels[booking.inquiry_type] || booking.type || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={booking.status} />
-                      </td>
-                      <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                        {format(new Date(booking.created_at), 'MMM d, yyyy')}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                        {booking.phone && (
+                          <div className="flex items-center gap-2 text-sm text-[#a1a1a1]">
+                            <Phone size={14} />
+                            <span>{booking.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {renderStatus(booking.status)}
+                        <Link href={`/admin/bookings/${booking.id}`} className="text-sm text-[#81D8D0] hover:underline">
+                          View
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-white">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={14} className="text-[#a1a1a1]" />
+                        <span>{booking.booking_date ? format(new Date(booking.booking_date), 'EEE, MMM d, yyyy') : 'TBD'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock size={14} className="text-[#a1a1a1]" />
+                        <span>{booking.booking_time || 'TBD'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 md:col-span-2">
+                        <Info size={14} className="text-[#a1a1a1]" />
+                        <span className="capitalize text-[#81D8D0]">
+                          {inquiryTypeLabels[booking.inquiry_type] || booking.inquiry_type || booking.type || 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {notes && (
+                      <div className="text-sm text-[#a1a1a1]">
+                        <p className="text-white font-medium mb-1">Notes</p>
+                        <p>{truncated}</p>
+                        {notes.length > 140 && (
+                          <button
+                            onClick={() => toggleNotes(booking.id)}
+                            className="text-xs text-[#81D8D0] hover:underline mt-1"
+                          >
+                            {isExpanded ? 'Show less' : 'Show more'}
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {booking.status === 'rescheduled' && booking.original_date && (
+                      <p className="text-xs text-amber-300">
+                        Rescheduled from {format(new Date(booking.original_date), 'MMM d, yyyy')}
+                        {booking.original_time ? ` at ${booking.original_time}` : ''}
+                      </p>
+                    )}
+                  </div>
+                )
+              })
+            )}
           </div>
         </div>
       </div>

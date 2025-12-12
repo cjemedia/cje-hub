@@ -89,24 +89,27 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-6 sm:mb-8"
       >
-        <Link
-          href="/hub/dashboard"
-          className="inline-flex items-center gap-2 text-[#a1a1a1] hover:text-white mb-4 transition-colors"
-        >
-          <ArrowLeft size={18} />
-          Back to Dashboard
-        </Link>
-        <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <Link
+            href="/hub/dashboard"
+            className="inline-flex items-center gap-2 text-[#a1a1a1] hover:text-white transition-colors text-sm"
+          >
+            <ArrowLeft size={18} />
+            Dashboard
+          </Link>
+          <div className="h-1 w-1 rounded-full bg-[#81D8D0] opacity-80" />
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-semibold text-white mb-2">
           Projects
         </h1>
-        <p className="text-[#a1a1a1]">
-          View and manage your active projects and deliverables.
+        <p className="text-[#a1a1a1] text-sm sm:text-base">
+          Your active projects, deliverables, and milestones in one place.
         </p>
       </motion.div>
 
@@ -115,7 +118,7 @@ export default function ProjectsPage() {
         <div className="flex gap-2 mb-6 border-b border-[#333333] overflow-x-auto">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
+            className={`px-3 sm:px-4 py-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               filter === 'all'
                 ? 'border-[#81D8D0] text-[#81D8D0]'
                 : 'border-transparent text-[#a1a1a1] hover:text-white'
@@ -131,7 +134,7 @@ export default function ProjectsPage() {
               <button
                 key={serviceType}
                 onClick={() => setFilter(serviceType)}
-                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3 sm:px-4 py-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
                   filter === serviceType
                     ? 'border-[#81D8D0] text-[#81D8D0]'
                     : 'border-transparent text-[#a1a1a1] hover:text-white'
@@ -160,7 +163,7 @@ export default function ProjectsPage() {
           </p>
         </motion.div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 sm:space-y-5">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
@@ -180,9 +183,9 @@ function ProjectCard({ project }: { project: Project }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 hover:border-[#81D8D0]/50 transition-colors"
+      className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 sm:p-6 hover:border-[#81D8D0]/50 transition-colors"
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
+      <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-3">
             {config && (
@@ -193,11 +196,11 @@ function ProjectCard({ project }: { project: Project }) {
                 <Icon size={20} />
               </div>
             )}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-1">
+            <div className="min-w-0">
+              <h3 className="text-lg font-semibold text-white mb-1 truncate">
                 {project.name}
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 {config && (
                   <span
                     className="text-xs px-2 py-1 rounded-full"
@@ -212,33 +215,31 @@ function ProjectCard({ project }: { project: Project }) {
           </div>
 
           {project.description && (
-            <p className="text-sm text-[#a1a1a1] mb-4">{project.description}</p>
+            <p className="text-sm text-[#a1a1a1] mb-3 line-clamp-2">{project.description}</p>
           )}
 
-          <div className="flex items-center gap-4 text-sm text-[#a1a1a1]">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-[#a1a1a1]">
             {project.start_date && (
               <span>
-                Started: {format(new Date(project.start_date), 'MMM d, yyyy')}
+                Start: {format(new Date(project.start_date), 'MMM d, yyyy')}
               </span>
             )}
             {project.end_date && (
               <span>
-                Ends: {format(new Date(project.end_date), 'MMM d, yyyy')}
+                End: {format(new Date(project.end_date), 'MMM d, yyyy')}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Deliverables section would go here if available */}
-      {/* For now, we'll add a placeholder */}
-      <div className="mt-4 pt-4 border-t border-[#333333]">
+      <div className="mt-4 pt-4 border-t border-[#333333] flex items-center justify-between">
         <Link
           href={`/hub/projects/${project.id}`}
           className="text-sm text-[#81D8D0] hover:text-[#81D8D0]/80 flex items-center gap-2"
         >
           <Download size={16} />
-          View Deliverables
+          View Project
         </Link>
       </div>
     </motion.div>

@@ -152,7 +152,7 @@ export default function DashboardPage() {
                 className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 hover:border-[#81D8D0]/50 transition-colors group"
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="bg-[#81D8D0]/10 text-[#81D8D0] w-12 h-12 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#81D8D0]/20 transition-colors">
+                  <div className="bg-[#81D8D0]/10 text-[#81D8D0] w-12 h-12 rounded-lg flex items-center justify-center mb-3">
                     <Icon size={24} />
                   </div>
                   <span className="text-sm font-medium text-white">{link.label}</span>

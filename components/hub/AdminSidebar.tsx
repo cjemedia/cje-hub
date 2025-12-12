@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   LayoutDashboard,
   Users,
@@ -15,6 +15,8 @@ import {
   ChevronUp,
   ChevronDown,
   ExternalLink,
+  X,
+  CalendarCheck,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -25,16 +27,26 @@ const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Admin Home' },
   { href: '/admin/clients', icon: Users, label: 'Clients' },
   { href: '/admin/bookings', icon: Calendar, label: 'Bookings' },
+  { href: '/admin/events', icon: CalendarCheck, label: 'Events' },
   { href: '/admin/projects', icon: FolderKanban, label: 'Projects' },
   { href: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { href: '/admin/invoices', icon: Receipt, label: 'Invoices' },
 ]
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, role } = useHubUser()
   const [menuOpen, setMenuOpen] = useState(false)
+  const prevPathnameRef = useRef<string | null>(null)
+
+  // Close sidebar when route changes on mobile (but not on initial mount)
+  useEffect(() => {
+    if (prevPathnameRef.current !== null && prevPathnameRef.current !== pathname) {
+      onClose()
+    }
+    prevPathnameRef.current = pathname
+  }, [pathname, onClose])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -45,24 +57,58 @@ export default function AdminSidebar() {
   const avatarInitial = user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'A'
 
   return (
-    <aside className="w-64 bg-[#1a1a1a] border-r border-[#333333] min-h-screen flex flex-col">
-      <div className="p-6 border-b border-[#333333]">
-        <Link href="/hub/dashboard" className="flex items-center gap-3 mb-4 text-[#a1a1a1] hover:text-white transition-colors">
-          <ArrowLeft size={18} />
-          <span className="text-sm">Back to Portal</span>
-        </Link>
-        <Link href="/admin" className="flex items-center gap-3">
-          <img
-            src="/images/cje-logo.png"
-            alt="The CJE Experience"
-            className="h-8 w-auto brightness-0 invert"
-          />
-          <div>
-            <span className="text-white font-semibold text-sm block">The CJE Experience</span>
-            <span className="text-[#81D8D0] text-xs">Admin Dashboard</span>
-          </div>
-        </Link>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={cn(
+          'fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333333] min-h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        )}
+      >
+        {/* Mobile close button */}
+        <div className="flex items-center justify-between p-6 border-b border-[#333333] md:hidden">
+          <Link href="/admin" className="flex items-center gap-3">
+            <img
+              src="/images/cje-logo.png"
+              alt="The CJE Experience"
+              className="h-8 w-auto brightness-0 invert"
+            />
+            <div>
+              <span className="text-white font-semibold text-sm block">The CJE Experience</span>
+              <span className="text-[#81D8D0] text-xs">Admin Dashboard</span>
+            </div>
+          </Link>
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        {/* Desktop header */}
+        <div className="hidden md:block p-6 border-b border-[#333333]">
+          <Link href="/hub/dashboard" className="flex items-center gap-3 mb-4 text-[#a1a1a1] hover:text-white transition-colors">
+            <ArrowLeft size={18} />
+            <span className="text-sm">Back to Portal</span>
+          </Link>
+          <Link href="/admin" className="flex items-center gap-3">
+            <img
+              src="/images/cje-logo.png"
+              alt="The CJE Experience"
+              className="h-8 w-auto brightness-0 invert"
+            />
+            <div>
+              <span className="text-white font-semibold text-sm block">The CJE Experience</span>
+              <span className="text-[#81D8D0] text-xs">Admin Dashboard</span>
+            </div>
+          </Link>
+        </div>
 
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
@@ -105,9 +151,17 @@ export default function AdminSidebar() {
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <div className="w-10 h-10 rounded-full bg-[#81D8D0] flex items-center justify-center text-dark font-semibold flex-shrink-0">
-              {avatarInitial}
-            </div>
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt="Avatar"
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[#81D8D0] flex items-center justify-center text-dark font-semibold flex-shrink-0">
+                {avatarInitial}
+              </div>
+            )}
             <div className="text-left flex-1 min-w-0">
               <p className="text-white text-sm font-medium truncate">{user?.name || 'Admin'}</p>
               <p className="text-[#a1a1a1] text-xs capitalize">{role || 'Admin'}</p>
@@ -118,7 +172,7 @@ export default function AdminSidebar() {
           {menuOpen && (
             <div className="absolute bottom-full left-4 right-4 mb-2 bg-[#1a1a1a] border border-[#333333] rounded-lg shadow-xl py-2 z-50">
               <Link
-                href="/hub/profile"
+                href="/admin/profile"
                 onClick={() => setMenuOpen(false)}
                 className="block px-4 py-2 text-sm text-white hover:bg-white/5 transition-colors"
               >
@@ -148,6 +202,7 @@ export default function AdminSidebar() {
         </div>
       </div>
     </aside>
+    </>
   )
 }
 

@@ -11,6 +11,7 @@ import {
   Download,
   MessageSquare,
   CalendarDays,
+  Receipt,
   LogOut,
   ChevronUp,
   ChevronDown,
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/hub/projects', icon: FolderKanban, label: 'Projects' },
   { href: '/hub/deliverables', icon: Download, label: 'Resources' },
   { href: '/hub/messages', icon: MessageSquare, label: 'Messages' },
+  { href: '/hub/invoices', icon: Receipt, label: 'Invoices' },
   { href: '/hub/events', icon: CalendarDays, label: 'Events' },
 ]
 
@@ -66,7 +68,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
       )}
       <aside
         className={cn(
-          'fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333333] min-h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
+          'fixed md:static top-0 left-0 h-[100dvh] md:h-full w-64 bg-[#1a1a1a] border-r border-[#333333] md:min-h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
       >
@@ -140,9 +142,17 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <div className="w-10 h-10 rounded-full bg-[#81D8D0] flex items-center justify-center text-dark font-semibold flex-shrink-0">
-              {avatarInitial}
-            </div>
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user?.name || 'User'}
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[#81D8D0] flex items-center justify-center text-dark font-semibold flex-shrink-0">
+                {avatarInitial}
+              </div>
+            )}
             <div className="text-left flex-1 min-w-0">
               <p className="text-white text-sm font-medium truncate">{user?.name || 'User'}</p>
               <p className="text-[#a1a1a1] text-xs capitalize">{role || 'Client'}</p>
