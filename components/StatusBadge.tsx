@@ -7,7 +7,7 @@ const statusConfig: Record<
   inquiry: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Inquiry' },
   pending: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Pending' },
   confirmed: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Confirmed' },
-  in_progress: { bg: 'bg-[#81D8D0]/20', text: 'text-[#81D8D0]', label: 'In Progress' },
+  in_progress: { bg: 'bg-accent/20', text: 'text-accent', label: 'In Progress' },
   completed: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Completed' },
   cancelled: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Cancelled' },
 }
