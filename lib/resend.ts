@@ -1,6 +1,16 @@
 import { Resend } from 'resend'
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
+let resendClient: Resend | null = null
+
+function getResendClient() {
+  if (!resendClient) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY environment variable is not set')
+    }
+    resendClient = new Resend(process.env.RESEND_API_KEY)
+  }
+  return resendClient
+}
 
 export async function sendEmail({
   to,
@@ -16,6 +26,8 @@ export async function sendEmail({
   replyTo?: string
 }) {
   try {
+    const resend = getResendClient()
+    
     // Ensure to is always an array
     const recipients = Array.isArray(to) ? to : [to]
     
@@ -55,4 +67,3 @@ export async function sendEmail({
     return { success: false, error }
   }
 }
-
