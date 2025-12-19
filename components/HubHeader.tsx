@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -64,12 +65,14 @@ export default function HubHeader({
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6 min-w-0 flex-1">
             <Link href="/hub/dashboard" className="group flex-shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/cje-logo.png"
-                alt="The CJE Experience"
-                className="h-16 sm:h-24 md:h-32 lg:h-40 w-auto max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0 invert"
-              />
+              
+            <Image
+  src="/images/cje-logo.png"
+  alt="The CJE Experience"
+  width={500}
+  height={500}
+  className="h-16 sm:h-24 md:h-32 lg:h-40 w-auto max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] transition-opacity group-hover:opacity-80 brightness-0 invert"
+/>
             </Link>
             {showBackButton && (
               <button
