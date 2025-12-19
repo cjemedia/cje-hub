@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 
 interface HubHeaderProps {
-  user?: any
+  user?: { email?: string; user_metadata?: { full_name?: string } }
   onLogout?: () => Promise<void> | void
   showBackButton?: boolean
   backHref?: string
