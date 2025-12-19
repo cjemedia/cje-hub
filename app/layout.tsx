@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
+import { Inter } from 'next/font/google'
 import "./globals.css";
 import { generateMetadata as genMeta } from "@/lib/metadata";
 import { Analytics } from "@vercel/analytics/next";
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   ...genMeta({
