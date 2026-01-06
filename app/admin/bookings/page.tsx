@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 import { StatusBadge } from '@/components/StatusBadge'
 import { Calendar, Clock, Info, Mail, Phone } from 'lucide-react'
 
@@ -161,7 +162,7 @@ export default function AdminBookingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-white">
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="text-[#a1a1a1]" />
-                        <span>{booking.booking_date ? format(new Date(booking.booking_date), 'EEE, MMM d, yyyy') : 'TBD'}</span>
+                        <span>{booking.booking_date ? formatDate(booking.booking_date) : 'TBD'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock size={14} className="text-[#a1a1a1]" />

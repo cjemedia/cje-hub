@@ -227,10 +227,10 @@ export default function AdminProjectsPage() {
                           <StatusBadge status={project.status} />
                         </td>
                         <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                          {project.start_date ? format(new Date(project.start_date), 'MMM d, yyyy') : 'N/A'}
+                          {project.start_date ? format(new Date(project.start_date + 'T00:00:00'), 'MMM d, yyyy') : 'N/A'}
                         </td>
                         <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                          {project.end_date ? format(new Date(project.end_date), 'MMM d, yyyy') : 'N/A'}
+                          {project.end_date ? format(new Date(project.end_date + 'T00:00:00'), 'MMM d, yyyy') : 'N/A'}
                         </td>
                       </tr>
                     )

@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 import { CheckCircle, Download, Send, X, Link as LinkIcon, ExternalLink } from 'lucide-react'
 
 export default function HubProjectDetailPage() {
@@ -279,8 +280,8 @@ export default function HubProjectDetailPage() {
           <h2 className="text-white font-semibold text-lg">Project Overview</h2>
           <p className="text-[#a1a1a1]">Status: {project.status}</p>
           <p className="text-[#a1a1a1]">Service: {project.service_type || 'N/A'}</p>
-          <p className="text-[#a1a1a1]">Start: {project.start_date ? format(new Date(project.start_date), 'MMM d, yyyy') : 'N/A'}</p>
-          <p className="text-[#a1a1a1]">End: {project.end_date ? format(new Date(project.end_date), 'MMM d, yyyy') : 'N/A'}</p>
+          <p className="text-[#a1a1a1]">Start: {formatDate(project.start_date)}</p>
+          <p className="text-[#a1a1a1]">End: {formatDate(project.end_date)}</p>
           <p className="text-[#a1a1a1]">{project.description || 'No description provided.'}</p>
         </section>
 

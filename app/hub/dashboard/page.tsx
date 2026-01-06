@@ -19,6 +19,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 import type { Booking } from '@/types/database'
 
 export default function DashboardPage() {
@@ -252,7 +253,7 @@ function BookingCard({ booking }: { booking: Booking }) {
   }
 
   const formattedDate = booking.booking_date
-    ? format(new Date(booking.booking_date), 'MMM d, yyyy')
+    ? formatDate(booking.booking_date)
     : 'TBD'
 
   return (

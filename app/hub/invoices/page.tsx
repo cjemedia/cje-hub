@@ -7,6 +7,7 @@ import { ArrowLeft, Receipt } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 
 type Invoice = {
   id: string

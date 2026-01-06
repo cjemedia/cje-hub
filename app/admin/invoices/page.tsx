@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 import { StatusBadge } from '@/components/StatusBadge'
 import { DollarSign } from 'lucide-react'
 
@@ -163,7 +164,7 @@ export default async function AdminInvoicesPage() {
                         <StatusBadge status={invoice.status} />
                       </td>
                       <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                        {invoice.due_date ? format(new Date(invoice.due_date), 'MMM d, yyyy') : 'N/A'}
+                        {formatDate(invoice.due_date)}
                       </td>
                       <td className="px-6 py-4 text-[#a1a1a1] text-sm">
                         {invoice.paid_at ? format(new Date(invoice.paid_at), 'MMM d, yyyy') : 'N/A'}

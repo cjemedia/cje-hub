@@ -23,6 +23,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 import type { Project, ServiceType } from '@/types/database'
 
 const serviceTypeConfig: Record<
@@ -221,12 +222,12 @@ function ProjectCard({ project }: { project: Project }) {
           <div className="flex flex-wrap items-center gap-3 text-sm text-[#a1a1a1]">
             {project.start_date && (
               <span>
-                Start: {format(new Date(project.start_date), 'MMM d, yyyy')}
+                Start: {formatDate(project.start_date)}
               </span>
             )}
             {project.end_date && (
               <span>
-                End: {format(new Date(project.end_date), 'MMM d, yyyy')}
+                End: {formatDate(project.end_date)}
               </span>
             )}
           </div>

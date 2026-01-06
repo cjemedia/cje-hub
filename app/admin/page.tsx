@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Users, Calendar, FolderKanban, Receipt, ArrowRight, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date'
 
 export const dynamic = 'force-dynamic'
 
@@ -176,10 +177,9 @@ export default async function AdminDashboard() {
                     <p className="text-white text-sm font-medium">
                       {booking.users?.name || booking.users?.email || booking.name || 'Unknown'}
                     </p>
-                    <p className="text-[#a1a1a1] text-xs">
-                      {booking.booking_date ? format(new Date(booking.booking_date), 'MMM d, yyyy') : 'TBD'} at{' '}
-                      {booking.booking_time || 'TBD'}
-                    </p>
+                      <p className="text-[#a1a1a1] text-xs">
+                        {booking.booking_date ? formatDate(booking.booking_date) : 'TBD'} at {booking.booking_time || 'TBD'}
+                      </p>
                   </div>
                 ))
               )}
