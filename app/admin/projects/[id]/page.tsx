@@ -66,6 +66,16 @@ export default function AdminProjectDetailPage() {
 
   const [intakeAssign, setIntakeAssign] = useState({ form_id: '' })
   const [uploading, setUploading] = useState(false)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null)
+  const [invoiceForm, setInvoiceForm] = useState({
+    amount: '',
+    description: '',
+    stripe_link: '',
+    status: 'pending',
+  })
+  const [invoiceReceiptFile, setInvoiceReceiptFile] = useState<File | null>(null)
+  const [creatingInvoice, setCreatingInvoice] = useState(false)
 
   useEffect(() => {
     if (!projectId) return
@@ -291,14 +301,92 @@ export default function AdminProjectDetailPage() {
     await loadActivity()
   }
 
-  const handleMarkInvoicePaid = async (id: string) => {
-    await fetch(`/api/invoices/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'paid', paid_at: new Date().toISOString() }),
+  const handleCreateInvoice = async () => {
+    if (!projectData || !invoiceForm.amount || !invoiceForm.stripe_link) return
+    setCreatingInvoice(true)
+    try {
+      const formData = new FormData()
+      formData.append('project_id', projectId)
+      formData.append('user_id', projectData.user_id)
+      formData.append('amount', invoiceForm.amount)
+      formData.append('description', invoiceForm.description)
+      formData.append('stripe_link', invoiceForm.stripe_link)
+      formData.append('status', invoiceForm.status)
+      if (invoiceReceiptFile) {
+        formData.append('receipt', invoiceReceiptFile)
+      }
+
+      const res = await fetch('/api/invoices', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (res.ok) {
+        await loadInvoices()
+        await loadActivity()
+        setShowInvoiceModal(false)
+        setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
+        setInvoiceReceiptFile(null)
+      }
+    } catch (error) {
+      console.error('Error creating invoice:', error)
+    } finally {
+      setCreatingInvoice(false)
+    }
+  }
+
+  const handleUpdateInvoice = async () => {
+    if (!editingInvoice) return
+    setCreatingInvoice(true)
+    try {
+      const formData = new FormData()
+      formData.append('amount', invoiceForm.amount)
+      formData.append('description', invoiceForm.description)
+      formData.append('stripe_link', invoiceForm.stripe_link)
+      formData.append('status', invoiceForm.status)
+      if (invoiceReceiptFile) {
+        formData.append('receipt', invoiceReceiptFile)
+      }
+
+      const res = await fetch(`/api/invoices/${editingInvoice.id}`, {
+        method: 'PUT',
+        body: formData,
+      })
+
+      if (res.ok) {
+        await loadInvoices()
+        await loadActivity()
+        setShowInvoiceModal(false)
+        setEditingInvoice(null)
+        setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
+        setInvoiceReceiptFile(null)
+      }
+    } catch (error) {
+      console.error('Error updating invoice:', error)
+    } finally {
+      setCreatingInvoice(false)
+    }
+  }
+
+  const handleDeleteInvoice = async (id: string) => {
+    if (!confirm('Delete this invoice?')) return
+    const res = await fetch(`/api/invoices/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      await loadInvoices()
+      await loadActivity()
+    }
+  }
+
+  const openEditInvoice = (invoice: Invoice) => {
+    setEditingInvoice(invoice)
+    setInvoiceForm({
+      amount: invoice.amount?.toString() || '',
+      description: invoice.description || '',
+      stripe_link: invoice.stripe_link || '',
+      status: invoice.status || 'pending',
     })
-    await loadInvoices()
-    await loadActivity()
+    setInvoiceReceiptFile(null)
+    setShowInvoiceModal(true)
   }
 
   const handleSaveAdminNote = async () => {
@@ -754,25 +842,96 @@ export default function AdminProjectDetailPage() {
           )}
 
           {tab === 'invoices' && (
-            <SimpleList title="Invoices" items={invoices} render={(inv) => (
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-white font-medium">${Number(inv.amount || 0).toFixed(2)}</p>
-                  <p className="text-xs text-[#a1a1a1]">
-                    Due {inv.due_date || 'N/A'} — {inv.status}
-                    {inv.paid_at && ` • Paid ${format(new Date(inv.paid_at), 'MMM d, yyyy')}`}
-                  </p>
-                </div>
-                {inv.status !== 'paid' && (
-                  <button
-                    onClick={() => handleMarkInvoicePaid(inv.id)}
-                    className="px-3 py-1 rounded-lg bg-[#81D8D0] text-[#0a0a0a] text-sm font-semibold"
-                  >
-                    Mark Paid
-                  </button>
-                )}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-white font-semibold">Invoices</h3>
+                <button
+                  onClick={() => {
+                    setEditingInvoice(null)
+                    setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
+                    setInvoiceReceiptFile(null)
+                    setShowInvoiceModal(true)
+                  }}
+                  className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Add Invoice
+                </button>
               </div>
-            )} />
+              {invoices.length === 0 ? (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 text-center">
+                  <p className="text-[#a1a1a1] text-sm">No invoices yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {invoices.map((inv: any) => (
+                    <div key={inv.id} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <p className="text-white font-semibold text-lg">
+                              ${Number(inv.amount || 0).toFixed(2)}
+                            </p>
+                            <span
+                              className={`px-2 py-1 rounded text-xs font-medium ${
+                                inv.status === 'paid'
+                                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                  : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                              }`}
+                            >
+                              {inv.status === 'paid' ? 'Paid' : 'Pending'}
+                            </span>
+                          </div>
+                          {inv.description && (
+                            <p className="text-[#a1a1a1] text-sm">{inv.description}</p>
+                          )}
+                          <div className="flex items-center gap-4 flex-wrap text-sm">
+                            {inv.stripe_link && (
+                              <a
+                                href={inv.stripe_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#81D8D0] hover:underline flex items-center gap-1"
+                              >
+                                Stripe Link →
+                              </a>
+                            )}
+                            {inv.receipt_url && (
+                              <a
+                                href={inv.receipt_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#81D8D0] hover:underline flex items-center gap-1"
+                              >
+                                View Receipt →
+                              </a>
+                            )}
+                            {inv.created_at && (
+                              <span className="text-[#a1a1a1]">
+                                Created {format(new Date(inv.created_at), 'MMM d, yyyy')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openEditInvoice(inv)}
+                            className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteInvoice(inv.id)}
+                            className="px-3 py-1.5 rounded-lg border border-red-500/50 text-red-400 hover:bg-red-500/10 text-sm transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {tab === 'activity' && (
@@ -863,6 +1022,128 @@ export default function AdminProjectDetailPage() {
                 <div className="col-span-10 text-right">Total</div>
                 <div className="col-span-2 text-right">${Number(activeProposal.total_amount || 0).toFixed(2)}</div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInvoiceModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-lg font-semibold">
+                {editingInvoice ? 'Edit Invoice' : 'Add Invoice'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowInvoiceModal(false)
+                  setEditingInvoice(null)
+                  setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
+                  setInvoiceReceiptFile(null)
+                }}
+                className="text-[#a1a1a1] hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">
+                  Amount <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={invoiceForm.amount}
+                  onChange={(e) => setInvoiceForm((prev) => ({ ...prev, amount: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={invoiceForm.description}
+                  onChange={(e) => setInvoiceForm((prev) => ({ ...prev, description: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                  rows={2}
+                  placeholder="Optional description"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">
+                  Stripe Invoice Link <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="url"
+                  value={invoiceForm.stripe_link}
+                  onChange={(e) => setInvoiceForm((prev) => ({ ...prev, stripe_link: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">
+                  Status
+                </label>
+                <select
+                  value={invoiceForm.status}
+                  onChange={(e) => setInvoiceForm((prev) => ({ ...prev, status: e.target.value }))}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">
+                  Receipt PDF {editingInvoice?.receipt_url && '(Current receipt exists)'}
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setInvoiceReceiptFile(e.target.files?.[0] || null)}
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                />
+                {editingInvoice?.receipt_url && (
+                  <a
+                    href={editingInvoice.receipt_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#81D8D0] hover:underline text-sm mt-1 inline-block"
+                  >
+                    View current receipt →
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => {
+                  setShowInvoiceModal(false)
+                  setEditingInvoice(null)
+                  setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
+                  setInvoiceReceiptFile(null)
+                }}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-white/50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={editingInvoice ? handleUpdateInvoice : handleCreateInvoice}
+                disabled={creatingInvoice || !invoiceForm.amount || !invoiceForm.stripe_link}
+                className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {creatingInvoice ? 'Saving...' : editingInvoice ? 'Update Invoice' : 'Create Invoice'}
+              </button>
             </div>
           </div>
         </div>

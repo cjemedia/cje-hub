@@ -13,6 +13,9 @@ type Invoice = {
   project_id: string | null
   amount: number
   status: string
+  description: string | null
+  stripe_link: string | null
+  receipt_url: string | null
   due_date: string | null
   paid_at: string | null
   created_at: string
@@ -36,6 +39,9 @@ export default function InvoicesPage() {
           project_id,
           amount,
           status,
+          description,
+          stripe_link,
+          receipt_url,
           due_date,
           paid_at,
           created_at,
@@ -43,7 +49,7 @@ export default function InvoicesPage() {
             name
           )
         `)
-        .eq('client_id', user.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -153,6 +159,10 @@ export default function InvoicesPage() {
                     </div>
                   </div>
 
+                  {invoice.description && (
+                    <p className="text-[#a1a1a1] text-sm mt-2">{invoice.description}</p>
+                  )}
+
                   <div className="flex items-center gap-4 flex-wrap pt-2 border-t border-[#333333]">
                     <div>
                       <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Status</p>
@@ -177,6 +187,29 @@ export default function InvoicesPage() {
                           {format(new Date(invoice.paid_at), 'MMM d, yyyy')}
                         </p>
                       </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-3 border-t border-[#333333]">
+                    {invoice.status === 'pending' && invoice.stripe_link && (
+                      <a
+                        href={invoice.stripe_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity"
+                      >
+                        Pay Now
+                      </a>
+                    )}
+                    {invoice.status === 'paid' && invoice.receipt_url && (
+                      <a
+                        href={invoice.receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-lg border border-[#81D8D0] text-[#81D8D0] font-semibold hover:bg-[#81D8D0]/10 transition-colors"
+                      >
+                        View Receipt
+                      </a>
                     )}
                   </div>
                 </div>

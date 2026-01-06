@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { logProjectActivity } from '@/lib/activity'
 
-export const runtime = 'edge'
-
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -17,6 +15,26 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServiceClient()
+    
+    // Check if storage bucket exists
+    const { data: buckets, error: bucketError } = await supabase.storage.listBuckets()
+    if (bucketError) {
+      console.error('Deliverables error: Failed to list buckets', bucketError)
+      return NextResponse.json(
+        { error: process.env.NODE_ENV === 'development' ? `Bucket check failed: ${bucketError.message}` : 'Storage configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const deliverablesBucket = buckets?.find(b => b.name === 'deliverables')
+    if (!deliverablesBucket) {
+      console.error('Deliverables error: Storage bucket "deliverables" does not exist')
+      return NextResponse.json(
+        { error: process.env.NODE_ENV === 'development' ? 'Storage bucket "deliverables" does not exist. Please create it in Supabase Storage.' : 'Storage configuration error' },
+        { status: 500 }
+      )
+    }
+
     const path = `${projectId}/${file.name}`
 
     const { error: uploadError } = await supabase.storage.from('deliverables').upload(path, file, {
@@ -25,8 +43,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (uploadError) {
-      console.error('Error uploading file:', uploadError)
-      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
+      console.error('Deliverables error: File upload failed', uploadError)
+      return NextResponse.json(
+        { error: process.env.NODE_ENV === 'development' ? `Upload failed: ${uploadError.message}` : 'Failed to upload file' },
+        { status: 500 }
+      )
     }
 
     const { data: publicUrlData } = supabase.storage.from('deliverables').getPublicUrl(path)
@@ -46,16 +67,22 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating deliverable record:', error)
-      return NextResponse.json({ error: 'Failed to save deliverable' }, { status: 500 })
+      console.error('Deliverables error: Database insert failed', error)
+      return NextResponse.json(
+        { error: process.env.NODE_ENV === 'development' ? `Database error: ${error.message}` : 'Failed to save deliverable' },
+        { status: 500 }
+      )
     }
 
     await logProjectActivity(projectId, null, 'resource_uploaded', { deliverable_id: data.id, name })
 
     return NextResponse.json(data)
-  } catch (error) {
-    console.error('API error uploading deliverable:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Deliverables error:', error)
+    return NextResponse.json(
+      { error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
