@@ -148,7 +148,7 @@ export default function InvoicesPage() {
                     <div>
                       <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Project</p>
                       <p className="text-white text-sm">
-                        {invoice.projects?.[0]?.name || 'No project'}
+                        {invoice.projects?.name || 'No project'}
                       </p>
                     </div>
                     <div>

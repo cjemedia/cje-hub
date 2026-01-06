@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
       .insert({
         project_id: projectId,
         user_id: userId,
-        client_id: userId, // Keep for backward compatibility
         amount: parseFloat(amount),
         description: description || null,
         stripe_link: stripeLink,

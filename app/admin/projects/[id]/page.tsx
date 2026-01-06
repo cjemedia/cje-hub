@@ -287,18 +287,24 @@ export default function AdminProjectDetailPage() {
     form.append('name', name || file.name)
     if (description) form.append('description', description)
     setUploading(true)
-    await fetch('/api/deliverables', { method: 'POST', body: form })
+    const res = await fetch('/api/deliverables', { method: 'POST', body: form })
     setUploading(false)
-    await loadDeliverables()
-    await loadActivity()
+    if (res.ok) {
+      await loadDeliverables()
+      await loadActivity()
+      router.refresh()
+    }
   }
 
   const handleDeleteDeliverable = async (id: string) => {
     const ok = confirm('Delete this resource?')
     if (!ok) return
-    await fetch(`/api/deliverables/${id}`, { method: 'DELETE' })
-    await loadDeliverables()
-    await loadActivity()
+    const res = await fetch(`/api/deliverables/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      await loadDeliverables()
+      await loadActivity()
+      router.refresh()
+    }
   }
 
   const handleCreateInvoice = async () => {
@@ -324,6 +330,7 @@ export default function AdminProjectDetailPage() {
       if (res.ok) {
         await loadInvoices()
         await loadActivity()
+        router.refresh()
         setShowInvoiceModal(false)
         setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
         setInvoiceReceiptFile(null)
@@ -356,6 +363,7 @@ export default function AdminProjectDetailPage() {
       if (res.ok) {
         await loadInvoices()
         await loadActivity()
+        router.refresh()
         setShowInvoiceModal(false)
         setEditingInvoice(null)
         setInvoiceForm({ amount: '', description: '', stripe_link: '', status: 'pending' })
@@ -374,6 +382,7 @@ export default function AdminProjectDetailPage() {
     if (res.ok) {
       await loadInvoices()
       await loadActivity()
+      router.refresh()
     }
   }
 
