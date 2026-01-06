@@ -20,7 +20,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const { data: projects } = await supabase
     .from('projects')
     .select('*')
-    .eq('client_id', params.id)
+    .eq('user_id', params.id)
     .order('created_at', { ascending: false })
 
   // Fetch their bookings
