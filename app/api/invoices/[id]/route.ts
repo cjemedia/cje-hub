@@ -34,7 +34,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
       if (stripeLink) updateData.stripe_link = stripeLink
       if (status) {
         updateData.status = status
-        updateData.paid_at = status === 'paid' ? (existing.paid_at || new Date().toISOString()) : null
       }
 
       // Handle receipt upload
