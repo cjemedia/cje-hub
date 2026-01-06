@@ -161,7 +161,7 @@ export default function InvoicesPage() {
                   <span className="text-[#a1a1a1]">
                     Project:{' '}
                     <span className="text-white">
-                      {invoice.projects?.name || invoice.projects?.[0]?.name || 'No project'}
+                      {invoice.projects?.[0]?.name || 'No project'}
                     </span>
                   </span>
                   {invoice.stripe_link && (
