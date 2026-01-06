@@ -17,10 +17,17 @@ export default function DeliverablesPage() {
       if (!user) return
       const supabase = createClient()
 
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('user_id', user.id)
+
+      const projectIds = projects?.map(p => p.id) || []
+
       const { data } = await supabase
         .from('deliverables')
-        .select('*')
-        .eq('user_id', user.id)
+        .select('*, projects(name)')
+        .in('project_id', projectIds)
         .order('created_at', { ascending: false })
 
       setDeliverables(data || [])
@@ -98,6 +105,9 @@ export default function DeliverablesPage() {
                     >
                       {deliverable.name || 'Untitled Resource'}
                     </a>
+                    {deliverable.projects?.[0]?.name && (
+                      <p className="text-xs text-[#a1a1a1] mb-1">Project: {deliverable.projects[0].name}</p>
+                    )}
                     {deliverable.description && (
                       <p className="text-sm text-[#a1a1a1]">{deliverable.description}</p>
                     )}

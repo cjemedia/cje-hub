@@ -67,15 +67,22 @@ export default function DashboardPage() {
         .in('status', ['confirmed', 'in_progress'])
 
       // Count deliverables/resources
-      const { data: deliverablesData } = await supabase
-        .from('deliverables')
-        .select('id', { count: 'exact', head: true })
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('id')
         .eq('user_id', user.id)
+
+      const projectIds = projects?.map(p => p.id) || []
+
+      const { count: resourceCount } = await supabase
+        .from('deliverables')
+        .select('*', { count: 'exact', head: true })
+        .in('project_id', projectIds)
 
       setStats({
         upcomingSessions: sessionsCount || 0,
         activeProjects: projectsCount || 0,
-        resourcesAvailable: deliverablesData?.length || 0,
+        resourcesAvailable: resourceCount || 0,
       })
       setLoading(false)
     }
