@@ -822,20 +822,24 @@ export default function AdminProjectDetailPage() {
               <SimpleList title="Deliverables" items={deliverables} render={(d) => (
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-white font-medium">{d.name}</p>
-                    <p className="text-xs text-[#a1a1a1]">{d.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <a href={d.file_url} className="text-[#81D8D0] hover:underline" target="_blank" rel="noreferrer">
-                      Download
-                    </a>
-                    <button
-                      onClick={() => handleDeleteDeliverable(d.id)}
-                      className="text-sm text-red-400 hover:text-red-300"
+                    <a
+                      href={d.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#81D8D0] hover:underline font-medium"
                     >
-                      Delete
-                    </button>
+                      {d.name}
+                    </a>
+                    {d.description && (
+                      <p className="text-xs text-[#a1a1a1] mt-1">{d.description}</p>
+                    )}
                   </div>
+                  <button
+                    onClick={() => handleDeleteDeliverable(d.id)}
+                    className="text-sm text-red-400 hover:text-red-300"
+                  >
+                    Delete
+                  </button>
                 </div>
               )} />
             </div>
@@ -902,7 +906,7 @@ export default function AdminProjectDetailPage() {
                                 rel="noopener noreferrer"
                                 className="text-[#81D8D0] hover:underline flex items-center gap-1"
                               >
-                                View Receipt →
+                                Receipt →
                               </a>
                             )}
                             {inv.created_at && (

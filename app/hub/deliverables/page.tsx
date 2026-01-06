@@ -90,18 +90,19 @@ export default function DeliverablesPage() {
                     <FileText size={24} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">
+                    <a
+                      href={deliverable.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#81D8D0] hover:underline text-lg font-semibold mb-1 block"
+                    >
                       {deliverable.name || 'Untitled Resource'}
-                    </h3>
+                    </a>
                     {deliverable.description && (
                       <p className="text-sm text-[#a1a1a1]">{deliverable.description}</p>
                     )}
                   </div>
                 </div>
-                <button className="bg-[#81D8D0] text-[#0a0a0a] px-6 py-3 rounded-lg font-medium hover:bg-[#81D8D0]/90 transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl">
-                  <Download size={18} />
-                  Download
-                </button>
               </div>
             </motion.div>
           ))}
