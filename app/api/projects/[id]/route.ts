@@ -57,7 +57,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
     const body = await request.json()
-    const { name, description, status, service_type, start_date, end_date } = body || {}
+    const { name, description, status, service_type, start_date, end_date, dropbox_link } = body || {}
     const projectId = params.id
 
     const supabase = createServiceClient()
@@ -75,6 +75,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         service_type,
         start_date: start_date || null,
         end_date: end_date || null,
+        dropbox_link: dropbox_link || null,
       })
       .eq('id', projectId)
       .select('*')

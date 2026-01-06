@@ -45,7 +45,7 @@ export default function InvoicesPage() {
           due_date,
           paid_at,
           created_at,
-          projects (
+          projects:project_id (
             name
           )
         `)
