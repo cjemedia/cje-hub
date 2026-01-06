@@ -138,80 +138,55 @@ export default function InvoicesPage() {
               animate={{ opacity: 1, y: 0 }}
               className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 hover:border-[#81D8D0]/50 transition-colors"
             >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <div>
-                      <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Invoice ID</p>
-                      <p className="text-white font-mono text-sm">#{formatInvoiceId(invoice.id)}</p>
-                    </div>
-                    <div>
-                      <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Project</p>
-                      <p className="text-white text-sm">
-                        {invoice.projects?.[0]?.name || 'No project'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Amount</p>
-                      <p className="text-white font-semibold text-lg">
-                        {formatCurrency(invoice.amount)}
-                      </p>
-                    </div>
-                  </div>
+              <div className="flex flex-col gap-3">
+                {/* Amount + Status */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <p className="text-white font-semibold text-lg">
+                    {formatCurrency(invoice.amount)}
+                  </p>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadge(invoice.status)}`}
+                  >
+                    {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                  </span>
+                </div>
 
-                  {invoice.description && (
-                    <p className="text-[#a1a1a1] text-sm mt-2">{invoice.description}</p>
+                {/* Description */}
+                {invoice.description && (
+                  <p className="text-[#a1a1a1] text-sm">{invoice.description}</p>
+                )}
+
+                {/* Project + Links + Created Date */}
+                <div className="flex flex-wrap gap-3 text-sm items-center border-t border-[#333333] pt-3">
+                  <span className="text-[#a1a1a1]">
+                    Project:{' '}
+                    <span className="text-white">
+                      {invoice.projects?.name || invoice.projects?.[0]?.name || 'No project'}
+                    </span>
+                  </span>
+                  {invoice.stripe_link && (
+                    <a
+                      href={invoice.stripe_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#81D8D0] hover:underline"
+                    >
+                      Stripe Link →
+                    </a>
                   )}
-
-                  <div className="flex items-center gap-4 flex-wrap pt-2 border-t border-[#333333]">
-                    <div>
-                      <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Status</p>
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadge(invoice.status)}`}
-                      >
-                        {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                      </span>
-                    </div>
-                    {invoice.due_date && (
-                      <div>
-                        <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Due Date</p>
-                        <p className="text-white text-sm">
-                          {format(new Date(invoice.due_date), 'MMM d, yyyy')}
-                        </p>
-                      </div>
-                    )}
-                    {invoice.paid_at && (
-                      <div>
-                        <p className="text-white/60 text-xs uppercase tracking-wider mb-1">Paid Date</p>
-                        <p className="text-white text-sm">
-                          {format(new Date(invoice.paid_at), 'MMM d, yyyy')}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-3 border-t border-[#333333]">
-                    {invoice.status === 'pending' && invoice.stripe_link && (
-                      <a
-                        href={invoice.stripe_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity"
-                      >
-                        Pay Now
-                      </a>
-                    )}
-                    {invoice.status === 'paid' && invoice.receipt_url && (
-                      <a
-                        href={invoice.receipt_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-lg border border-[#81D8D0] text-[#81D8D0] font-semibold hover:bg-[#81D8D0]/10 transition-colors"
-                      >
-                        View Receipt
-                      </a>
-                    )}
-                  </div>
+                  {invoice.receipt_url && (
+                    <a
+                      href={invoice.receipt_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#81D8D0] hover:underline"
+                    >
+                      Receipt →
+                    </a>
+                  )}
+                  <span className="text-[#a1a1a1]">
+                    Created {format(new Date(invoice.created_at), 'MMM d, yyyy')}
+                  </span>
                 </div>
               </div>
             </motion.div>

@@ -179,7 +179,7 @@ export default function HubProjectDetailPage() {
       label: 'Pay invoice',
       target: 'invoices',
     },
-    project.dropbox_link && {
+    project?.dropbox_link && {
       label: 'Upload Your Assets',
       target: 'assets',
       action: () => window.open(project.dropbox_link, '_blank'),
@@ -203,11 +203,21 @@ export default function HubProjectDetailPage() {
     }
   }
 
-  if (loading || !project) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] p-8">
         <div className="min-h-[60vh] flex items-center justify-center text-[#a1a1a1]">
           Loading project...
+        </div>
+      </div>
+    )
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] p-8">
+        <div className="min-h-[60vh] flex items-center justify-center text-[#a1a1a1]">
+          Project not found
         </div>
       </div>
     )
@@ -275,15 +285,13 @@ export default function HubProjectDetailPage() {
         </section>
 
         {/* Intake */}
-        <section ref={sectionRefs.intake} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 sm:p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white font-semibold text-lg">Intake Forms</h2>
-            {intakePending ? <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-[#81D8D0]">Pending</span> : <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-green-300">Completed</span>}
-          </div>
-          {intakeResponses.length === 0 ? (
-            <p className="text-[#a1a1a1] text-sm">No intake forms assigned yet.</p>
-          ) : (
-            intakeResponses.map((r) => {
+        {intakeResponses && intakeResponses.length > 0 && (
+          <section ref={sectionRefs.intake} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white font-semibold text-lg">Intake Forms</h2>
+              {intakePending ? <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-[#81D8D0]">Pending</span> : <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-green-300">Completed</span>}
+            </div>
+            {intakeResponses.map((r) => {
               const form = intakeForms[r.form_id]
               const submitted = !!r.submitted_at
               const fields = form?.fields || []
@@ -333,19 +341,17 @@ export default function HubProjectDetailPage() {
                   )}
                 </div>
               )
-            })
-          )}
-        </section>
+            })}
+          </section>
+        )}
 
         {/* Proposals */}
-        <section ref={sectionRefs.proposals} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 sm:p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white font-semibold text-lg">Proposals</h2>
-          </div>
-          {proposals.length === 0 ? (
-            <p className="text-[#a1a1a1] text-sm">No proposals yet.</p>
-          ) : (
-            proposals.map((p) => (
+        {proposals && proposals.length > 0 && (
+          <section ref={sectionRefs.proposals} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white font-semibold text-lg">Proposals</h2>
+            </div>
+            {proposals.map((p) => (
               <div key={p.id} className="p-4 border border-[#333333] rounded-lg space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
@@ -381,9 +387,9 @@ export default function HubProjectDetailPage() {
                 )}
                 <p className="text-white font-semibold">Total: ${Number(p.total_amount || 0).toFixed(2)}</p>
               </div>
-            ))
-          )}
-        </section>
+            ))}
+          </section>
+        )}
 
         {/* Bookings */}
         <section ref={sectionRefs.bookings} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 sm:p-5 space-y-3">

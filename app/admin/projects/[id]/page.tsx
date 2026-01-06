@@ -522,13 +522,25 @@ export default function AdminProjectDetailPage() {
           </div>
           <div>
             <label className="text-xs text-white/60 uppercase tracking-wider">Client Asset Upload Link</label>
-            <input
-              type="text"
-              value={editForm.dropbox_link}
-              onChange={(e) => setEditForm((p) => ({ ...p, dropbox_link: e.target.value }))}
-              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-              placeholder="https://dropbox.com/request/..."
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={editForm.dropbox_link || ''}
+                onChange={(e) => setEditForm((p) => ({ ...p, dropbox_link: e.target.value }))}
+                className="flex-1 bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                placeholder="https://dropbox.com/request/..."
+              />
+              {editForm.dropbox_link && (
+                <a
+                  href={editForm.dropbox_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-lg border border-[#81D8D0] text-[#81D8D0] hover:bg-[#81D8D0]/10 transition-colors whitespace-nowrap"
+                >
+                  Test Link
+                </a>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-white">
             <StatCard label="Total Invoiced" value={`$${Number(stats.totalInvoiced || 0).toFixed(2)}`} />

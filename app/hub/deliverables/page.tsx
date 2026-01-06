@@ -105,8 +105,10 @@ export default function DeliverablesPage() {
                     >
                       {deliverable.name || 'Untitled Resource'}
                     </a>
-                    {deliverable.projects?.[0]?.name && (
-                      <p className="text-xs text-[#a1a1a1] mb-1">Project: {deliverable.projects[0].name}</p>
+                    {(deliverable.projects?.name || deliverable.projects?.[0]?.name) && (
+                      <p className="text-xs text-[#a1a1a1] mb-1">
+                        Project: {deliverable.projects?.name || deliverable.projects?.[0]?.name}
+                      </p>
                     )}
                     {deliverable.description && (
                       <p className="text-sm text-[#a1a1a1]">{deliverable.description}</p>
