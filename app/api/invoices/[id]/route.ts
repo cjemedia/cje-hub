@@ -67,7 +67,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
       if (receipt_url !== undefined) updateData.receipt_url = receipt_url
       if (status !== undefined) {
         updateData.status = status
-        updateData.paid_at = status === 'paid' ? (existing.paid_at || new Date().toISOString()) : null
       }
     }
 
