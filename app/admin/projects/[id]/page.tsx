@@ -53,6 +53,7 @@ export default function AdminProjectDetailPage() {
     service_type: '',
     start_date: '',
     end_date: '',
+    dropbox_link: '',
   })
 
   const [proposalForm, setProposalForm] = useState({
@@ -110,6 +111,7 @@ export default function AdminProjectDetailPage() {
         service_type: json.project.service_type || '',
         start_date: json.project.start_date || '',
         end_date: json.project.end_date || '',
+        dropbox_link: json.project.dropbox_link || '',
       })
     }
   }
@@ -516,6 +518,16 @@ export default function AdminProjectDetailPage() {
               onChange={(e) => setEditForm((p) => ({ ...p, description: e.target.value }))}
               className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
               rows={3}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-white/60 uppercase tracking-wider">Client Asset Upload Link</label>
+            <input
+              type="text"
+              value={editForm.dropbox_link}
+              onChange={(e) => setEditForm((p) => ({ ...p, dropbox_link: e.target.value }))}
+              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+              placeholder="https://dropbox.com/request/..."
             />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-white">

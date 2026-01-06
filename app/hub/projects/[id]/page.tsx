@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
-import { CheckCircle, Download, Send, X, Link as LinkIcon } from 'lucide-react'
+import { CheckCircle, Download, Send, X, Link as LinkIcon, ExternalLink } from 'lucide-react'
 
 export default function HubProjectDetailPage() {
   const { user } = useHubUser()
@@ -179,7 +179,12 @@ export default function HubProjectDetailPage() {
       label: 'Pay invoice',
       target: 'invoices',
     },
-  ].filter(Boolean) as { label: string; target: string }[]
+    project.dropbox_link && {
+      label: 'Upload Your Assets',
+      target: 'assets',
+      action: () => window.open(project.dropbox_link, '_blank'),
+    },
+  ].filter(Boolean) as { label: string; target: string; action?: () => void }[]
 
   const sectionRefs: Record<string, React.RefObject<HTMLDivElement>> = {
     overview: useRef(null),
@@ -243,7 +248,13 @@ export default function HubProjectDetailPage() {
               {actionItems.map((item) => (
                 <button
                   key={item.target}
-                  onClick={() => scrollTo(item.target)}
+                  onClick={() => {
+                    if (item.action) {
+                      item.action()
+                    } else {
+                      scrollTo(item.target)
+                    }
+                  }}
                   className="px-3 py-2 rounded-lg bg-[#0a0a0a] border border-[#333333] text-white text-sm hover:border-[#81D8D0]/60"
                 >
                   {item.label}
