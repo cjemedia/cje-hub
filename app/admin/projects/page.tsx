@@ -86,10 +86,13 @@ export default function AdminProjectsPage() {
   useEffect(() => {
     const loadClients = async () => {
       try {
-        const res = await fetch('/api/clients')
-        if (!res.ok) throw new Error('Failed to load clients')
-        const data = await res.json()
-        setClients(data || [])
+        const supabase = createClient()
+        const { data: clients } = await supabase
+          .from('users')
+          .select('id, name, email')
+          .eq('role', 'client')
+          .order('name')
+        setClients(clients || [])
       } catch (error) {
         console.error('Error loading clients:', error)
       }

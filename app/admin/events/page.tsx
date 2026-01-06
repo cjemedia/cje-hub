@@ -21,6 +21,9 @@ export default function AdminEventsPage() {
   const [uploadingImages, setUploadingImages] = useState(false)
   const [existingImages, setExistingImages] = useState<string[]>([])
   const [lightboxImage, setLightboxImage] = useState<string | null>(null)
+  const [organizers, setOrganizers] = useState<any[]>([])
+  const [selectedOrganizerId, setSelectedOrganizerId] = useState<string>('')
+  const [selectedOrganizerIdEdit, setSelectedOrganizerIdEdit] = useState<string>('')
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -36,6 +39,10 @@ export default function AdminEventsPage() {
   useEffect(() => {
     loadEvents()
   }, [filter])
+
+  useEffect(() => {
+    loadOrganizers()
+  }, [])
 
   const loadEvents = async () => {
     const supabase = createClient()
@@ -77,6 +84,28 @@ export default function AdminEventsPage() {
     }
 
     setLoading(false)
+  }
+
+  const loadOrganizers = async () => {
+    const supabase = createClient()
+    const { data: authData } = await supabase.auth.getUser()
+
+    if (authData?.user?.id && !selectedOrganizerId) {
+      setSelectedOrganizerId(authData.user.id)
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, name, email, role')
+      .in('role', ['admin', 'client'])
+      .order('name', { ascending: true })
+
+    if (error) {
+      console.error('Error loading organizers:', error)
+      return
+    }
+
+    setOrganizers(data || [])
   }
 
   const handleApprove = async (eventId: string) => {
@@ -189,6 +218,9 @@ export default function AdminEventsPage() {
       // Combine date and time
       const eventDate = new Date(`${formData.date}T${formData.time}`).toISOString()
 
+       // Determine organizer
+      const organizerId = selectedOrganizerId || user.id
+
       // Generate unique slug
       const baseSlug = createSlug(formData.title)
       const { data: existingEvents } = await supabase
@@ -199,7 +231,7 @@ export default function AdminEventsPage() {
 
       // Admin-created events are auto-approved
       const { error } = await supabase.from('events').insert({
-        user_id: user.id,
+        user_id: organizerId,
         title: formData.title,
         slug: slug,
         description: formData.description || null,
@@ -232,6 +264,7 @@ export default function AdminEventsPage() {
         ticket_link: '',
       })
       setImages([])
+      setSelectedOrganizerId(organizerId)
       setShowCreateModal(false)
       loadEvents()
     } catch (error) {
@@ -249,6 +282,7 @@ export default function AdminEventsPage() {
     
     setEditingEvent(event)
     setExistingImages(event.image_urls || [])
+    setSelectedOrganizerIdEdit(event.user_id || '')
     setFormData({
       title: event.title || '',
       description: event.description || '',
@@ -304,6 +338,8 @@ export default function AdminEventsPage() {
       // Combine date and time
       const eventDate = new Date(`${formData.date}T${formData.time}`).toISOString()
 
+      const organizerId = selectedOrganizerIdEdit || editingEvent.user_id
+
       // Generate new slug if title changed
       let slug = editingEvent.slug
       if (formData.title !== editingEvent.title) {
@@ -330,6 +366,7 @@ export default function AdminEventsPage() {
           capacity: formData.capacity ? parseInt(formData.capacity) : null,
           image_urls: imageUrls.length > 0 ? imageUrls : null,
           ticket_link: formData.ticket_link || null,
+        user_id: organizerId,
           // Keep current status for admin edits
         })
         .eq('id', editingEvent.id)
@@ -353,6 +390,7 @@ export default function AdminEventsPage() {
         ticket_link: '',
       })
       setImages([])
+      setSelectedOrganizerIdEdit('')
       setEditingEvent(null)
       setShowEditModal(false)
       loadEvents()
@@ -582,6 +620,25 @@ export default function AdminEventsPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-white mb-1">
+                  Event Organizer *
+                </label>
+                <select
+                  value={selectedOrganizerId}
+                  onChange={(e) => setSelectedOrganizerId(e.target.value)}
+                  required
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white"
+                >
+                  <option value="">Select organizer</option>
+                  {organizers.map((org) => (
+                    <option key={org.id} value={org.id} className="bg-[#0a0a0a] text-white">
+                      {org.name || org.email} {org.role ? `(${org.role})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-white/50 mt-1">Choose an admin or client who owns this event.</p>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-white mb-1">
                   Description
                 </label>
                 <textarea
@@ -759,6 +816,25 @@ export default function AdminEventsPage() {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-1.5 text-sm text-white"
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-white mb-1">
+                  Event Organizer *
+                </label>
+                <select
+                  value={selectedOrganizerIdEdit}
+                  onChange={(e) => setSelectedOrganizerIdEdit(e.target.value)}
+                  required
+                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-sm text-white"
+                >
+                  <option value="">Select organizer</option>
+                  {organizers.map((org) => (
+                    <option key={org.id} value={org.id} className="bg-[#0a0a0a] text-white">
+                      {org.name || org.email} {org.role ? `(${org.role})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-white/50 mt-1">Admins and clients can be assigned as organizers.</p>
               </div>
               <div>
                 <label className="block text-xs font-medium text-white mb-1">

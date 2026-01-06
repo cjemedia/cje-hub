@@ -256,13 +256,6 @@ function BookingContent() {
                     <p className="text-white/80 text-sm sm:text-base max-w-md mx-auto">
                       Schedule a consultation and let&apos;s discuss how we can bring your vision to life.
                     </p>
-                    <div className="mt-4 flex items-center justify-center gap-3 text-xs sm:text-sm text-white/70">
-                      <a href="/coaching" className="text-accent hover:text-accent/80 transition-colors">Explore Coaching</a>
-                      <span className="text-white/40">•</span>
-                      <a href="/events" className="text-accent hover:text-accent/80 transition-colors">See Events</a>
-                      <span className="text-white/40">•</span>
-                      <a href="/business-resources" className="text-accent hover:text-accent/80 transition-colors">Business Resources</a>
-                    </div>
                   </motion.div>
                 </div>
               </div>

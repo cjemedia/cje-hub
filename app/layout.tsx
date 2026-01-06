@@ -64,10 +64,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="smooth-scroll">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      
       </head>
-      <body>
+      <body className={inter.variable}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

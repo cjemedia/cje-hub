@@ -185,9 +185,9 @@ export default function Home() {
               whileInView={{ opacity: 1, x: 0 }} 
               viewport={{ once: true, margin: "-100px" }} 
               transition={{ duration: 0.6 }}
-              className="space-y-8"
+              className="space-y-8 text-center lg:text-left"
             >
-              <div className="inline-block px-4 py-2 bg-accent/10 rounded-full"><span className="text-accent font-semibold text-sm">Our Process</span></div>
+              <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mx-auto lg:mx-0"><span className="text-accent font-semibold text-sm">Our Process</span></div>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white">How We Work</h2>
               <div className="space-y-8">
                 {[

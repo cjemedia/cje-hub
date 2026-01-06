@@ -1,4 +1,5 @@
 import { google } from 'googleapis'
+import { createClient } from '@/lib/supabase/server'
 
 // Initialize OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
@@ -66,7 +67,7 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
     const allSlots = generateTimeSlots()
     const bookedSlots = new Set<string>()
 
-    // Mark slots as booked if they overlap with existing events
+    // Mark slots as booked if they overlap with existing Google Calendar events
     events.forEach((event) => {
       let eventStart: Date | null = null
       let eventEnd: Date | null = null
@@ -87,9 +88,20 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
       
       if (!eventStart || !eventEnd) return
       
-      // Convert event times to America/Chicago timezone for comparison
+      // Get event times in America/Chicago timezone
+      // Google Calendar API returns times in the calendar's timezone (America/Chicago)
+      // We need to extract the local time components for comparison
       const eventStartCT = new Date(eventStart.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
       const eventEndCT = new Date(eventEnd.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
+      
+      // Get the date components in Chicago timezone to ensure we're comparing the same day
+      const eventStartDate = new Date(eventStartCT.getFullYear(), eventStartCT.getMonth(), eventStartCT.getDate())
+      const selectedDate = new Date(year, month - 1, day)
+      
+      // Only process events that fall on the selected date
+      if (eventStartDate.getTime() !== selectedDate.getTime()) {
+        return
+      }
       
       allSlots.forEach((slot) => {
         // Parse slot time (e.g., "9:00 AM")
@@ -100,18 +112,74 @@ export async function getAvailableSlots(date: string): Promise<string[]> {
         if (period === 'AM' && hours === 12) slotHour = 0
         
         // Create slot time in America/Chicago timezone for the selected date
-        const slotTimeStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(slotHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
-        const slotTime = new Date(slotTimeStr)
-        const slotTimeCT = new Date(slotTime.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
-        const slotEndCT = new Date(slotTimeCT.getTime() + 45 * 60 * 1000) // 45-minute slot
+        const slotTime = new Date(year, month - 1, day, slotHour, minutes, 0)
+        const slotEnd = new Date(slotTime.getTime() + 45 * 60 * 1000) // 45-minute slot
         
         // Check if slot overlaps with event
         // Two ranges overlap if: start1 < end2 && start2 < end1
-        if (slotTimeCT < eventEndCT && slotEndCT > eventStartCT) {
+        if (slotTime < eventEndCT && slotEnd > eventStartCT) {
           bookedSlots.add(slot)
         }
       })
     })
+
+    // Also check Supabase events table for events on this date
+    try {
+      const supabase = await createClient()
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      
+      // Query events that fall on this date (date field contains full timestamp)
+      const { data: supabaseEvents } = await supabase
+        .from('events')
+        .select('date, end_time')
+        .eq('status', 'approved')
+        .gte('date', `${dateStr}T00:00:00`)
+        .lt('date', `${dateStr}T23:59:59`)
+
+      if (supabaseEvents && supabaseEvents.length > 0) {
+        supabaseEvents.forEach((event) => {
+          const eventDate = new Date(event.date)
+          // Convert to America/Chicago timezone
+          const eventStartCT = new Date(eventDate.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
+          
+          // Calculate end time - use end_time if available, otherwise default to 2 hours
+          let eventEndCT: Date
+          if (event.end_time) {
+            const [endHours, endMinutes] = event.end_time.split(':').map(Number)
+            eventEndCT = new Date(eventDate)
+            eventEndCT.setHours(endHours, endMinutes, 0, 0)
+            eventEndCT = new Date(eventEndCT.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
+          } else {
+            // Default to 2 hours if no end_time
+            eventEndCT = new Date(eventStartCT.getTime() + 2 * 60 * 60 * 1000)
+          }
+          
+          allSlots.forEach((slot) => {
+            // Parse slot time (e.g., "9:00 AM")
+            const [time, period] = slot.split(' ')
+            const [hours, minutes] = time.split(':').map(Number)
+            let slotHour = hours
+            if (period === 'PM' && hours !== 12) slotHour += 12
+            if (period === 'AM' && hours === 12) slotHour = 0
+            
+            // Create slot time in America/Chicago timezone for the selected date
+            const slotTimeStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(slotHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+            const slotTime = new Date(slotTimeStr)
+            const slotTimeCT = new Date(slotTime.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
+            const slotEndCT = new Date(slotTimeCT.getTime() + 45 * 60 * 1000) // 45-minute slot
+            
+            // Check if slot overlaps with event
+            // Two ranges overlap if: start1 < end2 && start2 < end1
+            if (slotTimeCT < eventEndCT && slotEndCT > eventStartCT) {
+              bookedSlots.add(slot)
+            }
+          })
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching Supabase events:', error)
+      // Continue with Google Calendar events only if Supabase query fails
+    }
 
     // Filter out slots within 12 hours
     const now = new Date()

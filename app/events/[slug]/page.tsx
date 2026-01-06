@@ -33,45 +33,86 @@ export default function EventDetailPage() {
   const [copied, setCopied] = useState(false)
   const [lightboxImage, setLightboxImage] = useState<string | null>(null)
   const [lightboxIndex, setLightboxIndex] = useState<number>(0)
+  const [organizer, setOrganizer] = useState<any>(null)
 
   useEffect(() => {
     const loadEvent = async () => {
       const supabase = createClient()
-      
-      // Try to find by slug first
-      let { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('slug', params.slug)
-        .eq('status', 'approved')
-        .single()
 
-      // If not found by slug, try by ID (for backward compatibility)
-      if (error || !data) {
-        const { data: dataById, error: errorById } = await supabase
+      let foundEvent: any = null
+      let foundOrganizer: any = null
+
+      try {
+        // Try by slug with organizer relation
+        const { data, error } = await supabase
           .from('events')
-          .select('*')
-          .eq('id', params.slug)
+          .select('*, organizer:users(id, name, email, bio, avatar_url, company, phone)')
+          .eq('slug', params.slug)
           .eq('status', 'approved')
           .single()
-        
-        if (errorById || !dataById) {
-          router.push('/events')
-          return
+
+        if (!error && data) {
+          foundEvent = data
+          foundOrganizer = (data as any).organizer || null
         }
-        
-        data = dataById
-        error = null
+
+        // Fallback to ID with relation
+        if (!foundEvent) {
+          const { data: dataById, error: errorById } = await supabase
+            .from('events')
+            .select('*, organizer:users(id, name, email, bio, avatar_url, company, phone)')
+            .eq('id', params.slug)
+            .eq('status', 'approved')
+            .single()
+          if (!errorById && dataById) {
+            foundEvent = dataById
+            foundOrganizer = (dataById as any).organizer || null
+          }
+        }
+
+        // If still no event, try plain fetch without relation
+        if (!foundEvent) {
+          const { data } = await supabase
+            .from('events')
+            .select('*')
+            .eq('slug', params.slug)
+            .eq('status', 'approved')
+            .single()
+          if (data) foundEvent = data
+        }
+        if (!foundEvent) {
+          const { data: dataById } = await supabase
+            .from('events')
+            .select('*')
+            .eq('id', params.slug)
+            .eq('status', 'approved')
+            .single()
+          if (dataById) foundEvent = dataById
+        }
+      } catch (err) {
+        // ignore and fall through
       }
 
-      setEvent(data)
+      setEvent(foundEvent)
+
+      // Load organizer separately if relation was missing
+      if (!foundOrganizer && foundEvent?.user_id) {
+        const { data: organizerData } = await supabase
+          .from('users')
+          .select('id, name, email, bio, avatar_url, company, phone')
+          .eq('id', foundEvent.user_id)
+          .single()
+        foundOrganizer = organizerData || null
+      }
+
+      setOrganizer(foundOrganizer)
       setLoading(false)
     }
 
     if (params.slug) {
       loadEvent()
     }
-  }, [params.slug, router])
+  }, [params.slug])
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const shareTitle = event?.title || ''
@@ -100,6 +141,38 @@ export default function EventDetailPage() {
   }
 
   const eventDate = new Date(event.date)
+  const images = event.image_urls && event.image_urls.length > 0
+    ? event.image_urls
+    : event.image_url
+      ? [event.image_url]
+      : []
+  const secondaryImage = images[1]
+
+  const renderImageCard = (imgUrl: string, index: number, extraClasses = '') => (
+    <motion.div
+      key={`${imgUrl}-${index}`}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className={`relative w-full min-h-[300px] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0a] flex items-center justify-center ${extraClasses}`}
+      onClick={() => {
+        setLightboxImage(imgUrl)
+        setLightboxIndex(index)
+      }}
+    >
+      <Image
+        src={imgUrl}
+        alt={`${event.title} - Image ${index + 1}`}
+        width={800}
+        height={600}
+        className="max-w-full max-h-[600px] w-auto h-auto object-contain group-hover:opacity-90 transition-opacity"
+        priority={index === 0}
+      />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+        <ZoomIn size={32} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+    </motion.div>
+  )
 
   return (
     <main className="min-h-screen bg-dark">
@@ -117,57 +190,11 @@ export default function EventDetailPage() {
 
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Images */}
-            {((event.image_urls && event.image_urls.length > 0) || event.image_url) && (
+            {images.length > 0 && (
               <div className="space-y-4">
-                {event.image_urls && event.image_urls.length > 0 ? (
-                  event.image_urls.map((imgUrl: string, index: number) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="relative w-full min-h-[300px] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0a] flex items-center justify-center"
-                      onClick={() => {
-                        setLightboxImage(imgUrl)
-                        setLightboxIndex(index)
-                      }}
-                    >
-                      <Image
-                        src={imgUrl}
-                        alt={`${event.title} - Image ${index + 1}`}
-                        width={800}
-                        height={600}
-                        className="max-w-full max-h-[600px] w-auto h-auto object-contain group-hover:opacity-90 transition-opacity"
-                        priority={index === 0}
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <ZoomIn size={32} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </motion.div>
-                  ))
-                ) : event.image_url ? (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="relative w-full min-h-[300px] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0a] flex items-center justify-center"
-                    onClick={() => {
-                      setLightboxImage(event.image_url)
-                      setLightboxIndex(0)
-                    }}
-                  >
-                    <Image
-                      src={event.image_url}
-                      alt={event.title}
-                      width={800}
-                      height={600}
-                      className="max-w-full max-h-[600px] w-auto h-auto object-contain group-hover:opacity-90 transition-opacity"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <ZoomIn size={32} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </motion.div>
-                ) : null}
+                {images.map((imgUrl: string, index: number) =>
+                  renderImageCard(imgUrl, index, index === 1 ? 'hidden lg:flex' : '')
+                )}
               </div>
             )}
 
@@ -276,6 +303,41 @@ export default function EventDetailPage() {
 
             </motion.div>
           </div>
+
+          {/* Mobile-only secondary image at bottom */}
+          {secondaryImage && (
+            <div className="mt-10 lg:hidden">
+              {renderImageCard(secondaryImage, 1)}
+            </div>
+          )}
+
+          {/* Organizer profile */}
+          {organizer && (
+            <div className="mt-12 lg:mt-16 border-t border-white/10 pt-8 flex flex-col items-center">
+              <div className="flex w-full max-w-3xl items-start gap-6">
+                <div className="relative w-20 h-20 rounded-full overflow-hidden bg-white/10 flex-shrink-0 flex items-center justify-center text-2xl font-semibold text-white">
+                  {organizer.avatar_url ? (
+                    <Image
+                      src={organizer.avatar_url}
+                      alt={organizer.name || 'Event organizer'}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span>{(organizer.name || organizer.email || '?').charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="space-y-1 text-left">
+                  <p className="text-xs uppercase tracking-[0.2em] text-white/50">Event Organizer</p>
+                  <p className="text-xl font-semibold text-white">{organizer.name || organizer.email}</p>
+                  {organizer.company && <p className="text-white/70 text-sm">{organizer.company}</p>}
+                  <p className="text-white/60 text-sm">{organizer.email}</p>
+                  {organizer.phone && <p className="text-white/60 text-sm">{organizer.phone}</p>}
+                  {organizer.bio && <p className="text-white/60 text-sm mt-3 leading-relaxed max-w-2xl">{organizer.bio}</p>}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

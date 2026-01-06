@@ -77,6 +77,33 @@ export default function ProgramsPage() {
         </div>
       </section>
 
+      {/* Feature Image */}
+      <section className="section-padding bg-dark">
+        <div className="section-max-width">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="relative overflow-hidden rounded-3xl border border-white/10"
+          >
+            <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-[16/7]">
+              <img
+                src="/images/cje13.png"
+                alt="Ciara J. Evans coaching feature"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 lg:p-12 text-white space-y-3">
+                <p className="text-accent text-xs sm:text-sm uppercase tracking-[0.25em]">Purpose in motion</p>
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">Coaching that blends clarity, strategy, and confidence</h3>
+                <p className="text-white/80 text-sm sm:text-base max-w-2xl">Step into sessions designed to ground your vision and move you forward with focused action.</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* COURSES SECTION */}
       <section className="section-padding bg-dark-light">
         <div className="section-max-width">
@@ -256,17 +283,15 @@ export default function ProgramsPage() {
             className="max-w-4xl mx-auto"
           >
             <div className="bg-dark p-8 lg:p-12 rounded-2xl border-2 border-white/10">
-              <div className="flex items-start mb-8">
-                <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center mr-6 flex-shrink-0">
+              <div className="flex flex-col items-start mb-8">
+                <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center mb-4">
                   <Target size={32} className="text-accent" />
                 </div>
-                <div>
-                  <h3 className="text-3xl font-bold text-white mb-4">Purpose & Presence Coaching</h3>
-                  <p className="text-white/80 leading-relaxed mb-6">
-                    One-on-one coaching sessions designed to help you navigate transitions, clarify goals, and build confidence 
-                    in your personal and professional journey.
-                  </p>
-                </div>
+                <h3 className="text-3xl font-bold text-white mb-4">Purpose & Presence Coaching</h3>
+                <p className="text-white/80 leading-relaxed mb-6">
+                  One-on-one coaching sessions designed to help you navigate transitions, clarify goals, and build confidence 
+                  in your personal and professional journey.
+                </p>
               </div>
 
               <div className="mb-8">
