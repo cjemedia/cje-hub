@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { ArrowLeft } from 'lucide-react'
 import { StatusBadge } from '@/components/StatusBadge'
+import { ResendInviteButton } from '@/components/admin/ResendInviteButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,20 +43,23 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     <div className="min-h-screen bg-[#0a0a0a] p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/admin/clients"
-            className="inline-flex items-center gap-2 text-[#81D8D0] hover:text-[#81D8D0]/80 transition-colors mb-4"
-          >
-            <ArrowLeft size={16} />
-            Back to Clients
-          </Link>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
-            <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <Link
+              href="/admin/clients"
+              className="inline-flex items-center gap-2 text-[#81D8D0] hover:text-[#81D8D0]/80 transition-colors mb-4"
+            >
+              <ArrowLeft size={16} />
+              Back to Clients
+            </Link>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
+              <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">{client.name || 'Client'}</h1>
+            <p className="text-[#a1a1a1]">Client details and activity</p>
           </div>
-          <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">{client.name || 'Client'}</h1>
-          <p className="text-[#a1a1a1]">Client details and activity</p>
+          <ResendInviteButton clientId={client.id} />
         </div>
 
         {/* Client Info Card */}

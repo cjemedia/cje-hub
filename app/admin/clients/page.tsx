@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { format } from 'date-fns'
+import { AddClientButton } from '@/components/admin/AddClientButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,13 +46,16 @@ export default async function AdminClientsPage() {
     <div className="min-h-screen bg-[#0a0a0a] p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
-            <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
+              <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">All Clients</h1>
+            <p className="text-[#a1a1a1]">Manage and view all client information</p>
           </div>
-          <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">All Clients</h1>
-          <p className="text-[#a1a1a1]">Manage and view all client information</p>
+          <AddClientButton />
         </div>
 
         {/* Search/Filter */}

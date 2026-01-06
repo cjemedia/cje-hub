@@ -20,7 +20,7 @@ type Invoice = {
   due_date: string | null
   paid_at: string | null
   created_at: string
-  projects: { name: string }[] | null
+  projects: { name: string } | { name: string }[] | null
 }
 
 export default function InvoicesPage() {
@@ -57,6 +57,7 @@ export default function InvoicesPage() {
         console.error('Error loading invoices:', error)
         setInvoices([])
       } else {
+        console.log('Invoices data:', data)
         setInvoices(data || [])
       }
       setLoading(false)
@@ -162,7 +163,9 @@ export default function InvoicesPage() {
                   <span className="text-[#a1a1a1]">
                     Project:{' '}
                     <span className="text-white">
-                      {invoice.projects?.[0]?.name || 'No project'}
+                      {invoice.projects && !Array.isArray(invoice.projects)
+                        ? invoice.projects.name
+                        : (invoice.projects as { name: string }[] | null)?.[0]?.name || 'No project'}
                     </span>
                   </span>
                   {invoice.stripe_link && (

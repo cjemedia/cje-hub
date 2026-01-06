@@ -479,30 +479,60 @@ export default function HubProjectDetailPage() {
         {/* Invoices */}
         <section ref={sectionRefs.invoices} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 sm:p-5 space-y-3">
           <h2 className="text-white font-semibold text-lg">Invoices</h2>
-          <SimpleList
-            title="Outstanding"
-            items={invoices.filter((inv) => inv.status !== 'paid')}
-            render={(inv) => (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white font-medium">${Number(inv.amount || 0).toFixed(2)}</p>
-                  <p className="text-xs text-[#a1a1a1]">Due {inv.due_date || 'N/A'} — {inv.status}</p>
+          {invoices.length === 0 ? (
+            <p className="text-[#a1a1a1] text-sm">No invoices yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {invoices.map((inv) => (
+                <div key={inv.id} className="bg-[#0a0a0a] border border-[#333333] rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <p className="text-white font-semibold text-lg">
+                      ${Number(inv.amount || 0).toFixed(2)}
+                    </p>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                        inv.status === 'paid'
+                          ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                          : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                      }`}
+                    >
+                      {inv.status === 'paid' ? 'Paid' : 'Pending'}
+                    </span>
+                  </div>
+                  {inv.description && (
+                    <p className="text-[#a1a1a1] text-sm">{inv.description}</p>
+                  )}
+                  <div className="flex flex-wrap gap-3 text-sm items-center border-t border-[#333333] pt-2">
+                    {inv.stripe_link && (
+                      <a
+                        href={inv.stripe_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#81D8D0] hover:underline"
+                      >
+                        Stripe Link →
+                      </a>
+                    )}
+                    {inv.receipt_url && (
+                      <a
+                        href={inv.receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#81D8D0] hover:underline"
+                      >
+                        Receipt →
+                      </a>
+                    )}
+                    {inv.created_at && (
+                      <span className="text-[#a1a1a1]">
+                        Created {format(new Date(inv.created_at), 'MMM d, yyyy')}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          />
-          <SimpleList
-            title="Paid"
-            items={invoices.filter((inv) => inv.status === 'paid')}
-            render={(inv) => (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white font-medium">${Number(inv.amount || 0).toFixed(2)}</p>
-                  <p className="text-xs text-[#a1a1a1]">Paid {inv.paid_at ? format(new Date(inv.paid_at), 'MMM d, yyyy') : ''}</p>
-                </div>
-              </div>
-            )}
-          />
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>
