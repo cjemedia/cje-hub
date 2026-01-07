@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, MapPin, DollarSign, Users, CheckCircle, X, Plus, Clock, Edit, ChevronUp, ChevronDown, ZoomIn } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, DollarSign, X, Plus, Edit, ChevronDown, ChevronUp, ExternalLink, Info } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import Button from '@/components/Button'
@@ -15,10 +15,11 @@ export default function EventsPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [myEvents, setMyEvents] = useState<any[]>([])
-  const [publicEvents, setPublicEvents] = useState<any[]>([])
+  const [communityEvents, setCommunityEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [editingEvent, setEditingEvent] = useState<any>(null)
   const [submitting, setSubmitting] = useState(false)
   const [existingImages, setExistingImages] = useState<string[]>([])
@@ -55,19 +56,21 @@ export default function EventsPage() {
       .from('events')
       .select('*')
       .eq('user_id', user.id)
-      .order('date', { ascending: true })
+      .order('created_at', { ascending: false })
 
-    // Fetch approved public events (excluding user's own)
-    const { data: publicEventsData } = await supabase
+    // Fetch approved community events (excluding user's own, future dates only)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const { data: communityEventsData } = await supabase
       .from('events')
       .select('*')
       .eq('status', 'approved')
       .neq('user_id', user.id)
-      .gte('date', new Date().toISOString())
+      .gte('date', today.toISOString())
       .order('date', { ascending: true })
 
     setMyEvents(myEventsData || [])
-    setPublicEvents(publicEventsData || [])
+    setCommunityEvents(communityEventsData || [])
     setLoading(false)
   }
 
@@ -185,7 +188,7 @@ export default function EventsPage() {
       })
       setImages([])
       setShowCreateModal(false)
-      window.location.reload()
+      await loadData()
     } catch (error) {
       console.error('Error creating event:', error)
       alert('Failed to create event. Please try again.')
@@ -200,7 +203,7 @@ export default function EventsPage() {
     const timeStr = eventDate.toTimeString().slice(0, 5)
     
     setEditingEvent(event)
-    setExistingImages(event.image_urls || [])
+    setExistingImages(event.image_urls || (event.image_url ? [event.image_url] : []))
     setFormData({
       title: event.title || '',
       description: event.description || '',
@@ -287,8 +290,8 @@ export default function EventsPage() {
         }
       }
 
-      // When client edits, set status back to pending for re-approval
-      const updatePayload = {
+      // When resubmitting after changes_requested, set status to pending and clear rejection_reason
+      const updatePayload: any = {
         title: formData.title,
         slug: slug,
         description: formData.description || null,
@@ -299,61 +302,20 @@ export default function EventsPage() {
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
         image_urls: imageUrls.length > 0 ? imageUrls : null,
         ticket_link: formData.ticket_link || null,
-        status: 'pending', // Client edits require re-approval
+        status: 'pending',
+        rejection_reason: null, // Clear rejection reason on resubmit
       }
 
-      console.log('Updating event with payload:', updatePayload)
-      console.log('Event ID:', editingEvent.id)
-      console.log('Current status:', editingEvent.status)
-
-      const { data: updatedData, error } = await supabase
+      const { error } = await supabase
         .from('events')
         .update(updatePayload)
         .eq('id', editingEvent.id)
-        .select('id, status')
-        .single()
 
       if (error) {
         console.error('Update error:', error)
-        console.error('Error details:', JSON.stringify(error, null, 2))
-        console.error('Event ID:', editingEvent.id)
-        console.error('User ID:', user.id)
-        console.error('Current event status:', editingEvent.status)
-        
-        // Check if it's an RLS policy error
-        if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
-          alert('Permission denied: You may not have permission to update this event. Please contact support if this persists.')
-        } else {
-          alert(`Failed to update event: ${error.message || 'Unknown error'}`)
-        }
+        alert(`Failed to update event: ${error.message || 'Unknown error'}`)
         setSubmitting(false)
         return
-      }
-
-      // Verify the update actually changed the status
-      if (updatedData) {
-        console.log('Update successful. New status:', updatedData.status)
-        if (updatedData.status !== 'pending') {
-          console.warn('WARNING: Status was not updated to pending. Current status:', updatedData.status)
-          alert('Warning: Event was updated but status may not have changed. This might be a permissions issue. Please contact support.')
-          setSubmitting(false)
-          return
-        }
-      } else {
-        console.warn('Update returned no data - verifying with a separate query')
-        // Double-check by fetching the event
-        const { data: verifyData } = await supabase
-          .from('events')
-          .select('status')
-          .eq('id', editingEvent.id)
-          .single()
-        
-        if (verifyData && verifyData.status !== 'pending') {
-          console.error('Status verification failed. Current status:', verifyData.status)
-          alert('Error: The event status was not updated. This might be a permissions issue. Please contact support.')
-          setSubmitting(false)
-          return
-        }
       }
 
       // Reset form and close modal
@@ -373,14 +335,8 @@ export default function EventsPage() {
       setEditingEvent(null)
       setShowEditModal(false)
       
-      // Show success message
-      alert('Event updated successfully! It has been submitted for review and will show as "Pending Review" until approved by admin.')
-      
-      // Small delay to ensure database has processed the update
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Reload to show updated status
-      loadData()
+      alert('Event updated successfully! It has been submitted for review.')
+      await loadData()
     } catch (error: any) {
       console.error('Error updating event:', error)
       alert(`Failed to update event: ${error?.message || 'Unknown error'}`)
@@ -390,17 +346,28 @@ export default function EventsPage() {
   }
 
   const getStatusBadge = (status: string) => {
-    const badges = {
-      pending: { label: 'Pending Review', color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' },
-      approved: { label: 'Approved', color: 'bg-green-500/20 text-green-500 border-green-500/30' },
-      rejected: { label: 'Rejected', color: 'bg-red-500/20 text-red-500 border-red-500/30' },
+    const badges: Record<string, { label: string; className: string }> = {
+      pending: { label: 'Pending Review', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+      approved: { label: 'Live', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
+      changes_requested: { label: 'Changes Requested', className: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+      rejected: { label: 'Rejected', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
     }
-    const badge = badges[status as keyof typeof badges] || badges.pending
+    const badge = badges[status] || badges.pending
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${badge.color}`}>
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${badge.className}`}>
         {badge.label}
       </span>
     )
+  }
+
+  const getEventImage = (event: any) => {
+    if (event.image_urls && Array.isArray(event.image_urls) && event.image_urls.length > 0) {
+      return event.image_urls[0]
+    }
+    if (event.image_url) {
+      return event.image_url
+    }
+    return null
   }
 
   if (loading) {
@@ -412,8 +379,9 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
-      <div className="mb-8">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Back Link */}
         <Link
           href="/hub/dashboard"
           className="inline-flex items-center gap-2 text-[#a1a1a1] hover:text-white mb-4 transition-colors"
@@ -421,152 +389,243 @@ export default function EventsPage() {
           <ArrowLeft size={18} />
           Back to Dashboard
         </Link>
-        <div className="flex items-center justify-between flex-wrap gap-4">
+
+        {/* Section 1: Header */}
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
-              Events
+              Submit Your Event
             </h1>
-            <p className="text-[#a1a1a1]">
-              Create and manage your events
+            <p className="text-[#a1a1a1] max-w-2xl mb-3">
+              Submit your event for promotion on ciarajevans.com. Approved events get a dedicated event page and featured placement in our Upcoming Events section.
             </p>
+            <p className="text-[#a1a1a1] text-sm max-w-2xl mb-4">
+              The CJE Experience connects purpose-driven entrepreneurs, creators, and professionals. Submit your event to reach our community and get featured on ciarajevans.com.
+            </p>
+            <div className="mt-4">
+              <p className="text-[#a1a1a1] text-sm mb-2">
+                Looking to book Ciara J. for your event?
+              </p>
+              <a
+                href="https://www.ciarajevans.com/events"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#81D8D0] hover:underline inline-flex items-center gap-1 text-sm font-medium"
+              >
+                View speaking & hosting services →
+              </a>
+            </div>
           </div>
           <Button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
           >
             <Plus size={18} />
-            Create Event
+            Submit Event
           </Button>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* My Events Section */}
-        <div>
-          <h2 className="text-2xl font-semibold text-white mb-4">My Events</h2>
-          {myEvents.length === 0 ? (
-            <div className="bg-[#1A1A1A] border border-primary-tiffany/30 rounded-lg p-8 text-center">
-              <Calendar size={48} className="text-primary-tiffany/50 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No Events Yet</h3>
-              <p className="text-white/70 mb-4">Create your first event to get started.</p>
-              <Button onClick={() => setShowCreateModal(true)}>
-                Create Event
-              </Button>
+        {/* Section 2: How It Works */}
+        <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden">
+          <button
+            onClick={() => setShowHowItWorks(!showHowItWorks)}
+            className="w-full flex items-center justify-between p-4 hover:bg-[#0a0a0a] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Info size={20} className="text-[#81D8D0]" />
+              <span className="text-white font-semibold">How it works</span>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {myEvents.map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-[#1A1A1A] border border-primary-tiffany/30 rounded-lg p-4 sm:p-6 hover:border-primary-tiffany transition-all duration-300"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl sm:text-2xl font-serif font-bold text-white flex-1">
-                      {event.title}
-                    </h3>
-                    {getStatusBadge(event.status)}
-                  </div>
-                  {event.description && (
-                    <p className="text-white/70 mb-4 line-clamp-3 text-sm sm:text-base">
-                      {event.description}
-                    </p>
-                  )}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
-                      <Calendar size={14} className="text-primary-tiffany flex-shrink-0" />
-                      <span className="break-words">
-                        {format(new Date(event.date), 'MMMM d, yyyy • h:mm a')}
-                        {event.end_time && ` - ${formatTime12Hour(event.end_time)}`}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
-                      <MapPin size={14} className="text-primary-tiffany flex-shrink-0" />
-                      <span className="break-words">{event.location}</span>
-                    </div>
-                    {event.price && (
-                      <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
-                        <DollarSign size={14} className="text-primary-tiffany flex-shrink-0" />
-                        <span>${event.price}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    {event.status === 'approved' && (
-                      <Link
-                        href={`/events/${event.slug || event.id}`}
-                        className="flex-1 text-center px-4 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg hover:opacity-90 transition-opacity font-semibold"
-                      >
-                        View Public Page
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => handleEditEvent(event)}
-                      className="px-4 py-2 border border-[#333333] text-white rounded-lg hover:bg-[#0a0a0a] transition-colors flex items-center gap-2"
-                    >
-                      <Edit size={16} />
-                      Edit
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+            {showHowItWorks ? <ChevronUp size={20} className="text-[#a1a1a1]" /> : <ChevronDown size={20} className="text-[#a1a1a1]" />}
+          </button>
+          {showHowItWorks && (
+            <div className="p-4 pt-0 border-t border-[#333333] space-y-2 text-[#a1a1a1] text-sm">
+              <p>1. Submit your event details</p>
+              <p>2. Our team reviews your submission</p>
+              <p>3. Approved events get their own page on ciarajevans.com/events/[slug]</p>
+              <p>4. Your event is featured in the Upcoming Events section</p>
             </div>
           )}
         </div>
 
-        {/* Public Events Section */}
-        {publicEvents.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-semibold text-white mb-4">Upcoming Public Events</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {publicEvents.map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-[#1A1A1A] border border-primary-tiffany/30 rounded-lg p-4 sm:p-6 hover:border-primary-tiffany transition-all duration-300"
-                >
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white mb-3">
-                    {event.title}
-                  </h3>
-                  {event.description && (
-                    <p className="text-white/70 mb-4 line-clamp-3 text-sm sm:text-base">
-                      {event.description}
-                    </p>
-                  )}
-                  <div className="space-y-2 mb-4 sm:mb-6">
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
-                      <Calendar size={14} className="text-primary-tiffany flex-shrink-0" />
-                      <span className="break-words">
-                        {format(new Date(event.date), 'MMMM d, yyyy • h:mm a')}
-                        {event.end_time && ` - ${formatTime12Hour(event.end_time)}`}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
-                      <MapPin size={14} className="text-primary-tiffany flex-shrink-0" />
-                      <span className="break-words">{event.location}</span>
-                    </div>
-                    {event.price && (
-                      <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
-                        <DollarSign size={14} className="text-primary-tiffany flex-shrink-0" />
-                        <span>${event.price}</span>
+        {/* Section 3: My Submissions */}
+        <div>
+          <h2 className="text-2xl font-semibold text-white mb-4">My Submissions</h2>
+          {myEvents.length === 0 ? (
+            <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-12 text-center">
+              <Calendar size={48} className="text-[#81D8D0]/50 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">You haven't submitted any events yet.</h3>
+              <Button onClick={() => setShowCreateModal(true)} className="mt-4">
+                Submit Your First Event
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myEvents.map((event) => {
+                const eventImage = getEventImage(event)
+                const eventDate = new Date(event.date)
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden hover:border-[#81D8D0]/50 transition-colors"
+                  >
+                    {eventImage && (
+                      <div className="aspect-video w-full bg-[#0a0a0a] overflow-hidden">
+                        <img
+                          src={eventImage}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     )}
-                  </div>
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="block w-full text-center px-4 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg hover:opacity-90 transition-opacity font-semibold"
-                  >
-                    View Event
-                  </Link>
-                </motion.div>
-              ))}
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-lg font-semibold text-white flex-1">{event.title}</h3>
+                        {getStatusBadge(event.status)}
+                      </div>
+                      
+                      <div className="space-y-2 text-sm text-[#a1a1a1]">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="text-[#81D8D0] flex-shrink-0" />
+                          <span>
+                            {format(eventDate, 'MMM d, yyyy')}
+                            {event.end_time && ` • ${formatTime12Hour(event.end_time)}`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="text-[#81D8D0] flex-shrink-0" />
+                          <span>{event.location}</span>
+                        </div>
+                      </div>
+
+                      {/* Status-specific content */}
+                      {event.status === 'changes_requested' && event.rejection_reason && (
+                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3">
+                          <p className="text-orange-400 text-xs font-semibold mb-1">Feedback:</p>
+                          <p className="text-orange-300/90 text-xs">{event.rejection_reason}</p>
+                        </div>
+                      )}
+                      {event.status === 'rejected' && event.rejection_reason && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                          <p className="text-red-400 text-xs font-semibold mb-1">Reason:</p>
+                          <p className="text-red-300/90 text-xs">{event.rejection_reason}</p>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 pt-2 border-t border-[#333333]">
+                        {(event.status === 'pending' || event.status === 'changes_requested') && (
+                          <button
+                            onClick={() => handleEditEvent(event)}
+                            className="flex-1 px-3 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                          >
+                            <Edit size={14} />
+                            {event.status === 'changes_requested' ? 'Edit & Resubmit' : 'Edit'}
+                          </button>
+                        )}
+                        {event.status === 'approved' && event.slug && (
+                          <a
+                            href={`https://ciarajevans.com/events/${event.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 px-3 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                          >
+                            <ExternalLink size={14} />
+                            View on Site
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
             </div>
+          )}
+        </div>
+
+        {/* Section 4: Explore Community Events */}
+        <div>
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold text-white mb-1">Upcoming Community Events</h2>
+            <p className="text-[#a1a1a1]">Discover events from The CJE Experience community</p>
           </div>
-        )}
+          {communityEvents.length === 0 ? (
+            <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-12 text-center">
+              <Calendar size={48} className="text-[#81D8D0]/50 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No upcoming community events at this time.</h3>
+              <p className="text-[#a1a1a1]">Check back soon for new events!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {communityEvents.map((event) => {
+                const eventImage = getEventImage(event)
+                const eventDate = new Date(event.date)
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden hover:border-[#81D8D0]/50 transition-colors"
+                  >
+                    {eventImage && (
+                      <div className="aspect-video w-full bg-[#0a0a0a] overflow-hidden">
+                        <img
+                          src={eventImage}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="p-5 space-y-3">
+                      <h3 className="text-xl font-semibold text-white">{event.title}</h3>
+                      {event.description && (
+                        <p className="text-[#a1a1a1] text-sm line-clamp-3">{event.description}</p>
+                      )}
+                      <div className="space-y-2 text-sm text-[#a1a1a1]">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="text-[#81D8D0] flex-shrink-0" />
+                          <span>
+                            {format(eventDate, 'MMM d, yyyy')}
+                            {event.end_time && ` • ${formatTime12Hour(event.end_time)}`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="text-[#81D8D0] flex-shrink-0" />
+                          <span>{event.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DollarSign size={14} className="text-[#81D8D0] flex-shrink-0" />
+                          <span>{event.price && event.price > 0 ? `$${event.price}` : 'Free'}</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-[#333333]">
+                        {event.ticket_link ? (
+                          <a
+                            href={event.ticket_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-full text-center px-4 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                          >
+                            Get Tickets →
+                          </a>
+                        ) : (
+                          <a
+                            href={`https://ciarajevans.com/events/${event.slug || event.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-full text-center px-4 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                          >
+                            Learn More →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Create Event Modal */}
@@ -578,7 +637,7 @@ export default function EventsPage() {
             className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 max-w-xl w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Create Event</h2>
+              <h2 className="text-xl font-semibold text-white">Submit Event</h2>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="text-[#a1a1a1] hover:text-white transition-colors"
@@ -884,7 +943,7 @@ export default function EventsPage() {
                           <div className="relative w-16 h-16 rounded overflow-hidden flex-shrink-0">
                             <img
                               src={imgUrl}
-                              alt={editingEvent?.title ? `${editingEvent.title} - Image ${index + 1}` : `Event image ${index + 1}`}
+                              alt={`${editingEvent?.title || 'Event'} - Image ${index + 1}`}
                               className="w-full h-full object-cover cursor-pointer"
                               onClick={() => setLightboxImage(imgUrl)}
                             />
