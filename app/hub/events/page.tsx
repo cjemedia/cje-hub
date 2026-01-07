@@ -19,7 +19,7 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [showHowItWorks, setShowHowItWorks] = useState(false)
+  const [showHowItWorks, setShowHowItWorks] = useState(true)
   const [editingEvent, setEditingEvent] = useState<any>(null)
   const [submitting, setSubmitting] = useState(false)
   const [existingImages, setExistingImages] = useState<string[]>([])
@@ -391,38 +391,33 @@ export default function EventsPage() {
         </Link>
 
         {/* Section 1: Header */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-3xl lg:text-4xl font-semibold text-white">
               Submit Your Event
             </h1>
-            <p className="text-[#a1a1a1] max-w-2xl mb-3">
-              Submit your event for promotion on ciarajevans.com. Approved events get a dedicated event page and featured placement in our Upcoming Events section.
-            </p>
-            <p className="text-[#a1a1a1] text-sm max-w-2xl mb-4">
-              The CJE Experience connects purpose-driven entrepreneurs, creators, and professionals. Submit your event to reach our community and get featured on ciarajevans.com.
-            </p>
-            <div className="mt-4">
-              <p className="text-[#a1a1a1] text-sm mb-2">
-                Looking to book Ciara J. for your event?
-              </p>
-              <a
-                href="https://www.ciarajevans.com/events"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#81D8D0] hover:underline inline-flex items-center gap-1 text-sm font-medium"
-              >
-                View speaking & hosting services →
-              </a>
-            </div>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 whitespace-nowrap"
+            >
+              <Plus size={18} />
+              Submit Event
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 whitespace-nowrap"
-          >
-            <Plus size={18} />
-            Submit Event
-          </Button>
+          <p className="text-[#a1a1a1]">
+            Submit your event for promotion on ciarajevans.com. Approved events get a dedicated page and featured placement.
+          </p>
+          <p className="text-sm text-[#81D8D0]">
+            Looking to book Ciara J. for your event?{' '}
+            <a
+              href="https://www.ciarajevans.com/events"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              View speaking & hosting services →
+            </a>
+          </p>
         </div>
 
         {/* Section 2: How It Works */}
