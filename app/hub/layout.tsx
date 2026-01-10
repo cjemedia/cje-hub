@@ -24,6 +24,11 @@ export default async function HubLayout({ children }: { children: React.ReactNod
 
   const role = (profile?.role as 'client' | 'admin') ?? 'client'
 
+  // Redirect admins to admin dashboard
+  if (role === 'admin') {
+    redirect('/admin')
+  }
+
   return (
     <HubUserProvider
       value={{
@@ -42,4 +47,3 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     </HubUserProvider>
   )
 }
-
