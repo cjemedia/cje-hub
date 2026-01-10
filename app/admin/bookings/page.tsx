@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
 import { StatusBadge } from '@/components/StatusBadge'
-import { Calendar, Clock, Info, Mail, Phone } from 'lucide-react'
+import { Calendar, Clock, Info, Mail, Phone, Plus } from 'lucide-react'
 
 const inquiryTypeLabels: Record<string, string> = {
   speaking: 'Speaking Engagement',
@@ -97,13 +97,22 @@ export default function AdminBookingsPage() {
     <div className="min-h-screen bg-[#0a0a0a] p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
-            <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
+              <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">All Bookings</h1>
+            <p className="text-[#a1a1a1]">View and manage all client bookings</p>
           </div>
-          <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">All Bookings</h1>
-          <p className="text-[#a1a1a1]">View and manage all client bookings</p>
+          <Link
+            href="/admin/bookings/new"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity"
+          >
+            <Plus size={18} />
+            New Booking
+          </Link>
         </div>
 
         {/* Filter Tabs */}
