@@ -42,6 +42,11 @@ export default function NewAdminBookingPage() {
   const [notes, setNotes] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [projects, setProjects] = useState<any[]>([])
+  const [loadingProjects, setLoadingProjects] = useState(false)
+  const [selectedProjectId, setSelectedProjectId] = useState('')
+  const [availableSlots, setAvailableSlots] = useState<string[]>([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
 
   const formatDate = (dateString: string) => {
     if (!dateString) return ''
@@ -76,6 +81,66 @@ export default function NewAdminBookingPage() {
     loadClients()
   }, [])
 
+  useEffect(() => {
+    const loadProjects = async () => {
+      if (!selectedClientId || inquiryType !== 'Existing Project') {
+        setProjects([])
+        setSelectedProjectId('')
+        return
+      }
+      
+      setLoadingProjects(true)
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, status')
+        .eq('user_id', selectedClientId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error loading projects:', error)
+        setProjects([])
+      } else {
+        setProjects(data || [])
+      }
+      setLoadingProjects(false)
+    }
+
+    loadProjects()
+  }, [selectedClientId, inquiryType])
+
+  useEffect(() => {
+    const loadAvailableSlots = async () => {
+      if (!selectedDate) {
+        setAvailableSlots([])
+        return
+      }
+      
+      setLoadingSlots(true)
+      setSelectedTime('') // Reset time when date changes
+      
+      try {
+        // Fetch availability - admin bypasses 12-hour rule and buffer restrictions
+        const response = await fetch(`/api/booking/availability?date=${selectedDate}&isAdmin=true`)
+        const data = await response.json()
+        
+        if (data.availableSlots) {
+          setAvailableSlots(data.availableSlots)
+        } else {
+          // Fallback to all time slots if API fails
+          setAvailableSlots(timeSlots)
+        }
+      } catch (error) {
+        console.error('Error fetching availability:', error)
+        setAvailableSlots(timeSlots)
+      }
+      
+      setLoadingSlots(false)
+    }
+
+    loadAvailableSlots()
+  }, [selectedDate])
+
   const getMinDate = () => {
     const today = new Date()
     return today.toISOString().split('T')[0]
@@ -93,6 +158,11 @@ export default function NewAdminBookingPage() {
 
     if (clientSelection === 'existing' && !selectedClientId) {
       setError('Please select a client')
+      return
+    }
+
+    if (inquiryType === 'Existing Project' && clientSelection === 'existing' && !selectedProjectId) {
+      setError('Please select a project')
       return
     }
 
@@ -118,6 +188,7 @@ export default function NewAdminBookingPage() {
         time: selectedTime,
         type: inquiryType,
         notes: notes || '',
+        project_id: selectedProjectId || null,
       }
 
       if (clientSelection === 'existing') {
@@ -224,7 +295,10 @@ export default function NewAdminBookingPage() {
                   <div className="relative">
                     <select
                       value={selectedClientId}
-                      onChange={(e) => setSelectedClientId(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedClientId(e.target.value)
+                        setSelectedProjectId('')
+                      }}
                       className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
                       required={clientSelection === 'existing'}
                     >
@@ -311,22 +385,37 @@ export default function NewAdminBookingPage() {
             <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
               Time (Central Time)
             </label>
-            <div className="grid grid-cols-4 gap-2">
-              {timeSlots.map((slot) => (
-                <button
-                  key={slot}
-                  type="button"
-                  onClick={() => setSelectedTime(slot)}
-                  className={`h-10 rounded-sm font-light text-sm transition-all ${
-                    selectedTime === slot
-                      ? 'bg-[#81D8D0] text-[#0a0a0a] border border-[#81D8D0]'
-                      : 'bg-transparent text-white/70 border border-white/10 hover:border-white/30 hover:text-white'
-                  }`}
-                >
-                  {slot}
-                </button>
-              ))}
-            </div>
+            {loadingSlots ? (
+              <div className="grid grid-cols-4 gap-2">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-10 bg-white/5 rounded-sm animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : availableSlots.length > 0 ? (
+              <div className="grid grid-cols-4 gap-2">
+                {availableSlots.map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setSelectedTime(slot)}
+                    className={`h-10 rounded-sm font-light text-sm transition-all ${
+                      selectedTime === slot
+                        ? 'bg-[#81D8D0] text-[#0a0a0a] border border-[#81D8D0]'
+                        : 'bg-transparent text-white/70 border border-white/10 hover:border-white/30 hover:text-white'
+                    }`}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
+            ) : selectedDate ? (
+              <p className="text-white/50 text-sm">No available slots for this date</p>
+            ) : (
+              <p className="text-white/50 text-sm">Select a date first</p>
+            )}
           </div>
 
           {/* Inquiry Type */}
@@ -337,7 +426,12 @@ export default function NewAdminBookingPage() {
             <div className="relative">
               <select
                 value={inquiryType}
-                onChange={(e) => setInquiryType(e.target.value)}
+                onChange={(e) => {
+                  setInquiryType(e.target.value)
+                  if (e.target.value !== 'Existing Project') {
+                    setSelectedProjectId('')
+                  }
+                }}
                 className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
                 required
               >
@@ -355,6 +449,41 @@ export default function NewAdminBookingPage() {
               </div>
             </div>
           </div>
+
+          {/* Project Selector - Only show when Existing Project is selected and client is chosen */}
+          {inquiryType === 'Existing Project' && selectedClientId && clientSelection === 'existing' && (
+            <div className="border-b border-white/10 pb-6">
+              <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
+                Select Project
+              </label>
+              {loadingProjects ? (
+                <div className="text-[#a1a1a1] text-sm">Loading projects...</div>
+              ) : projects.length > 0 ? (
+                <div className="relative">
+                  <select
+                    value={selectedProjectId}
+                    onChange={(e) => setSelectedProjectId(e.target.value)}
+                    className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
+                    required
+                  >
+                    <option value="" className="bg-[#0a0a0a]">Select a project...</option>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id} className="bg-[#0a0a0a]">
+                        {project.name} ({project.status})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-white/50 text-sm">No projects found for this client</p>
+              )}
+            </div>
+          )}
 
           {/* Notes */}
           <div className="border-b border-white/10 pb-6">
