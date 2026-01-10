@@ -222,7 +222,7 @@ export default function AdminInvoiceDetailPage() {
                 placeholder="https://invoice.stripe.com/..."
               />
               {editForm.stripe_link && (
-                
+                <a
                   href={editForm.stripe_link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -245,7 +245,7 @@ export default function AdminInvoiceDetailPage() {
                 placeholder="https://..."
               />
               {editForm.receipt_url && (
-                
+                <a
                   href={editForm.receipt_url}
                   target="_blank"
                   rel="noopener noreferrer"
