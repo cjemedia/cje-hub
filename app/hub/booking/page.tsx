@@ -342,9 +342,9 @@ function BookingContent() {
 
         {/* Booking Form */}
         {submitStatus !== 'success' && (
-          <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-10">
             {/* Inquiry Option */}
-            <div className="flex items-center gap-3 pb-6 border-b border-[#333333]">
+            <div className="flex items-center gap-3 pb-6 border-b border-white/10">
               <input
                 type="checkbox"
                 id="submit-as-inquiry"
@@ -364,82 +364,94 @@ function BookingContent() {
             </div>
 
             {/* 1. Inquiry Type */}
-            <div>
+            <div className="border-b border-white/10 pb-6">
               <label className="block text-white/60 text-xs uppercase tracking-wider mb-3">
                 1. Inquiry Type
               </label>
-              <select
-                value={selectedType || ''}
-                onChange={(e) => {
-                  setSelectedType(e.target.value)
-                  if (e.target.value !== 'Existing Project') {
-                    setSelectedProject('')
-                  }
-                }}
-                className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
-                required
-              >
-                <option value="" className="bg-[#0a0a0a]">Select inquiry type...</option>
-                {Object.entries(inquiryTypes).map(([key, value]) => (
-                  <option key={key} value={value} className="bg-[#0a0a0a]">
-                    {value}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedType || ''}
+                  onChange={(e) => {
+                    setSelectedType(e.target.value)
+                    if (e.target.value !== 'Existing Project') {
+                      setSelectedProject('')
+                    }
+                  }}
+                  className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
+                  required
+                >
+                  <option value="" className="bg-[#0a0a0a]">Select inquiry type...</option>
+                  {Object.entries(inquiryTypes).map(([key, value]) => (
+                    <option key={key} value={value} className="bg-[#0a0a0a]">
+                      {value}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             {/* 1b. Select Project (if Existing Project is selected) */}
             {selectedType === 'Existing Project' && (
-              <div>
+              <div className="border-b border-white/10 pb-6">
                 <label className="block text-white/60 text-xs uppercase tracking-wider mb-3">
                   Select Project
                 </label>
                 {loadingProjects ? (
-                  <div className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white/50">
-                    Loading projects...
-                  </div>
+                  <div className="text-white/50 text-sm">Loading projects...</div>
                 ) : projects.length > 0 ? (
-                  <select
-                    value={selectedProject}
-                    onChange={(e) => setSelectedProject(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
-                    required
-                  >
-                    <option value="" className="bg-[#0a0a0a]">Select a project...</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id} className="bg-[#0a0a0a]">
-                        {project.name || 'Untitled Project'}
-                        {project.service_type ? ` (${project.service_type.replace('_', ' ')})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white/50">
-                    No projects found
+                  <div className="relative">
+                    <select
+                      value={selectedProject}
+                      onChange={(e) => setSelectedProject(e.target.value)}
+                      className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
+                      required
+                    >
+                      <option value="" className="bg-[#0a0a0a]">Select a project...</option>
+                      {projects.map((project) => (
+                        <option key={project.id} value={project.id} className="bg-[#0a0a0a]">
+                          {project.name || 'Untitled Project'}
+                          {project.service_type ? ` (${project.service_type.replace('_', ' ')})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </div>
+                ) : (
+                  <div className="text-white/50 text-sm">No projects found</div>
                 )}
               </div>
             )}
 
             {/* 2. Select Date */}
             {!submitAsInquiry && (
-              <div>
-                <label className="block text-white/60 text-xs uppercase tracking-wider mb-3">
+              <div className="border-b border-white/10 pb-6">
+                <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
                   2. Select Date
                 </label>
                 <div className="relative">
-                  {/* Visual display */}
-                  <div className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-left flex items-center justify-between pointer-events-none">
+                  <div className="w-full border-b border-white/20 px-0 py-4 text-left flex items-center justify-between group pointer-events-none">
                     <div>
                       {selectedDate ? (
-                        <span className="text-white font-medium">{formatDate(selectedDate)}</span>
+                        <span className="text-white text-lg font-light">
+                          {formatDate(selectedDate)}
+                        </span>
                       ) : (
-                        <span className="text-white/40">Select a date</span>
+                        <span className="text-white/30 text-lg font-light">
+                          Select a date
+                        </span>
                       )}
                     </div>
-                    <Calendar className="text-white/50" size={18} />
+                    <Calendar className="w-5 h-5 text-white/60 group-hover:text-[#81D8D0] transition-colors" />
                   </div>
-                  {/* Invisible native date picker overlay */}
                   <input
                     type="date"
                     min={getMinDate()}
@@ -453,7 +465,8 @@ function BookingContent() {
                         }
                       }
                     }}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    style={{ fontSize: '16px' }}
                     required
                   />
                 </div>
@@ -465,8 +478,8 @@ function BookingContent() {
 
             {/* 3. Select Time */}
             {!submitAsInquiry && selectedDate && !isWeekend(selectedDate) && (
-              <div>
-                <div className="flex items-center justify-between mb-3">
+              <div className="border-b border-white/10 pb-6">
+                <div className="flex items-center justify-between mb-4">
                   <label className="block text-white/60 text-xs uppercase tracking-wider">
                     3. Select Time
                   </label>
@@ -479,7 +492,7 @@ function BookingContent() {
                     {[...Array(8)].map((_, i) => (
                       <div
                         key={i}
-                        className="h-10 bg-[#0a0a0a] rounded-lg animate-pulse"
+                        className="h-10 bg-transparent border border-white/10 rounded-sm animate-pulse"
                       />
                     ))}
                   </div>
@@ -490,10 +503,10 @@ function BookingContent() {
                         key={slot}
                         type="button"
                         onClick={() => setSelectedTime(slot)}
-                        className={`h-10 rounded-lg font-medium text-sm transition-all ${
+                        className={`h-10 rounded-sm font-light text-sm transition-all ${
                           selectedTime === slot
-                            ? 'bg-[#81D8D0] text-dark border border-[#81D8D0]'
-                            : 'bg-[#0a0a0a] text-white/70 border border-[#333333] hover:border-[#81D8D0]/50 hover:text-white'
+                            ? 'bg-[#81D8D0] text-[#0a0a0a] border border-[#81D8D0]'
+                            : 'bg-transparent text-white/70 border border-white/10 hover:border-white/30 hover:text-white'
                         }`}
                       >
                         {slot}
@@ -507,17 +520,17 @@ function BookingContent() {
             )}
 
             {/* 4. Your Details */}
-            <div>
-              <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
+            <div className="border-b border-white/10 pb-6">
+              <label className="block text-white/60 text-xs uppercase tracking-wider mb-6">
                 4. Your Details
               </label>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <input
                   type="text"
                   placeholder="Full Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                  className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors"
                   required
                 />
                 <input
@@ -525,7 +538,7 @@ function BookingContent() {
                   placeholder="Email Address"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                  className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors"
                   required
                 />
                 <input
@@ -533,14 +546,14 @@ function BookingContent() {
                   placeholder="Phone (optional)"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                  className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors"
                 />
                 <textarea
                   placeholder="Tell us about your project (optional)"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={4}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
+                  className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
                 />
               </div>
             </div>

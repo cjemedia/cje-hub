@@ -43,6 +43,18 @@ export default function NewAdminBookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+    const [year, month, day] = dateString.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
   useEffect(() => {
     const loadClients = async () => {
       const supabase = createClient()
@@ -164,10 +176,10 @@ export default function NewAdminBookingPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-10">
           {/* Client Selection */}
-          <div className="space-y-4">
-            <label className="block text-white font-medium mb-2">Client</label>
+          <div className="border-b border-white/10 pb-6">
+            <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">Client</label>
             
             {/* Selection Type Toggle */}
             <div className="flex gap-2 mb-4">
@@ -209,50 +221,51 @@ export default function NewAdminBookingPage() {
                 {loadingClients ? (
                   <div className="text-[#a1a1a1] text-sm">Loading clients...</div>
                 ) : (
-                  <select
-                    value={selectedClientId}
-                    onChange={(e) => setSelectedClientId(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
-                    required={clientSelection === 'existing'}
-                  >
-                    <option value="">Select a client...</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name} ({client.email})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={selectedClientId}
+                      onChange={(e) => setSelectedClientId(e.target.value)}
+                      className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
+                      required={clientSelection === 'existing'}
+                    >
+                      <option value="" className="bg-[#0a0a0a]">Select a client...</option>
+                      {clients.map((client) => (
+                        <option key={client.id} value={client.id} className="bg-[#0a0a0a]">
+                          {client.name} ({client.email})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
 
             {/* Manual Entry Fields */}
             {clientSelection === 'manual' && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-[#a1a1a1] text-sm mb-2 flex items-center gap-2">
-                    <User size={16} />
-                    Name
-                  </label>
+                  <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">Name</label>
                   <input
                     type="text"
                     value={manualName}
                     onChange={(e) => setManualName(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                    className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors"
                     placeholder="Enter client name"
                     required={clientSelection === 'manual'}
                   />
                 </div>
                 <div>
-                  <label className="block text-[#a1a1a1] text-sm mb-2 flex items-center gap-2">
-                    <Mail size={16} />
-                    Email
-                  </label>
+                  <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">Email</label>
                   <input
                     type="email"
                     value={manualEmail}
                     onChange={(e) => setManualEmail(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                    className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors"
                     placeholder="Enter client email"
                     required={clientSelection === 'manual'}
                   />
@@ -262,71 +275,95 @@ export default function NewAdminBookingPage() {
           </div>
 
           {/* Date Picker */}
-          <div>
-            <label className="block text-white font-medium mb-2 flex items-center gap-2">
-              <Calendar size={16} />
+          <div className="border-b border-white/10 pb-6">
+            <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
               Date
             </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              min={getMinDate()}
-              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
-              required
-            />
+            <div className="relative">
+              <div className="w-full border-b border-white/20 px-0 py-4 text-left flex items-center justify-between group pointer-events-none">
+                <div>
+                  {selectedDate ? (
+                    <span className="text-white text-lg font-light">
+                      {formatDate(selectedDate)}
+                    </span>
+                  ) : (
+                    <span className="text-white/30 text-lg font-light">
+                      Select a date
+                    </span>
+                  )}
+                </div>
+                <Calendar className="w-5 h-5 text-white/60 group-hover:text-[#81D8D0] transition-colors" />
+              </div>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={getMinDate()}
+                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+                style={{ fontSize: '16px' }}
+                required
+              />
+            </div>
           </div>
 
           {/* Time Picker */}
-          <div>
-            <label className="block text-white font-medium mb-2 flex items-center gap-2">
-              <Clock size={16} />
-              Time
+          <div className="border-b border-white/10 pb-6">
+            <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
+              Time (Central Time)
             </label>
-            <select
-              value={selectedTime}
-              onChange={(e) => setSelectedTime(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
-              required
-            >
-              <option value="">Select a time...</option>
+            <div className="grid grid-cols-4 gap-2">
               {timeSlots.map((slot) => (
-                <option key={slot} value={slot}>
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setSelectedTime(slot)}
+                  className={`h-10 rounded-sm font-light text-sm transition-all ${
+                    selectedTime === slot
+                      ? 'bg-[#81D8D0] text-[#0a0a0a] border border-[#81D8D0]'
+                      : 'bg-transparent text-white/70 border border-white/10 hover:border-white/30 hover:text-white'
+                  }`}
+                >
                   {slot}
-                </option>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Inquiry Type */}
-          <div>
-            <label className="block text-white font-medium mb-2">Inquiry Type</label>
-            <select
-              value={inquiryType}
-              onChange={(e) => setInquiryType(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#81D8D0] transition-colors"
-              required
-            >
-              <option value="">Select inquiry type...</option>
-              {Object.entries(inquiryTypeLabels).map(([value, label]) => (
-                <option key={value} value={label}>
-                  {label}
-                </option>
-              ))}
-            </select>
+          <div className="border-b border-white/10 pb-6">
+            <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
+              Inquiry Type
+            </label>
+            <div className="relative">
+              <select
+                value={inquiryType}
+                onChange={(e) => setInquiryType(e.target.value)}
+                className="w-full bg-transparent border-b border-white/20 px-0 py-3 pr-8 text-white text-lg focus:outline-none focus:border-[#81D8D0] transition-colors appearance-none cursor-pointer"
+                required
+              >
+                <option value="" className="bg-[#0a0a0a]">Select inquiry type...</option>
+                {Object.entries(inquiryTypeLabels).map(([key, value]) => (
+                  <option key={key} value={value} className="bg-[#0a0a0a]">
+                    {value}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Notes */}
-          <div>
-            <label className="block text-white font-medium mb-2 flex items-center gap-2">
-              <FileText size={16} />
-              Notes (Optional)
-            </label>
+          <div className="border-b border-white/10 pb-6">
+            <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">Notes (Optional)</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
-              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
+              className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
               placeholder="Add any additional notes or details..."
             />
           </div>
@@ -339,17 +376,17 @@ export default function NewAdminBookingPage() {
           )}
 
           {/* Submit Button */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-4 pt-6">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-[#81D8D0] text-dark font-semibold py-3 px-6 rounded-lg hover:bg-[#81D8D0]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#81D8D0] text-dark font-semibold py-4 px-0 text-sm uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Creating Booking...' : 'Create Booking'}
             </button>
             <Link
               href="/admin/bookings"
-              className="px-6 py-3 border border-[#333333] text-white rounded-lg hover:bg-white/5 transition-colors"
+              className="px-6 py-4 border border-white/20 text-white rounded-sm hover:bg-white/5 transition-colors"
             >
               Cancel
             </Link>
