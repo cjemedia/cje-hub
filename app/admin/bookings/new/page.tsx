@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Calendar, Clock, User, Mail, FileText } from 'lucide-react'
 
 const inquiryTypeLabels: Record<string, string> = {
+  existing_project: 'Existing Project',
   speaking: 'Speaking Engagement',
   workshop: 'Workshop / Training',
   hosting: 'Event Hosting / Emcee',
@@ -19,7 +20,6 @@ const inquiryTypeLabels: Record<string, string> = {
   brand: 'Brand Identity Consulting',
   creative: 'Creative Direction',
   organization: 'Organization / Corporate Inquiry',
-  existing_project: 'Existing Project',
 }
 
 const timeSlots = [

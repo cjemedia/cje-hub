@@ -10,6 +10,7 @@ import Image from 'next/image'
 
 // Inquiry type mapping
 const inquiryTypes: Record<string, string> = {
+  existing_client: "I'm an Existing Client",
   speaking: 'Speaking Engagement',
   workshop: 'Workshop / Training',
   hosting: 'Event Hosting / Emcee',
