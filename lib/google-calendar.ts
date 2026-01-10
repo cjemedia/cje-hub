@@ -331,12 +331,19 @@ export async function createCalendarEvent(booking: {
           { method: 'popup', minutes: 15 }, // 15 minutes before
         ],
       },
+      conferenceData: {
+        createRequest: {
+          requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          conferenceSolutionKey: { type: 'hangoutsMeet' },
+        },
+      },
     }
 
     const response = await calendar.events.insert({
       calendarId,
       requestBody: event,
       sendUpdates: 'all', // Send calendar invites
+      conferenceDataVersion: 1,
     })
 
     return {
