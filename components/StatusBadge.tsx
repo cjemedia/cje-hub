@@ -10,6 +10,8 @@ const statusConfig: Record<
   in_progress: { bg: 'bg-accent/20', text: 'text-accent', label: 'In Progress' },
   completed: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Completed' },
   cancelled: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Cancelled' },
+  paid: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Paid' },
+  overdue: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Overdue' },
 }
 
 export function StatusBadge({ status }: { status: string }) {
