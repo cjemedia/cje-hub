@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trash2, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export function DeleteClientButton({ clientId, clientName }: { clientId: string; clientName: string }) {
   const router = useRouter()
@@ -54,9 +54,8 @@ export function DeleteClientButton({ clientId, clientName }: { clientId: string;
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+      className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      <Trash2 size={16} />
       Delete Client
     </button>
   )
