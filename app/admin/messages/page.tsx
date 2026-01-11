@@ -118,7 +118,7 @@ export default function AdminMessagesPage() {
   }
 
   const handleCreateClient = async (message: any) => {
-    if (!message.email) {
+    if (!message.email && !message.sender_email) {
       alert('Cannot create client without an email address')
       return
     }
