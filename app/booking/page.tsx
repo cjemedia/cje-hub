@@ -501,6 +501,13 @@ function BookingContent() {
                       ) : (
                         <p className="text-white/50 text-sm">No available slots for this date</p>
                       )}
+                      <p className="text-white/50 text-sm mt-4">
+                        Don't see a time that works?{' '}
+                        <a href="mailto:media@ciarajevans.com" className="text-accent hover:text-accent/80 underline">
+                          Contact us
+                        </a>{' '}
+                        to request a different time.
+                      </p>
                     </div>
                   )}
 

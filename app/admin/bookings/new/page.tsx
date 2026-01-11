@@ -428,6 +428,9 @@ export default function NewAdminBookingPage() {
             ) : (
               <p className="text-white/50 text-sm">Select a date first</p>
             )}
+            <p className="text-white/50 text-sm mt-4">
+              Need a time outside regular hours? Contact Ciara directly.
+            </p>
           </div>
 
           {/* Inquiry Type */}
