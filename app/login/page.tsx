@@ -63,7 +63,7 @@ export default function LoginPage() {
         console.log('Debug - userDataError:', userDataError)
 
         if (userData?.must_change_password) {
-          window.location.href = '/set-password'
+          router.push('/set-password')
           return
         }
 
