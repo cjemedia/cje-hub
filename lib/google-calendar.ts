@@ -115,9 +115,14 @@ export async function getAvailableSlots(date: string, isAdmin: boolean = false):
         const slotTime = new Date(year, month - 1, day, slotHour, minutes, 0)
         const slotEnd = new Date(slotTime.getTime() + 45 * 60 * 1000) // 45-minute slot
         
-        // Check if slot overlaps with event
+        // Check if slot overlaps with event (including buffer for non-admin)
         // Two ranges overlap if: start1 < end2 && start2 < end1
-        if (slotTime < eventEndCT && slotEnd > eventStartCT) {
+        // For non-admin, add 15-minute buffer before and after events
+        const bufferMs = isAdmin ? 0 : 15 * 60 * 1000 // 15 minutes in milliseconds
+        const bufferedEventStart = new Date(eventStartCT.getTime() - bufferMs)
+        const bufferedEventEnd = new Date(eventEndCT.getTime() + bufferMs)
+
+        if (slotTime < bufferedEventEnd && slotEnd > bufferedEventStart) {
           bookedSlots.add(slot)
         }
       })
@@ -168,9 +173,14 @@ export async function getAvailableSlots(date: string, isAdmin: boolean = false):
             const slotTimeCT = new Date(slotTime.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
             const slotEndCT = new Date(slotTimeCT.getTime() + 45 * 60 * 1000) // 45-minute slot
             
-            // Check if slot overlaps with event
+            // Check if slot overlaps with event (including buffer for non-admin)
             // Two ranges overlap if: start1 < end2 && start2 < end1
-            if (slotTimeCT < eventEndCT && slotEndCT > eventStartCT) {
+            // For non-admin, add 15-minute buffer before and after events
+            const bufferMs = isAdmin ? 0 : 15 * 60 * 1000 // 15 minutes in milliseconds
+            const bufferedEventStart = new Date(eventStartCT.getTime() - bufferMs)
+            const bufferedEventEnd = new Date(eventEndCT.getTime() + bufferMs)
+
+            if (slotTimeCT < bufferedEventEnd && slotEndCT > bufferedEventStart) {
               bookedSlots.add(slot)
             }
           })
