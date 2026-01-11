@@ -181,48 +181,46 @@ export async function getAvailableSlots(date: string, isAdmin: boolean = false):
       // Continue with Google Calendar events only if Supabase query fails
     }
 
-    // Filter available slots
-    let availableSlots = allSlots.filter((slot) => {
-      // Skip if already booked
+    // Filter slots
+    const now = new Date()
+    const twelveHoursFromNow = new Date(now.getTime() + 12 * 60 * 60 * 1000)
+
+    const availableSlots = allSlots.filter((slot) => {
+      // ALWAYS skip if already booked (applies to everyone including admin)
       if (bookedSlots.has(slot)) {
         return false
       }
-      return true
-    })
-
-    // Check if admin request - bypass 12-hour and buffer rules
-    if (!isAdmin) {
-      // Filter out slots within 12 hours (only for non-admin)
-      const now = new Date()
-      const twelveHoursFromNow = new Date(now.getTime() + 12 * 60 * 60 * 1000)
       
-      availableSlots = availableSlots.filter((slot) => {
-        // Check if slot is within 12 hours (for today only)
-        const [time, period] = slot.split(' ')
-        const [hours, minutes] = time.split(':').map(Number)
-        let slotHour = hours
-        if (period === 'PM' && hours !== 12) slotHour += 12
-        if (period === 'AM' && hours === 12) slotHour = 0
-        
-        // Create slot time for comparison
-        const slotTime = new Date(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(slotHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`)
-        
-        // If the date is today, check if slot is more than 12 hours away
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const selectedDateObj = new Date(date)
-        selectedDateObj.setHours(0, 0, 0, 0)
-        
-        if (selectedDateObj.getTime() === today.getTime()) {
-          // Same day - check if slot is more than 12 hours away
-          if (slotTime <= twelveHoursFromNow) {
-            return false
-          }
+      // Parse slot time
+      const [time, period] = slot.split(' ')
+      const [hours, minutes] = time.split(':').map(Number)
+      let slotHour = hours
+      if (period === 'PM' && hours !== 12) slotHour += 12
+      if (period === 'AM' && hours === 12) slotHour = 0
+      
+      // Create slot time for comparison
+      const slotTime = new Date(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(slotHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`)
+      
+      // Check if the date is today
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const selectedDateObj = new Date(date)
+      selectedDateObj.setHours(0, 0, 0, 0)
+      
+      if (selectedDateObj.getTime() === today.getTime()) {
+        // ALWAYS filter out past times (applies to everyone including admin)
+        if (slotTime <= now) {
+          return false
         }
         
-        return true
-      })
-    }
+        // Only apply 12-hour rule for NON-admin
+        if (!isAdmin && slotTime <= twelveHoursFromNow) {
+          return false
+        }
+      }
+      
+      return true
+    })
     
     return availableSlots
   } catch (error) {
