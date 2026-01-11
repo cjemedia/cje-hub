@@ -84,59 +84,23 @@ export default function AdminBookingDetailPage() {
     setSuccess('')
 
     try {
-      // Parse time string to time format for legacy column
-      let timeValue = ''
-      if (editForm.time) {
-        try {
-          const [timeStr, period] = editForm.time.split(' ')
-          const [hours, minutes] = timeStr.split(':').map(Number)
-          let hour24 = hours
-          if (period === 'PM' && hours !== 12) hour24 += 12
-          if (period === 'AM' && hours === 12) hour24 = 0
-          timeValue = `${hour24.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`
-        } catch (parseError) {
-          console.error('Error parsing time:', parseError)
-          timeValue = editForm.time // Fallback to original value
-        }
-      }
-
-      // Update booking in Supabase
-      const { error: updateError } = await supabase
-        .from('bookings')
-        .update({
+      // Update booking via API (handles both Supabase and Google Calendar)
+      const response = await fetch('/api/booking/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingId,
           status: editForm.status,
-          booking_date: editForm.date,
-          booking_time: editForm.time,
-          date: editForm.date, // Legacy column
-          time: timeValue, // Legacy column (time format)
-          notes: editForm.notes || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', bookingId)
+          date: editForm.date,
+          time: editForm.time,
+          notes: editForm.notes,
+        }),
+      })
 
-      if (updateError) {
-        throw new Error(updateError.message || 'Failed to update booking')
-      }
+      const data = await response.json()
 
-      // Update Google Calendar event if it exists
-      if (booking?.google_event_id) {
-        const response = await fetch('/api/booking/update', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            bookingId,
-            status: editForm.status,
-            date: editForm.date,
-            time: editForm.time,
-            notes: editForm.notes,
-          }),
-        })
-
-        if (!response.ok) {
-          const data = await response.json()
-          console.error('Error updating Google Calendar:', data.error)
-          // Don't fail the request if calendar update fails
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update booking')
       }
 
       setSuccess('Booking updated successfully')
@@ -158,27 +122,15 @@ export default function AdminBookingDetailPage() {
     setError('')
 
     try {
-      // Delete from Supabase
-      const { error: deleteError } = await supabase
-        .from('bookings')
-        .delete()
-        .eq('id', bookingId)
+      // Delete booking via API (handles both Supabase and Google Calendar)
+      const response = await fetch(`/api/booking/update?bookingId=${bookingId}`, {
+        method: 'DELETE',
+      })
 
-      if (deleteError) {
-        throw new Error(deleteError.message || 'Failed to delete booking')
-      }
+      const data = await response.json()
 
-      // Delete Google Calendar event if it exists
-      if (booking?.google_event_id) {
-        const response = await fetch(`/api/booking/update?bookingId=${bookingId}`, {
-          method: 'DELETE',
-        })
-
-        if (!response.ok) {
-          const data = await response.json()
-          console.error('Error deleting Google Calendar event:', data.error)
-          // Continue even if calendar deletion fails
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete booking')
       }
 
       // Redirect to bookings page
