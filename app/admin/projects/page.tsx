@@ -139,8 +139,8 @@ export default function AdminProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">

@@ -212,9 +212,9 @@ export default function AdminMessagesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      <div className="max-w-7xl mx-auto w-full flex flex-col h-screen">
+      <div className="max-w-7xl mx-auto w-full flex flex-col h-screen overflow-x-hidden">
         {/* Header */}
-        <div className="p-8 border-b border-[#333333]">
+        <div className="p-4 md:p-8 border-b border-[#333333]">
           <div className="flex items-center gap-2 mb-2">
             <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
             <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
@@ -280,7 +280,7 @@ export default function AdminMessagesPage() {
         <div className="flex-1 overflow-hidden flex">
           {activeTab === 'contact' ? (
             /* Contact Submissions */
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
               <div className="space-y-4">
                 {contactMessages.length === 0 ? (
                   <div className="text-center py-12 text-[#a1a1a1]">No contact submissions yet</div>
