@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { calendar } from '@/lib/google-calendar'
 import { sendEmail } from '@/lib/resend'
 
@@ -567,8 +568,9 @@ export async function DELETE(request: NextRequest) {
       }
     }
 
-    // Delete booking from Supabase
-    const { error: deleteError } = await supabase
+    // Delete booking from Supabase using service client to bypass RLS
+    const serviceClient = createServiceClient()
+    const { error: deleteError } = await serviceClient
       .from('bookings')
       .delete()
       .eq('id', bookingId)
