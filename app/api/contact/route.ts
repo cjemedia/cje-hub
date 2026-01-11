@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, email, message, subject, inquiryType, from, subscribe, website } = body
+    const { name, email, message, subject, inquiryType, from, subscribe, website, company, phone } = body
 
     // Honeypot spam trap
     if (website) {
@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
     </div>
     <p style="color: #ffffff; line-height: 1.6; margin-bottom: 8px;"><strong>Name:</strong> ${senderName}</p>
     <p style="color: #ffffff; line-height: 1.6; margin-bottom: 8px;"><strong>Email:</strong> ${senderEmail}</p>
+    ${company ? `<p style="color: #ffffff; line-height: 1.6; margin-bottom: 8px;"><strong>Company:</strong> ${company}</p>` : ''}
     <p style="color: #ffffff; line-height: 1.6; margin-bottom: 8px;"><strong>Subject:</strong> ${subject || 'General Inquiry'}</p>
     <p style="color: #ffffff; line-height: 1.6; margin-bottom: 24px;"><strong>Inquiry Type:</strong> ${formattedInquiry}</p>
     <p style="color: #ffffff; margin-top: 24px; font-weight: 500; margin-bottom: 8px;"><strong>Message:</strong></p>
@@ -128,8 +129,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceClient()
     await supabase.from('contact_messages').insert({
+      sender_name: senderName !== 'Website Visitor' ? senderName : null,
       sender_email: senderEmail,
-      phone: body.phone || null,
+      phone: phone || null,
+      company: company || null,
       subject: subject || null,
       inquiry_types: inquiryArray,
       preferred_contact: body.preferredContact || null,

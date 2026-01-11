@@ -46,6 +46,7 @@ function BookingContent() {
     name: '',
     email: '',
     phone: '',
+    company: '',
     notes: '',
   })
   const [subscribe, setSubscribe] = useState(false)
@@ -121,6 +122,7 @@ function BookingContent() {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
+            company: formData.company,
             message: formData.notes || `Inquiry about: ${selectedType}${selectedDate ? `\nPreferred date: ${formatDate(selectedDate)}` : ''}${selectedTime ? `\nPreferred time: ${selectedTime}` : ''}`,
             subject: `Booking Inquiry: ${selectedType}`,
             inquiryType: selectedType,
@@ -143,7 +145,7 @@ function BookingContent() {
         })
         
         // Reset form
-        setFormData({ name: '', email: '', phone: '', notes: '' })
+        setFormData({ name: '', email: '', phone: '', company: '', notes: '' })
         setSubscribe(false)
         setHoneypot('')
         setSelectedDate('')
@@ -178,6 +180,7 @@ function BookingContent() {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
+            company: formData.company,
             date: selectedDate,
             time: selectedTime,
             type: selectedType,
@@ -198,7 +201,7 @@ function BookingContent() {
       setBookingDetails(data.booking)
       
       // Reset form
-      setFormData({ name: '', email: '', phone: '', notes: '' })
+      setFormData({ name: '', email: '', phone: '', company: '', notes: '' })
       setSubscribe(false)
       setHoneypot('')
       setSelectedDate('')
@@ -538,6 +541,13 @@ function BookingContent() {
                         placeholder="Phone (optional)"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-accent transition-colors"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Business/Company Name (optional)"
+                        value={formData.company}
+                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                         className="w-full bg-transparent border-b border-white/20 px-0 py-3 text-white text-lg placeholder-white/30 focus:outline-none focus:border-accent transition-colors"
                       />
                       <textarea

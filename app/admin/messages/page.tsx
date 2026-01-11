@@ -301,11 +301,15 @@ export default function AdminMessagesPage() {
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-semibold text-white">{name}</p>
-                              {email && !isExistingClient(email) && (
+                              {email && !isExistingClient(email) ? (
                                 <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded text-xs">
                                   Website Visitor
                                 </span>
-                              )}
+                              ) : email && isExistingClient(email) ? (
+                                <span className="px-2 py-0.5 bg-[#81D8D0]/20 text-[#81D8D0] rounded text-xs">
+                                  Client
+                                </span>
+                              ) : null}
                             </div>
                             {email && <p className="text-sm text-[#a1a1a1]">{email}</p>}
                             {message.phone && <p className="text-sm text-[#a1a1a1]">{message.phone}</p>}

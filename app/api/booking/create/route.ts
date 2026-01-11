@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, email, phone, date, time, type, notes, subscribe, website } = body
+    const { name, email, phone, company, date, time, type, notes, subscribe, website } = body
 
     // Honeypot spam trap
     if (website) {
@@ -133,6 +133,7 @@ export async function POST(request: NextRequest) {
         name,
         email,
         phone: phone || null,
+        company: company || null,
         booking_date: date,
         booking_time: time,
         inquiry_type: type,
