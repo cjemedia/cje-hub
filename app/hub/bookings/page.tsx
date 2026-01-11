@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar,
+  CalendarPlus,
   Clock,
   ArrowLeft,
   Mic,
@@ -114,9 +115,16 @@ export default function BookingsPage() {
         <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
           My Bookings
         </h1>
-        <p className="text-[#a1a1a1]">
+        <p className="text-[#a1a1a1] mb-6">
           View and manage your scheduled sessions and consultations.
         </p>
+        <Link
+          href="/hub/booking"
+          className="inline-flex items-center gap-2 bg-[#81D8D0] text-[#0a0a0a] px-5 py-2.5 rounded-lg font-medium hover:bg-[#81D8D0]/90 transition-colors"
+        >
+          <CalendarPlus size={18} />
+          Book a Session
+        </Link>
       </motion.div>
 
       {/* Filter Tabs */}

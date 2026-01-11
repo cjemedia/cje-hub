@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from 'react'
 import {
   LayoutDashboard,
   Calendar,
-  CalendarPlus,
   FolderKanban,
   Download,
   MessageSquare,
@@ -25,7 +24,6 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/hub/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/hub/booking', icon: CalendarPlus, label: 'Book a Session' },
   { href: '/hub/bookings', icon: Calendar, label: 'My Bookings' },
   { href: '/hub/projects', icon: FolderKanban, label: 'Projects' },
   { href: '/hub/deliverables', icon: Download, label: 'Resources' },
