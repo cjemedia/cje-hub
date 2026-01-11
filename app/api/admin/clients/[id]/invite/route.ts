@@ -36,6 +36,12 @@ export async function POST(_req: NextRequest, { params }: Params) {
       )
     }
 
+    // Set must_change_password flag so they're forced to set a new password
+    await supabase
+      .from('users')
+      .update({ must_change_password: true })
+      .eq('id', userId)
+
     // Send invite email
     const loginUrl =
       (process.env.NEXT_PUBLIC_SITE_URL || 'https://agency.ciarajevans.com') + '/login'

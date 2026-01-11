@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
       company: company || null,
       phone: phone || null,
       role: 'client',
+      must_change_password: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })

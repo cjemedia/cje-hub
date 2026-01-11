@@ -51,19 +51,20 @@ export default function LoginPage() {
       }
 
       if (data?.user && data?.session) {
-        // Fetch user's role from clients table
-        const { data: client, error: clientError } = await supabase
+        // Check if user must change password
+        const { data: userData } = await supabase
           .from('users')
-          .select('role')
+          .select('role, must_change_password')
           .eq('id', data.user.id)
           .single()
 
-        if (clientError) {
-          console.error('Error fetching client role:', clientError)
+        if (userData?.must_change_password) {
+          window.location.href = '/set-password'
+          return
         }
 
         // Redirect based on role
-        const role = (client?.role as 'client' | 'admin') ?? 'client'
+        const role = (userData?.role as 'client' | 'admin') ?? 'client'
         if (role === 'admin') {
           window.location.href = '/admin'
         } else {
