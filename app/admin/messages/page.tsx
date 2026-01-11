@@ -25,6 +25,7 @@ export default function AdminMessagesPage() {
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
   const [showNewModal, setShowNewModal] = useState(false)
+  const [creatingClientId, setCreatingClientId] = useState<string | null>(null)
   const supabase = createClient()
 
   const selectedUserInfo = useMemo(
@@ -114,6 +115,47 @@ export default function AdminMessagesPage() {
     }
 
     setContactMessages((prev) => prev.map((msg) => (msg.id === id ? { ...msg, ...data } : msg)))
+  }
+
+  const handleCreateClient = async (message: any) => {
+    if (!message.email) {
+      alert('Cannot create client without an email address')
+      return
+    }
+
+    setCreatingClientId(message.id)
+
+    try {
+      const response = await fetch('/api/admin/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: message.name || message.sender_name || 'Website Visitor',
+          email: message.email || message.sender_email,
+          phone: message.phone || null,
+          company: null,
+          sendInvite: true,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create client')
+      }
+
+      alert('Client created successfully! An invitation email has been sent.')
+      await loadData() // Refresh to update client list
+    } catch (error: any) {
+      console.error('Error creating client:', error)
+      alert(error.message || 'Failed to create client')
+    } finally {
+      setCreatingClientId(null)
+    }
+  }
+
+  const isExistingClient = (email: string) => {
+    return clients.some((client) => client.email?.toLowerCase() === email?.toLowerCase())
   }
 
   const unreadContactCount = contactMessages.filter((m) => !m.read).length
@@ -257,7 +299,14 @@ export default function AdminMessagesPage() {
                       >
                         <div className="flex items-center justify-between gap-4 flex-wrap">
                           <div>
-                            <p className="font-semibold text-white">{name}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-white">{name}</p>
+                              {email && !isExistingClient(email) && (
+                                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded text-xs">
+                                  Website Visitor
+                                </span>
+                              )}
+                            </div>
                             {email && <p className="text-sm text-[#a1a1a1]">{email}</p>}
                             {message.phone && <p className="text-sm text-[#a1a1a1]">{message.phone}</p>}
                           </div>
@@ -317,6 +366,28 @@ export default function AdminMessagesPage() {
                             </button>
                           </div>
                         </div>
+                        {/* Create Client Button */}
+                        {email && !isExistingClient(email) && (
+                          <div className="pt-3 border-t border-[#333333]">
+                            <button
+                              onClick={() => handleCreateClient(message)}
+                              disabled={creatingClientId === message.id}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-[#81D8D0]/20 text-[#81D8D0] rounded-lg text-sm font-medium hover:bg-[#81D8D0]/30 transition-colors disabled:opacity-50"
+                            >
+                              {creatingClientId === message.id ? (
+                                <>
+                                  <Loader2 size={16} className="animate-spin" />
+                                  Creating...
+                                </>
+                              ) : (
+                                <>
+                                  <Plus size={16} />
+                                  Create Client
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )
                   })
