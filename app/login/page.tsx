@@ -52,15 +52,12 @@ export default function LoginPage() {
 
       if (data?.user && data?.session) {
         // Check if user must change password
-        const { data: userData, error: userDataError } = await supabase
+        const { data: userData } = await supabase
           .from('users')
           .select('role, must_change_password')
           .eq('id', data.user.id)
           .single()
 
-        console.log('Debug - User ID:', data.user.id)
-        console.log('Debug - userData:', userData)
-        console.log('Debug - userDataError:', userDataError)
 
         if (userData?.must_change_password) {
           router.push('/set-password')
