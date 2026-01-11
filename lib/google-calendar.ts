@@ -301,21 +301,13 @@ export async function createCalendarEvent(booking: {
     const startDateTimeISO = `${dateTimeString}-06:00`
     const endDateTimeISO = `${endDateTimeString}-06:00`
 
-    // Determine attendees based on inquiry type
-    // For website/portal/tools bookings, include tech-support@ciarajevans.com
+    // Attendees for all bookings
     // Note: booking@ciarajevans.com is NOT added as an attendee (only used for email sending)
-    const techSupportTypes = ['Custom Website', 'Client Portal', 'Business Tools']
-    const requiresTechSupport = techSupportTypes.includes(booking.type)
-    
     const attendees = [
       { email: booking.email }, // Client email
       { email: 'media@ciarajevans.com' }, // Ciara's email
+      { email: 'tech-support@ciarajevans.com' }, // Tech support on all bookings
     ]
-    
-    // Add tech-support for website/portal/tools bookings
-    if (requiresTechSupport) {
-      attendees.push({ email: 'tech-support@ciarajevans.com' })
-    }
 
     const event = {
       summary: `${booking.type} - ${booking.name}`,
