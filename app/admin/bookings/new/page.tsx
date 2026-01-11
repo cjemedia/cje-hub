@@ -353,7 +353,19 @@ export default function NewAdminBookingPage() {
             <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
               Date
             </label>
-            <div className="relative">
+            <div 
+              className="relative cursor-pointer"
+              onClick={(e) => {
+                const input = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement
+                if (input) {
+                  if (input.showPicker) {
+                    input.showPicker()
+                  } else {
+                    input.click()
+                  }
+                }
+              }}
+            >
               <div className="w-full border-b border-white/20 px-0 py-4 text-left flex items-center justify-between group pointer-events-none">
                 <div>
                   {selectedDate ? (
@@ -373,7 +385,7 @@ export default function NewAdminBookingPage() {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={getMinDate()}
-                className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+                className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none"
                 style={{ fontSize: '16px' }}
                 required
               />

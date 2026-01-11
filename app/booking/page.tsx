@@ -401,7 +401,19 @@ function BookingContent() {
                     </label>
                     
                     {/* Date Input */}
-                    <div className="relative">
+                    <div 
+                      className="relative cursor-pointer"
+                      onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement
+                        if (input) {
+                          if (input.showPicker) {
+                            input.showPicker()
+                          } else {
+                            input.click()
+                          }
+                        }
+                      }}
+                    >
                       {/* Visual display - shows selected date */}
                       <div className="w-full border-b border-white/20 px-0 py-4 text-left flex items-center justify-between group pointer-events-none">
                         <div>
@@ -435,7 +447,7 @@ function BookingContent() {
                             }
                           }
                         }}
-                        className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none"
                         style={{ 
                           fontSize: '16px', // Prevents zoom on iOS
                         }}
