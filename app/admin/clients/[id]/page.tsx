@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import { ArrowLeft } from 'lucide-react'
 import { StatusBadge } from '@/components/StatusBadge'
 import { ResendInviteButton } from '@/components/admin/ResendInviteButton'
+import { DeleteClientButton } from '@/components/admin/DeleteClientButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,7 +60,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">{client.name || 'Client'}</h1>
             <p className="text-[#a1a1a1]">Client details and activity</p>
           </div>
-          <ResendInviteButton clientId={client.id} />
+          <div className="flex flex-col items-end gap-2">
+            <ResendInviteButton clientId={client.id} />
+            <DeleteClientButton clientId={client.id} clientName={client.name || client.email || 'this client'} />
+          </div>
         </div>
 
         {/* Client Info Card */}
