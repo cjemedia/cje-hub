@@ -698,22 +698,28 @@ export default function AdminProjectDetailPage() {
       content: messageDraft.trim(),
       recipient: projectData.users?.name || projectData.users?.email || 'Client',
       onConfirm: async () => {
-        await fetch('/api/messages/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: projectData.user_id,
-            sender_type: 'admin',
-            sender_id: user?.id || null,
-            content: messageDraft.trim(),
-            project_id: projectId,
-          }),
-        })
-        setMessageDraft('')
-        setShowMessagePreview(false)
-        setPreviewMessage(null)
-        await loadMessages()
-        await loadActivity()
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: messageDraft.trim(),
+              project_id: projectId,
+            }),
+          })
+          setMessageDraft('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await loadMessages()
+          await loadActivity()
+        } catch (error) {
+          console.error('Error sending message:', error)
+          alert('Failed to send message. Please try again.')
+        }
       },
     })
     setShowMessagePreview(true)
