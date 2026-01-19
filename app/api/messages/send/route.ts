@@ -40,6 +40,19 @@ export async function POST(request: NextRequest) {
       .eq('id', user_id)
       .maybeSingle()
 
+    // Fetch project info if message was sent from a specific project
+    let project: { id: string; name: string } | null = null
+    if (project_id) {
+      const { data: projectData } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('id', project_id)
+        .maybeSingle()
+      if (projectData) {
+        project = projectData as { id: string; name: string }
+      }
+    }
+
     // Send email notification
     try {
       if (sender_type === 'admin') {
@@ -71,12 +84,15 @@ export async function POST(request: NextRequest) {
     <div style="background-color: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 20px; margin: 24px 0;">
       <p style="color: #ffffff; margin: 0; white-space: pre-wrap; line-height: 1.6;">${content}</p>
     </div>
-    ${project_id ? `
+    ${project ? `
+      <p style="color: rgba(255, 255, 255, 0.7); margin-top: 8px; text-align: center; font-size: 14px;">
+        This message is about your project: <strong>${project.name}</strong>.
+      </p>
       <p style="margin-top: 24px; text-align: center;">
-        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ciarajevans.com'}/hub/projects/${project_id}" style="color: #ffffff; text-decoration: underline;">View your project in the portal</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ciarajevans.com'}/hub/projects/${project.id}" style="color: #ffffff; text-decoration: underline;">View this project in your portal</a>
       </p>
     ` : ''}
-    <p style="margin-top: ${project_id ? '12' : '24'}px; text-align: center;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/hub/messages" style="color: #ffffff; text-decoration: underline;">View messages</a></p>
+    <p style="margin-top: ${project ? '12' : '24'}px; text-align: center;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/hub/messages" style="color: #ffffff; text-decoration: underline;">View messages</a></p>
   </div>
 </body>
 </html>
@@ -111,6 +127,14 @@ export async function POST(request: NextRequest) {
     <div style="background-color: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 20px; margin: 24px 0;">
       <p style="color: #ffffff; margin: 0; white-space: pre-wrap; line-height: 1.6;">${content}</p>
     </div>
+    ${project ? `
+      <p style="color: rgba(255, 255, 255, 0.7); margin-top: 8px; text-align: center; font-size: 14px;">
+        This message was sent from project: <strong>${project.name}</strong> (ID: ${project.id}).
+      </p>
+      <p style="margin-top: 8px; text-align: center;">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/admin/projects/${project.id}" style="color: #ffffff; text-decoration: underline;">Open this project in admin</a>
+      </p>
+    ` : ''}
     <p style="margin-top: 24px; text-align: center;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/admin/messages" style="color: #ffffff; text-decoration: underline;">View in admin</a></p>
   </div>
 </body>
