@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { logProjectActivity } from '@/lib/activity'
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const projectId = searchParams.get('project_id')
+    
+    if (!projectId) {
+      return NextResponse.json({ error: 'project_id is required' }, { status: 400 })
+    }
+    
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('deliverables')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false })
+    
+    if (error) {
+      console.error('Error fetching deliverables:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    return NextResponse.json(data || [])
+  } catch (error: any) {
+    console.error('Deliverables GET error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()

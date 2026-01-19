@@ -118,63 +118,58 @@ export default async function AdminInvoicesPage() {
           ))}
         </div>
 
-        {/* Invoices Table */}
-        <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-[#333333]">
-                <tr>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Invoice #</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Client</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Project</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Amount</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Status</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Due Date</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Paid Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-[#a1a1a1]">
-                      No invoices found
-                    </td>
-                  </tr>
-                ) : (
-                  invoices.map((invoice: any) => (
-                    <tr
-                      key={invoice.id}
-                      className="border-b border-[#333333] hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <Link href={`/admin/invoices/${invoice.id}`} className="text-white hover:text-[#81D8D0] transition-colors">
-                          {invoice.id.slice(0, 8)}...
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        {invoice.users?.name || invoice.users?.email || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 text-[#a1a1a1]">
-                        {invoice.projects?.name || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 text-white font-semibold">
-                        {formatCurrency(Number(invoice.amount || 0))}
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={invoice.status} />
-                      </td>
-                      <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                        {formatDate(invoice.due_date)}
-                      </td>
-                      <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                        {invoice.paid_at ? format(new Date(invoice.paid_at), 'MMM d, yyyy') : 'N/A'}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        {/* Invoice Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {invoices.length === 0 ? (
+            <div className="col-span-full bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 text-center text-[#a1a1a1]">
+              No invoices found
+            </div>
+          ) : (
+            invoices.map((invoice: any) => (
+              <Link
+                key={invoice.id}
+                href={`/admin/invoices/${invoice.id}`}
+                className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 hover:border-[#81D8D0]/50 transition-colors flex flex-col"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-semibold text-lg truncate">
+                      Invoice #{invoice.id.slice(0, 8)}...
+                    </h3>
+                    <p className="text-[#a1a1a1] text-sm truncate">
+                      {invoice.users?.name || invoice.users?.email || 'N/A'}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <StatusBadge status={invoice.status} />
+                  </div>
+                </div>
+
+                <div className="space-y-2 mb-3">
+                  <div className="text-sm">
+                    <span className="text-[#a1a1a1]">Project: </span>
+                    <span className="text-white">{invoice.projects?.name || 'N/A'}</span>
+                  </div>
+                  <div className="text-lg font-bold text-white">
+                    {formatCurrency(Number(invoice.amount || 0))}
+                  </div>
+                </div>
+
+                <div className="mt-auto pt-3 border-t border-[#333333] space-y-1 text-xs text-[#a1a1a1]">
+                  <div>
+                    <span className="text-white/60">Due: </span>
+                    {formatDate(invoice.due_date)}
+                  </div>
+                  {invoice.paid_at && (
+                    <div>
+                      <span className="text-white/60">Paid: </span>
+                      {format(new Date(invoice.paid_at), 'MMM d, yyyy')}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>

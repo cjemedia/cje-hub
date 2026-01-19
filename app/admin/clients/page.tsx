@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Search } from 'lucide-react'
 import { format } from 'date-fns'
 import { AddClientButton } from '@/components/admin/AddClientButton'
+import { Users, FolderKanban, Calendar } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +20,6 @@ async function getClients() {
     return []
   }
 
-  // Get counts for each client
   const clientsWithCounts = await Promise.all(
     (clients || []).map(async (client) => {
       const [projectsResult, bookingsResult] = await Promise.all([
@@ -43,10 +42,10 @@ export default async function AdminClientsPage() {
   const clients = await getClients()
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between gap-4">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
@@ -58,70 +57,50 @@ export default async function AdminClientsPage() {
           <AddClientButton />
         </div>
 
-        {/* Search/Filter */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#a1a1a1]" size={20} />
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              className="w-full bg-[#1a1a1a] border border-[#333333] rounded-lg pl-10 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
-            />
-          </div>
-        </div>
+        {/* Client Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {clients.length === 0 ? (
+            <div className="col-span-full bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 text-center text-[#a1a1a1]">
+              No clients found
+            </div>
+          ) : (
+            clients.map((client: any) => (
+              <Link
+                key={client.id}
+                href={`/admin/clients/${client.id}`}
+                className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 hover:border-[#81D8D0]/50 transition-colors flex flex-col"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-semibold text-lg truncate">{client.name || 'N/A'}</h3>
+                    <p className="text-[#a1a1a1] text-sm truncate">{client.email}</p>
+                  </div>
+                  {client.client_type && (
+                    <span className="px-2 py-1 bg-[#81D8D0]/20 text-[#81D8D0] rounded text-xs font-medium flex-shrink-0">
+                      {client.client_type}
+                    </span>
+                  )}
+                </div>
 
-        {/* Clients Table */}
-        <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-[#333333]">
-                <tr>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Name</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Email</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Client Type</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Projects</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Bookings</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clients.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-[#a1a1a1]">
-                      No clients found
-                    </td>
-                  </tr>
-                ) : (
-                  clients.map((client: any) => (
-                    <tr
-                      key={client.id}
-                      className="border-b border-[#333333] hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
-                        <Link href={`/admin/clients/${client.id}`} className="text-white hover:text-[#81D8D0] transition-colors">
-                          {client.name || 'N/A'}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4 text-[#a1a1a1]">{client.email}</td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-1 bg-[#81D8D0]/20 text-[#81D8D0] rounded text-xs font-medium">
-                          {client.client_type || 'N/A'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-white">{client.projectCount || 0}</td>
-                      <td className="px-6 py-4 text-white">{client.bookingCount || 0}</td>
-                      <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                        {format(new Date(client.created_at), 'MMM d, yyyy')}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                <div className="flex items-center gap-4 text-sm text-[#a1a1a1] mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <FolderKanban size={14} className="text-[#81D8D0]" />
+                    <span>{client.projectCount} project{client.projectCount !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={14} className="text-[#81D8D0]" />
+                    <span>{client.bookingCount} booking{client.bookingCount !== 1 ? 's' : ''}</span>
+                  </div>
+                </div>
+
+                <div className="mt-auto pt-3 border-t border-[#333333] text-xs text-[#a1a1a1]">
+                  Added {format(new Date(client.created_at), 'MMM d, yyyy')}
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>
   )
 }
-

@@ -27,10 +27,10 @@ const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Admin Home' },
   { href: '/admin/clients', icon: Users, label: 'Clients' },
   { href: '/admin/bookings', icon: Calendar, label: 'Bookings' },
-  { href: '/admin/events', icon: CalendarCheck, label: 'Events' },
   { href: '/admin/projects', icon: FolderKanban, label: 'Projects' },
   { href: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { href: '/admin/invoices', icon: Receipt, label: 'Invoices' },
+  { href: '/admin/events', icon: CalendarCheck, label: 'Events' },
 ]
 
 export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -67,7 +67,7 @@ export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onC
       )}
       <aside
         className={cn(
-          'fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333333] min-h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
+          'fixed top-0 left-0 h-screen w-64 bg-[#1a1a1a] border-r border-[#333333] flex flex-col z-50 transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
       >

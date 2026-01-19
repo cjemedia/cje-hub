@@ -10,7 +10,7 @@ export default function AdminSidebarWrapper({ children }: { children: React.Reac
   return (
     <div className="flex min-h-screen bg-[#0a0a0a]">
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="flex-1 relative pt-16 md:pt-0">
+      <main className="flex-1 relative pt-16 md:pt-0 md:ml-64">
         {/* Mobile hamburger button */}
         {!sidebarOpen && (
           <button

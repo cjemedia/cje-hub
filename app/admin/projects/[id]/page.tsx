@@ -6,7 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
-import { Loader2, Pencil, Trash, Upload, FileText, Calendar, MessageSquare, Paperclip, CheckCircle, Send, StickyNote, Link as LinkIcon, Percent } from 'lucide-react'
+import { Loader2, Pencil, Trash, Upload, FileText, Calendar, MessageSquare, Paperclip, CheckCircle, Send, StickyNote, Link as LinkIcon, Percent, X } from 'lucide-react'
+import { formatMessageWithLinks } from '@/lib/utils/message-formatting'
 
 type Project = any
 type Proposal = any
@@ -18,7 +19,7 @@ type Activity = any
 type Booking = any
 type Message = any
 
-const projectStatuses = ['inquiry', 'confirmed', 'in_progress', 'completed', 'cancelled']
+const projectStatuses = ['inquiry', 'consultation', 'proposal', 'confirmed', 'asset_collection', 'in_progress', 'active', 'completed', 'cancelled']
 
 export default function AdminProjectDetailPage() {
   const params = useParams()
@@ -35,12 +36,15 @@ export default function AdminProjectDetailPage() {
   // Collections
   const [intakeForms, setIntakeForms] = useState<IntakeForm[]>([])
   const [intakeResponses, setIntakeResponses] = useState<IntakeResponse[]>([])
-  const [proposals, setProposals] = useState<Proposal[]>([])
-  const [expandedProposal, setExpandedProposal] = useState<string | null>(null)
-  const [activeProposal, setActiveProposal] = useState<Proposal | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [messageDraft, setMessageDraft] = useState('')
+  const [proposalMessages, setProposalMessages] = useState<Message[]>([])
+  const [proposalMessageDraft, setProposalMessageDraft] = useState('')
+  const [styleGuideMessages, setStyleGuideMessages] = useState<Message[]>([])
+  const [styleGuideMessageDraft, setStyleGuideMessageDraft] = useState('')
+  const [resourceMessages, setResourceMessages] = useState<Message[]>([])
+  const [resourceMessageDraft, setResourceMessageDraft] = useState('')
   const [deliverables, setDeliverables] = useState<Deliverable[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [activity, setActivity] = useState<Activity[]>([])
@@ -54,19 +58,33 @@ export default function AdminProjectDetailPage() {
     start_date: '',
     end_date: '',
     dropbox_link: '',
+    assets_folder_url: '',
   })
 
   const [proposalForm, setProposalForm] = useState({
-    title: '',
-    description: '',
-    valid_until: '',
-    discount: '',
-    items: [{ title: '', description: '', price: '' }],
+    url: '',
+    message: '',
   })
-  const [creatingProposal, setCreatingProposal] = useState(false)
+  const [styleGuideForm, setStyleGuideForm] = useState({
+    url: '',
+    message: '',
+  })
+  const [sendingProposal, setSendingProposal] = useState(false)
+  const [sendingStyleGuide, setSendingStyleGuide] = useState(false)
+  const [editingProposal, setEditingProposal] = useState(false)
+  const [editingStyleGuide, setEditingStyleGuide] = useState(false)
+  const [deletingProposal, setDeletingProposal] = useState(false)
+  const [deletingStyleGuide, setDeletingStyleGuide] = useState(false)
+  const [showMessagePreview, setShowMessagePreview] = useState(false)
+  const [previewMessage, setPreviewMessage] = useState<{ content: string; recipient: string; onConfirm: () => void } | null>(null)
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editingMessageContent, setEditingMessageContent] = useState('')
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null)
 
   const [intakeAssign, setIntakeAssign] = useState({ form_id: '' })
   const [uploading, setUploading] = useState(false)
+  const [uploadMessage, setUploadMessage] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null)
   const [invoiceForm, setInvoiceForm] = useState({
@@ -85,7 +103,6 @@ export default function AdminProjectDetailPage() {
       await Promise.all([
         loadProject(),
         loadIntakeForms(),
-        loadProposals(),
         loadBookings(),
         loadMessages(),
         loadDeliverables(),
@@ -97,6 +114,14 @@ export default function AdminProjectDetailPage() {
     }
     load()
   }, [projectId])
+
+  useEffect(() => {
+    if (projectData) {
+      loadProposalMessages()
+      loadStyleGuideMessages()
+      loadResourceMessages()
+    }
+  }, [projectData])
 
   const loadProject = async () => {
     const res = await fetch(`/api/projects/${projectId}`)
@@ -112,6 +137,7 @@ export default function AdminProjectDetailPage() {
         start_date: json.project.start_date || '',
         end_date: json.project.end_date || '',
         dropbox_link: json.project.dropbox_link || '',
+        assets_folder_url: json.project.assets_folder_url || '',
       })
     }
   }
@@ -131,11 +157,7 @@ export default function AdminProjectDetailPage() {
   }
 
   const loadProposals = async () => {
-    const res = await fetch('/api/proposals')
-    if (res.ok) {
-      const all = await res.json()
-      setProposals((all || []).filter((p: any) => p.project_id === projectId))
-    }
+    // No longer needed - proposals are stored in project.proposal_url
   }
 
   const loadBookings = async () => {
@@ -152,17 +174,117 @@ export default function AdminProjectDetailPage() {
       .from('messages')
       .select('*')
       .eq('project_id', projectId)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
     setMessages(data || [])
   }
 
-  const loadDeliverables = async () => {
-    const { data } = await supabase
-      .from('deliverables')
+  const loadProposalMessages = async () => {
+    if (!projectData?.proposal_sent_at) {
+      setProposalMessages([])
+      return
+    }
+    // Load messages filtered by message_type = 'proposal'
+    // If message_type column doesn't exist, this will show all project messages
+    const { data, error } = await supabase
+      .from('messages')
       .select('*')
       .eq('project_id', projectId)
-      .order('created_at', { ascending: false })
-    setDeliverables(data || [])
+      .eq('message_type', 'proposal')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true })
+    
+    // If message_type column doesn't exist (error code 42703 = undefined column), show all messages
+    if (error && error.code === '42703') {
+      const { data: allData } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true })
+      setProposalMessages(allData || [])
+    } else if (error) {
+      console.error('Error loading proposal messages:', error)
+      setProposalMessages([])
+    } else {
+      setProposalMessages(data || [])
+    }
+  }
+
+  const loadStyleGuideMessages = async () => {
+    if (!projectData?.style_guide_sent_at) {
+      setStyleGuideMessages([])
+      return
+    }
+    // Load messages filtered by message_type = 'style_guide'
+    // If message_type column doesn't exist, this will show all project messages
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('message_type', 'style_guide')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true })
+    
+    // If message_type column doesn't exist (error code 42703 = undefined column), show all messages
+    if (error && error.code === '42703') {
+      const { data: allData } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true })
+      setStyleGuideMessages(allData || [])
+    } else if (error) {
+      console.error('Error loading style guide messages:', error)
+      setStyleGuideMessages([])
+    } else {
+      setStyleGuideMessages(data || [])
+    }
+  }
+
+  const loadResourceMessages = async () => {
+    // Load messages filtered by message_type = 'resource'
+    // If message_type column doesn't exist, this will show all project messages
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('message_type', 'resource')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true })
+    
+    // If message_type column doesn't exist (error code 42703 = undefined column), show all messages
+    if (error && error.code === '42703') {
+      const { data: allData } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true })
+      setResourceMessages(allData || [])
+    } else if (error) {
+      console.error('Error loading resource messages:', error)
+      setResourceMessages([])
+    } else {
+      setResourceMessages(data || [])
+    }
+  }
+
+  const loadDeliverables = async () => {
+    try {
+      const res = await fetch(`/api/deliverables?project_id=${projectId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setDeliverables(data || [])
+      } else {
+        console.error('Error loading deliverables:', await res.text())
+        setDeliverables([])
+      }
+    } catch (error) {
+      console.error('Error loading deliverables:', error)
+      setDeliverables([])
+    }
   }
 
   const loadInvoices = async () => {
@@ -218,71 +340,569 @@ export default function AdminProjectDetailPage() {
     await loadActivity()
   }
 
-  const handleCreateProposal = async () => {
-    if (!projectData) return
-    setCreatingProposal(true)
-    const items = proposalForm.items
-      .filter((i) => i.title || i.price)
-      .map((i) => ({ ...i, price: Number(i.price || 0) }))
-    const discountValue = Number(proposalForm.discount || 0)
-    if (discountValue > 0) {
-      items.push({
-        title: 'Discount',
-        description: '',
-        price: -Math.abs(discountValue),
-      })
+  const normalizeUrl = (url: string) => {
+    if (!url) return ''
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`
     }
-    const total_amount = items.reduce((sum, i) => sum + Number(i.price || 0), 0)
-    await fetch('/api/proposals', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        project_id: projectId,
-        user_id: projectData.user_id,
-        title: proposalForm.title,
-        description: proposalForm.description,
-        items,
-        total_amount,
-        valid_until: proposalForm.valid_until || null,
-        status: 'draft',
-      }),
-    })
-    setCreatingProposal(false)
-    setProposalForm({
-      title: '',
-      description: '',
-      valid_until: '',
-      discount: '',
-      items: [{ title: '', description: '', price: '' }],
-    })
-    await loadProposals()
-    await loadActivity()
+    return url
   }
 
-  const handleSendProposal = async (id: string) => {
-    await fetch(`/api/proposals/${id}/send`, { method: 'POST' })
-    await loadProposals()
-    await loadActivity()
+  const handleSendProposal = async () => {
+    if (!projectData || !proposalForm.url.trim()) return
+    setSendingProposal(true)
+    try {
+      const normalizedUrl = normalizeUrl(proposalForm.url.trim())
+      
+      // Update project with proposal URL and sent date
+      const updateRes = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          proposal_url: normalizedUrl,
+          proposal_sent_at: new Date().toISOString(),
+        }),
+      })
+      
+      if (!updateRes.ok) {
+        alert('Failed to save proposal URL')
+        setSendingProposal(false)
+        return
+      }
+
+      // Create message if there's a message
+      if (proposalForm.message.trim()) {
+        const { data: { user } } = await supabase.auth.getUser()
+        const sendMessage = async () => {
+          const messageRes = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: proposalForm.message.trim(),
+              project_id: projectId,
+            }),
+          })
+          
+          if (messageRes.ok) {
+            const { message } = await messageRes.json()
+            // Update project with message ID
+            await fetch(`/api/projects/${projectId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                proposal_message_id: message.id,
+              }),
+            })
+          }
+        }
+        
+        setPreviewMessage({
+          content: proposalForm.message.trim(),
+          recipient: projectData.users?.name || projectData.users?.email || 'Client',
+          onConfirm: async () => {
+            await sendMessage()
+            setProposalForm({ url: '', message: '' })
+            setShowMessagePreview(false)
+            setPreviewMessage(null)
+            setSendingProposal(false)
+            await loadProject()
+            await loadMessages()
+            await loadProposalMessages()
+            await loadActivity()
+          },
+        })
+        setShowMessagePreview(true)
+        setSendingProposal(false)
+        return
+      }
+
+      setProposalForm({ url: '', message: '' })
+      await loadProject()
+      await loadMessages()
+      await loadProposalMessages()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error sending proposal:', error)
+      alert('Failed to send proposal')
+    } finally {
+      setSendingProposal(false)
+    }
+  }
+
+  const handleUpdateProposal = async () => {
+    if (!projectData || !proposalForm.url.trim()) return
+    setSendingProposal(true)
+    try {
+      const normalizedUrl = normalizeUrl(proposalForm.url.trim())
+      
+      // Update project URL
+      await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          proposal_url: normalizedUrl,
+        }),
+      })
+
+      // Create message if there's a message
+      if (proposalForm.message.trim()) {
+        const { data: { user } } = await supabase.auth.getUser()
+        const sendMessage = async () => {
+          await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: proposalForm.message.trim(),
+              project_id: projectId,
+            }),
+          })
+        }
+        
+        setPreviewMessage({
+          content: proposalForm.message.trim(),
+          recipient: projectData.users?.name || projectData.users?.email || 'Client',
+          onConfirm: async () => {
+            await sendMessage()
+            setProposalForm({ url: '', message: '' })
+            setEditingProposal(false)
+            setShowMessagePreview(false)
+            setPreviewMessage(null)
+            setSendingProposal(false)
+            await loadProject()
+            await loadMessages()
+            await loadActivity()
+          },
+        })
+        setShowMessagePreview(true)
+        setSendingProposal(false)
+        return
+      }
+
+      setProposalForm({ url: '', message: '' })
+      setEditingProposal(false)
+      await loadProject()
+      await loadMessages()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error updating proposal:', error)
+      alert('Failed to update proposal')
+    } finally {
+      setSendingProposal(false)
+    }
+  }
+
+  const handleDeleteProposal = async () => {
+    if (!confirm('Are you sure you want to delete this proposal? The client will no longer see it.')) return
+    setDeletingProposal(true)
+    try {
+      await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          proposal_url: null,
+          proposal_sent_at: null,
+          proposal_message_id: null,
+        }),
+      })
+      await loadProject()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error deleting proposal:', error)
+      alert('Failed to delete proposal')
+    } finally {
+      setDeletingProposal(false)
+    }
+  }
+
+  const handleSendStyleGuide = async () => {
+    if (!projectData || !styleGuideForm.url.trim()) return
+    setSendingStyleGuide(true)
+    try {
+      const normalizedUrl = normalizeUrl(styleGuideForm.url.trim())
+      
+      // Update project with style guide URL and sent date
+      const updateRes = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          style_guide_url: normalizedUrl,
+          style_guide_sent_at: new Date().toISOString(),
+        }),
+      })
+      
+      if (!updateRes.ok) {
+        alert('Failed to save style guide URL')
+        setSendingStyleGuide(false)
+        return
+      }
+
+      // Create message if there's a message
+      if (styleGuideForm.message.trim()) {
+        const { data: { user } } = await supabase.auth.getUser()
+        const sendMessage = async () => {
+          const messageRes = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: styleGuideForm.message.trim(),
+              project_id: projectId,
+            }),
+          })
+          
+          if (messageRes.ok) {
+            const { message } = await messageRes.json()
+            // Update project with message ID
+            await fetch(`/api/projects/${projectId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                style_guide_message_id: message.id,
+              }),
+            })
+          }
+        }
+        
+        setPreviewMessage({
+          content: styleGuideForm.message.trim(),
+          recipient: projectData.users?.name || projectData.users?.email || 'Client',
+          onConfirm: async () => {
+            await sendMessage()
+            setStyleGuideForm({ url: '', message: '' })
+            setShowMessagePreview(false)
+            setPreviewMessage(null)
+            setSendingStyleGuide(false)
+            await loadProject()
+            await loadMessages()
+            await loadStyleGuideMessages()
+            await loadActivity()
+          },
+        })
+        setShowMessagePreview(true)
+        setSendingStyleGuide(false)
+        return
+      }
+
+      setStyleGuideForm({ url: '', message: '' })
+      await loadProject()
+      await loadMessages()
+      await loadStyleGuideMessages()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error sending style guide:', error)
+      alert('Failed to send style guide')
+    } finally {
+      setSendingStyleGuide(false)
+    }
+  }
+
+  const handleUpdateStyleGuide = async () => {
+    if (!projectData || !styleGuideForm.url.trim()) return
+    setSendingStyleGuide(true)
+    try {
+      const normalizedUrl = normalizeUrl(styleGuideForm.url.trim())
+      
+      // Update project URL
+      await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          style_guide_url: normalizedUrl,
+        }),
+      })
+
+      // Create message if there's a message
+      if (styleGuideForm.message.trim()) {
+        const { data: { user } } = await supabase.auth.getUser()
+        const sendMessage = async () => {
+          await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: styleGuideForm.message.trim(),
+              project_id: projectId,
+            }),
+          })
+        }
+        
+        setPreviewMessage({
+          content: styleGuideForm.message.trim(),
+          recipient: projectData.users?.name || projectData.users?.email || 'Client',
+          onConfirm: async () => {
+            await sendMessage()
+            setStyleGuideForm({ url: '', message: '' })
+            setEditingStyleGuide(false)
+            setShowMessagePreview(false)
+            setPreviewMessage(null)
+            setSendingStyleGuide(false)
+            await loadProject()
+            await loadMessages()
+            await loadActivity()
+          },
+        })
+        setShowMessagePreview(true)
+        setSendingStyleGuide(false)
+        return
+      }
+
+      setStyleGuideForm({ url: '', message: '' })
+      setEditingStyleGuide(false)
+      await loadProject()
+      await loadMessages()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error updating style guide:', error)
+      alert('Failed to update style guide')
+    } finally {
+      setSendingStyleGuide(false)
+    }
+  }
+
+  const handleDeleteStyleGuide = async () => {
+    if (!confirm('Are you sure you want to delete this style guide? The client will no longer see it.')) return
+    setDeletingStyleGuide(true)
+    try {
+      await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          style_guide_url: null,
+          style_guide_sent_at: null,
+          style_guide_message_id: null,
+        }),
+      })
+      await loadProject()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error deleting style guide:', error)
+      alert('Failed to delete style guide')
+    } finally {
+      setDeletingStyleGuide(false)
+    }
   }
 
   const handleSendMessage = async () => {
     if (!projectData || !messageDraft.trim()) return
-    await fetch('/api/messages/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: projectData.user_id,
-        sender_type: 'admin',
-        content: messageDraft.trim(),
-        project_id: projectId,
-      }),
+    setPreviewMessage({
+      content: messageDraft.trim(),
+      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      onConfirm: async () => {
+        await fetch('/api/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: projectData.user_id,
+            sender_type: 'admin',
+            sender_id: user?.id || null,
+            content: messageDraft.trim(),
+            project_id: projectId,
+          }),
+        })
+        setMessageDraft('')
+        setShowMessagePreview(false)
+        setPreviewMessage(null)
+        await loadMessages()
+        await loadActivity()
+      },
     })
-    setMessageDraft('')
-    await loadMessages()
-    await loadActivity()
+    setShowMessagePreview(true)
   }
 
-  const handleUploadDeliverable = async (file: File, name?: string, description?: string) => {
+  const handleEditMessage = (message: any) => {
+    setEditingMessageId(message.id)
+    setEditingMessageContent(message.content)
+  }
+
+  const handleSaveMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editingMessageContent }),
+      })
+      if (response.ok) {
+        setEditingMessageId(null)
+        setEditingMessageContent('')
+        await Promise.all([
+          loadMessages(),
+          loadProposalMessages(),
+          loadStyleGuideMessages(),
+          loadResourceMessages(),
+        ])
+      }
+    } catch (error) {
+      console.error('Error saving message:', error)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null)
+    setEditingMessageContent('')
+  }
+
+  const handleSendProposalMessage = async () => {
+    if (!proposalMessageDraft.trim() || !projectData) return
+    setPreviewMessage({
+      content: proposalMessageDraft.trim(),
+      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      onConfirm: async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          const response = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              project_id: projectId,
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: proposalMessageDraft.trim(),
+              message_type: 'proposal',
+            }),
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            console.error('Error sending message:', error)
+            alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+            return
+          }
+          
+          setProposalMessageDraft('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await loadMessages()
+          await loadProposalMessages()
+          await loadActivity()
+        } catch (error) {
+          console.error('Error sending proposal message:', error)
+          alert('Failed to send message. Please try again.')
+        }
+      },
+    })
+    setShowMessagePreview(true)
+  }
+
+  const handleSendStyleGuideMessage = async () => {
+    if (!styleGuideMessageDraft.trim() || !projectData) return
+    setPreviewMessage({
+      content: styleGuideMessageDraft.trim(),
+      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      onConfirm: async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          const response = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              project_id: projectId,
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: styleGuideMessageDraft.trim(),
+              message_type: 'style_guide',
+            }),
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            console.error('Error sending message:', error)
+            alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+            return
+          }
+          
+          setStyleGuideMessageDraft('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await loadMessages()
+          await loadStyleGuideMessages()
+          await loadActivity()
+        } catch (error) {
+          console.error('Error sending style guide message:', error)
+          alert('Failed to send message. Please try again.')
+        }
+      },
+    })
+    setShowMessagePreview(true)
+  }
+
+  const handleSendResourceMessage = async () => {
+    if (!resourceMessageDraft.trim() || !projectData) return
+    setPreviewMessage({
+      content: resourceMessageDraft.trim(),
+      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      onConfirm: async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          const response = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              project_id: projectId,
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: resourceMessageDraft.trim(),
+              message_type: 'resource',
+            }),
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            console.error('Error sending message:', error)
+            alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+            return
+          }
+          
+          setResourceMessageDraft('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await loadMessages()
+          await loadResourceMessages()
+          await loadActivity()
+        } catch (error) {
+          console.error('Error sending resource message:', error)
+          alert('Failed to send message. Please try again.')
+        }
+      },
+    })
+    setShowMessagePreview(true)
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'DELETE',
+      })
+      if (response.ok) {
+        setDeletingMessageId(null)
+        await Promise.all([
+          loadMessages(),
+          loadProposalMessages(),
+          loadStyleGuideMessages(),
+          loadResourceMessages(),
+        ])
+      } else {
+        setDeletingMessageId(null)
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error)
+      setDeletingMessageId(null)
+    }
+  }
+
+  const handleUploadDeliverable = async (file: File, name?: string, description?: string, message?: string) => {
     const form = new FormData()
     form.append('file', file)
     form.append('project_id', projectId)
@@ -295,6 +915,25 @@ export default function AdminProjectDetailPage() {
       await loadDeliverables()
       await loadActivity()
       router.refresh()
+      
+      // If message is provided, create a message and send notification
+      if (message && message.trim() && projectData) {
+        const { data: { user } } = await supabase.auth.getUser()
+        await fetch('/api/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project_id: projectId,
+            user_id: projectData.user_id,
+            sender_type: 'admin',
+            sender_id: user?.id || null,
+            content: message.trim(),
+            message_type: 'resource',
+          }),
+        })
+        await loadResourceMessages()
+        await loadMessages()
+      }
     }
   }
 
@@ -542,6 +1181,28 @@ export default function AdminProjectDetailPage() {
               )}
             </div>
           </div>
+          <div>
+            <label className="text-xs text-white/60 uppercase tracking-wider">Assets Folder (Admin Only)</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={editForm.assets_folder_url || ''}
+                onChange={(e) => setEditForm((p) => ({ ...p, assets_folder_url: e.target.value }))}
+                className="flex-1 bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                placeholder="https://dropbox.com/folder/..."
+              />
+              {editForm.assets_folder_url && (
+                <a
+                  href={editForm.assets_folder_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-lg border border-[#81D8D0] text-[#81D8D0] hover:bg-[#81D8D0]/10 transition-colors whitespace-nowrap"
+                >
+                  View Folder
+                </a>
+              )}
+            </div>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-white">
             <StatCard label="Total Invoiced" value={`$${Number(stats.totalInvoiced || 0).toFixed(2)}`} />
             <StatCard label="Total Paid" value={`$${Number(stats.totalPaid || 0).toFixed(2)}`} />
@@ -552,7 +1213,7 @@ export default function AdminProjectDetailPage() {
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2 border-b border-[#333333] pb-2">
-            {['overview','intake','proposals','bookings','messages','resources','invoices','activity'].map((t) => (
+            {['overview','proposals','style-guide','bookings','messages','resources','invoices','activity'].map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -560,7 +1221,7 @@ export default function AdminProjectDetailPage() {
                   tab === t ? 'border-[#81D8D0] text-[#81D8D0]' : 'border-transparent text-[#a1a1a1]'
                 }`}
               >
-                {t.charAt(0).toUpperCase() + t.slice(1)}
+                {t === 'style-guide' ? 'Style Guide' : t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
           </div>
@@ -572,7 +1233,8 @@ export default function AdminProjectDetailPage() {
             </div>
           )}
 
-          {tab === 'intake' && (
+          {/* INTAKE FORMS - HIDDEN FOR NOW, MAY RE-ENABLE LATER */}
+          {/* {tab === 'intake' && (
             <div className="space-y-4">
               <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
                 <h3 className="text-white font-semibold">Send Intake Form</h3>
@@ -617,157 +1279,361 @@ export default function AdminProjectDetailPage() {
                 )}
               </div>
             </div>
-          )}
+          )} */}
 
           {tab === 'proposals' && (
             <div className="space-y-4">
-              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
-                <h3 className="text-white font-semibold">Create Proposal</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <input
-                    className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                    placeholder="Title"
-                    value={proposalForm.title}
-                    onChange={(e) => setProposalForm((p) => ({ ...p, title: e.target.value }))}
-                  />
-                  <input
-                    type="date"
-                    className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                    value={proposalForm.valid_until}
-                    onChange={(e) => setProposalForm((p) => ({ ...p, valid_until: e.target.value }))}
-                  />
+              {projectData?.proposal_url && !editingProposal ? (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">Proposal</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Proposal URL</p>
+                      <a
+                        href={projectData.proposal_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#81D8D0] hover:underline break-all"
+                      >
+                        {projectData.proposal_url}
+                      </a>
+                    </div>
+                    {projectData.proposal_sent_at && (
+                      <div>
+                        <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Sent</p>
+                        <p className="text-white">{format(new Date(projectData.proposal_sent_at), 'MMM d, yyyy p')}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2 pt-2 border-t border-[#333333]">
+                      <button
+                        onClick={() => {
+                          setEditingProposal(true)
+                          setProposalForm({ url: projectData.proposal_url || '', message: '' })
+                        }}
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={handleDeleteProposal}
+                        disabled={deletingProposal}
+                        className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:border-red-500/80 flex items-center gap-2"
+                      >
+                        <Trash size={16} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-xs text-white/60 uppercase tracking-wider mb-1 block">Discount (optional)</label>
-                  <div className="flex items-center gap-2">
-                    <Percent size={14} className="text-[#a1a1a1]" />
+              ) : (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">{editingProposal ? 'Update Proposal' : 'Send Proposal'}</h3>
+                  <div>
+                    <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Proposal URL</label>
                     <input
-                      type="number"
-                      className="flex-1 bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                      placeholder="Discount amount"
-                      value={proposalForm.discount}
-                      onChange={(e) => setProposalForm((p) => ({ ...p, discount: e.target.value }))}
+                      type="url"
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                      placeholder="https://your-proposal.vercel.app"
+                      value={proposalForm.url}
+                      onChange={(e) => setProposalForm((p) => ({ ...p, url: e.target.value }))}
                     />
                   </div>
-                </div>
-                <textarea
-                  className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
-                  rows={3}
-                  placeholder="Description"
-                  value={proposalForm.description}
-                  onChange={(e) => setProposalForm((p) => ({ ...p, description: e.target.value }))}
-                />
-                <div className="space-y-2">
-                  {proposalForm.items.map((item, idx) => (
-                    <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                      <input
-                        className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                        placeholder="Line item title"
-                        value={item.title}
-                        onChange={(e) => {
-                          const copy = [...proposalForm.items]
-                          copy[idx].title = e.target.value
-                          setProposalForm((p) => ({ ...p, items: copy }))
+                  <div>
+                    <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Message to Client</label>
+                    <textarea
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                      rows={4}
+                      placeholder="Add a message about this proposal..."
+                      value={proposalForm.message}
+                      onChange={(e) => setProposalForm((p) => ({ ...p, message: e.target.value }))}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    {editingProposal && (
+                      <button
+                        onClick={() => {
+                          setEditingProposal(false)
+                          setProposalForm({ url: '', message: '' })
                         }}
-                      />
-                      <input
-                        className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                        placeholder="Description"
-                        value={item.description}
-                        onChange={(e) => {
-                          const copy = [...proposalForm.items]
-                          copy[idx].description = e.target.value
-                          setProposalForm((p) => ({ ...p, items: copy }))
-                        }}
-                      />
-                      <input
-                        className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                        placeholder="Price"
-                        type="number"
-                        value={item.price}
-                        onChange={(e) => {
-                          const copy = [...proposalForm.items]
-                          copy[idx].price = e.target.value
-                          setProposalForm((p) => ({ ...p, items: copy }))
-                        }}
-                      />
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => setProposalForm((p) => ({ ...p, items: [...p.items, { title: '', description: '', price: '' }] }))}
-                    className="text-sm text-[#81D8D0] hover:underline"
-                  >
-                    + Add line item
-                  </button>
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    <button
+                      onClick={editingProposal ? handleUpdateProposal : handleSendProposal}
+                      disabled={sendingProposal || !proposalForm.url.trim()}
+                      className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                    >
+                      {sendingProposal ? 'Sending...' : editingProposal ? 'Save' : 'Send Proposal'}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex justify-end">
-                  <button
-                    onClick={handleCreateProposal}
-                    disabled={creatingProposal || !proposalForm.title}
-                    className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
-                  >
-                    {creatingProposal ? 'Saving...' : 'Save Proposal'}
-                  </button>
-                </div>
-              </div>
+              )}
 
-              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
-                <h3 className="text-white font-semibold">Proposals</h3>
-                {proposals.length === 0 ? (
-                  <p className="text-[#a1a1a1] text-sm">No proposals yet.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {proposals.map((p) => {
-                      const isExpanded = expandedProposal === p.id
-                      return (
-                        <div key={p.id} className="p-3 border border-[#333333] rounded-lg text-white space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-semibold">{p.title}</p>
-                              <p className="text-xs text-[#a1a1a1]">Status: {p.status}</p>
-                              <p className="text-xs text-[#a1a1a1]">Total: ${Number(p.total_amount || 0).toFixed(2)}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => setActiveProposal(p)}
-                                className="px-3 py-1 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
-                              >
-                                Full View
-                              </button>
-                              <button
-                                onClick={() => setExpandedProposal(isExpanded ? null : p.id)}
-                                className="px-3 py-1 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
-                              >
-                                {isExpanded ? 'Hide' : 'View'}
-                              </button>
-                              <button
-                                onClick={() => handleSendProposal(p.id)}
-                                className="px-3 py-1 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 flex items-center gap-1 text-sm"
-                              >
-                                <Send size={14} /> Send
-                              </button>
-                            </div>
+              {/* Proposal Message Thread */}
+              {projectData?.proposal_url && (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">Message History</h3>
+                  {proposalMessages.length === 0 ? (
+                    <p className="text-[#a1a1a1] text-sm">No messages yet.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                      {proposalMessages.map((m) => (
+                        <div key={m.id} className="p-3 border border-[#333333] rounded-lg">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-xs text-[#a1a1a1]">
+                              {m.sender_type === 'admin' ? 'You' : projectData.users?.name || projectData.users?.email || 'Client'} • {format(new Date(m.created_at), 'MMM d, yyyy p')}
+                            </p>
+                            {m.sender_type === 'admin' && (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditMessage(m)}
+                                  className="text-white/60 hover:text-white transition-colors"
+                                  title="Edit message"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={() => setDeletingMessageId(m.id)}
+                                  className="text-white/60 hover:text-red-400 transition-colors"
+                                  title="Delete message"
+                                >
+                                  <Trash size={14} />
+                                </button>
+                              </div>
+                            )}
                           </div>
-                          {isExpanded && p.items && (
-                            <div className="space-y-1 text-sm text-[#a1a1a1] border-t border-[#333333] pt-2">
-                              {p.items.map((item: any, idx: number) => (
-                                <div key={idx} className="flex justify-between">
-                                  <span>{item.title}</span>
-                                  <span>${Number(item.price || 0).toFixed(2)}</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between text-white font-semibold pt-1">
-                                <span>Total</span>
-                                <span>${Number(p.total_amount || 0).toFixed(2)}</span>
+                          {editingMessageId === m.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                                rows={3}
+                                value={editingMessageContent}
+                                onChange={(e) => setEditingMessageContent(e.target.value)}
+                              />
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleSaveMessage(m.id)}
+                                  disabled={!editingMessageContent.trim()}
+                                  className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                                >
+                                  Save
+                                </button>
                               </div>
                             </div>
+                          ) : (
+                            <p className="text-white whitespace-pre-wrap">{formatMessageWithLinks(m.content)}</p>
                           )}
                         </div>
-                      )
-                    })}
+                      ))}
+                    </div>
+                  )}
+                  <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                    <textarea
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                      rows={3}
+                      placeholder="Reply to this proposal..."
+                      value={proposalMessageDraft}
+                      onChange={(e) => setProposalMessageDraft(e.target.value)}
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleSendProposalMessage}
+                        disabled={!proposalMessageDraft.trim()}
+                        className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                      >
+                        Send
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'style-guide' && (
+            <div className="space-y-4">
+              {projectData?.style_guide_url && !editingStyleGuide ? (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">Style Guide</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Style Guide URL</p>
+                      <a
+                        href={projectData.style_guide_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#81D8D0] hover:underline break-all"
+                      >
+                        {projectData.style_guide_url}
+                      </a>
+                    </div>
+                    {projectData.style_guide_sent_at && (
+                      <div>
+                        <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Sent</p>
+                        <p className="text-white">{format(new Date(projectData.style_guide_sent_at), 'MMM d, yyyy p')}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2 pt-2 border-t border-[#333333]">
+                      <button
+                        onClick={() => {
+                          setEditingStyleGuide(true)
+                          setStyleGuideForm({ url: projectData.style_guide_url || '', message: '' })
+                        }}
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={handleDeleteStyleGuide}
+                        disabled={deletingStyleGuide}
+                        className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:border-red-500/80 flex items-center gap-2"
+                      >
+                        <Trash size={16} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Style Guide Message Thread */}
+              {projectData?.style_guide_url && (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">Message History</h3>
+                  {styleGuideMessages.length === 0 ? (
+                    <p className="text-[#a1a1a1] text-sm">No messages yet.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                      {styleGuideMessages.map((m) => (
+                        <div key={m.id} className="p-3 border border-[#333333] rounded-lg">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-xs text-[#a1a1a1]">
+                              {m.sender_type === 'admin' ? 'You' : projectData.users?.name || projectData.users?.email || 'Client'} • {format(new Date(m.created_at), 'MMM d, yyyy p')}
+                            </p>
+                            {m.sender_type === 'admin' && (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditMessage(m)}
+                                  className="text-white/60 hover:text-white transition-colors"
+                                  title="Edit message"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={() => setDeletingMessageId(m.id)}
+                                  className="text-white/60 hover:text-red-400 transition-colors"
+                                  title="Delete message"
+                                >
+                                  <Trash size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {editingMessageId === m.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                                rows={3}
+                                value={editingMessageContent}
+                                onChange={(e) => setEditingMessageContent(e.target.value)}
+                              />
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleSaveMessage(m.id)}
+                                  disabled={!editingMessageContent.trim()}
+                                  className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-white whitespace-pre-wrap">{formatMessageWithLinks(m.content)}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                    <textarea
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                      rows={3}
+                      placeholder="Reply to this style guide..."
+                      value={styleGuideMessageDraft}
+                      onChange={(e) => setStyleGuideMessageDraft(e.target.value)}
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleSendStyleGuideMessage}
+                        disabled={!styleGuideMessageDraft.trim()}
+                        className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!projectData?.style_guide_url && (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">{editingStyleGuide ? 'Update Style Guide' : 'Send Style Guide'}</h3>
+                  <div>
+                    <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Style Guide URL</label>
+                    <input
+                      type="url"
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                      placeholder="https://your-style-guide.vercel.app"
+                      value={styleGuideForm.url}
+                      onChange={(e) => setStyleGuideForm((p) => ({ ...p, url: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Message to Client</label>
+                    <textarea
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                      rows={4}
+                      placeholder="Add a message about this style guide..."
+                      value={styleGuideForm.message}
+                      onChange={(e) => setStyleGuideForm((p) => ({ ...p, message: e.target.value }))}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    {editingStyleGuide && (
+                      <button
+                        onClick={() => {
+                          setEditingStyleGuide(false)
+                          setStyleGuideForm({ url: '', message: '' })
+                        }}
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    <button
+                      onClick={editingStyleGuide ? handleUpdateStyleGuide : handleSendStyleGuide}
+                      disabled={sendingStyleGuide || !styleGuideForm.url.trim()}
+                      className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                    >
+                      {sendingStyleGuide ? 'Sending...' : editingStyleGuide ? 'Save' : 'Send Style Guide'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -806,11 +1672,57 @@ export default function AdminProjectDetailPage() {
                       <div key={m.id} className="p-3 border border-[#333333] rounded-lg">
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-xs text-[#a1a1a1]">{format(new Date(m.created_at), 'MMM d, yyyy p')}</p>
-                          <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-white/80">
-                            {m.sender_type}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-white/80">
+                              {m.sender_type}
+                            </span>
+                            {m.sender_type === 'admin' && (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditMessage(m)}
+                                  className="text-white/60 hover:text-white transition-colors"
+                                  title="Edit message"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={() => setDeletingMessageId(m.id)}
+                                  className="text-white/60 hover:text-red-400 transition-colors"
+                                  title="Delete message"
+                                >
+                                  <Trash size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-white whitespace-pre-wrap">{m.content}</p>
+                        {editingMessageId === m.id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                              rows={3}
+                              value={editingMessageContent}
+                              onChange={(e) => setEditingMessageContent(e.target.value)}
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={handleCancelEdit}
+                                className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => handleSaveMessage(m.id)}
+                                disabled={!editingMessageContent.trim()}
+                                className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-white whitespace-pre-wrap">{formatMessageWithLinks(m.content)}</p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -838,43 +1750,181 @@ export default function AdminProjectDetailPage() {
           )}
 
           {tab === 'resources' && (
-            <div className="space-y-3">
-              <label className="inline-flex items-center gap-2 px-3 py-2 border border-[#333333] rounded-lg text-white hover:border-[#81D8D0]/60 cursor-pointer w-fit">
-                <Upload size={16} />
-                {uploading ? 'Uploading...' : 'Upload Resource'}
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) handleUploadDeliverable(file)
-                  }}
-                  disabled={uploading}
-                />
-              </label>
-              <SimpleList title="Deliverables" items={deliverables} render={(d) => (
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <a
-                      href={d.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#81D8D0] hover:underline font-medium"
-                    >
-                      {d.name}
-                    </a>
-                    {d.description && (
-                      <p className="text-xs text-[#a1a1a1] mt-1">{d.description}</p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleDeleteDeliverable(d.id)}
-                    className="text-sm text-red-400 hover:text-red-300"
-                  >
-                    Delete
-                  </button>
+            <div className="space-y-4">
+              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                <h3 className="text-white font-semibold">Upload Resource</h3>
+                <div className="space-y-3">
+                  <label className="inline-flex items-center gap-2 px-3 py-2 border border-[#333333] rounded-lg text-white hover:border-[#81D8D0]/60 cursor-pointer w-fit">
+                    <Upload size={16} />
+                    {selectedFile ? selectedFile.name : 'Choose File'}
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          setSelectedFile(file)
+                        }
+                      }}
+                      disabled={uploading}
+                    />
+                  </label>
+                  {selectedFile && (
+                    <div>
+                      <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Message to Client (optional)</label>
+                      <textarea
+                        className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                        rows={3}
+                        placeholder="Let the client know about this resource..."
+                        value={uploadMessage}
+                        onChange={(e) => setUploadMessage(e.target.value)}
+                      />
+                    </div>
+                  )}
+                  {selectedFile && (
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedFile(null)
+                          setUploadMessage('')
+                        }}
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (selectedFile) {
+                            await handleUploadDeliverable(selectedFile, undefined, undefined, uploadMessage)
+                            setSelectedFile(null)
+                            setUploadMessage('')
+                          }
+                        }}
+                        disabled={uploading}
+                        className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                      >
+                        {uploading ? 'Uploading...' : 'Upload'}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )} />
+              </div>
+
+              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                <h3 className="text-white font-semibold">Uploaded Resources</h3>
+                {deliverables.length === 0 ? (
+                  <p className="text-[#a1a1a1] text-sm">No resources uploaded yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {deliverables.map((d) => (
+                      <div key={d.id} className="flex items-center justify-between gap-3 p-3 border border-[#333333] rounded-lg">
+                        <div>
+                          <a
+                            href={d.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#81D8D0] hover:underline font-medium"
+                          >
+                            {d.name}
+                          </a>
+                          {d.description && (
+                            <p className="text-xs text-[#a1a1a1] mt-1">{d.description}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteDeliverable(d.id)}
+                          className="text-sm text-red-400 hover:text-red-300"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Resource Message Thread */}
+              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                <h3 className="text-white font-semibold">Message History</h3>
+                {resourceMessages.length === 0 ? (
+                  <p className="text-[#a1a1a1] text-sm">No messages yet.</p>
+                ) : (
+                  <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                    {resourceMessages.map((m) => (
+                      <div key={m.id} className="p-3 border border-[#333333] rounded-lg">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-[#a1a1a1]">
+                            {m.sender_type === 'admin' ? 'You' : projectData.users?.name || projectData.users?.email || 'Client'} • {format(new Date(m.created_at), 'MMM d, yyyy p')}
+                          </p>
+                          {m.sender_type === 'admin' && (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditMessage(m)}
+                                className="text-white/60 hover:text-white transition-colors"
+                                title="Edit message"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => setDeletingMessageId(m.id)}
+                                className="text-white/60 hover:text-red-400 transition-colors"
+                                title="Delete message"
+                              >
+                                <Trash size={14} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        {editingMessageId === m.id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                              rows={3}
+                              value={editingMessageContent}
+                              onChange={(e) => setEditingMessageContent(e.target.value)}
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={handleCancelEdit}
+                                className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => handleSaveMessage(m.id)}
+                                disabled={!editingMessageContent.trim()}
+                                className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-white whitespace-pre-wrap">{formatMessageWithLinks(m.content)}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                  <textarea
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                    rows={3}
+                    placeholder="Reply about resources..."
+                    value={resourceMessageDraft}
+                    onChange={(e) => setResourceMessageDraft(e.target.value)}
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleSendResourceMessage}
+                      disabled={!resourceMessageDraft.trim()}
+                      className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1019,51 +2069,6 @@ export default function AdminProjectDetailPage() {
         </div>
       </div>
 
-      {activeProposal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img src="/images/cje-logo.png" alt="The CJE Experience" className="h-8 w-auto brightness-0 invert" />
-                <h3 className="text-white text-xl font-semibold">{activeProposal.title}</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs px-2 py-1 rounded-full border border-[#333333] text-white/80">{activeProposal.status}</span>
-                <button
-                  onClick={() => setActiveProposal(null)}
-                  className="text-[#a1a1a1] hover:text-white"
-                  aria-label="Close proposal"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-            <p className="text-sm text-[#a1a1a1]">{activeProposal.description}</p>
-            {activeProposal.valid_until && (
-              <p className="text-xs text-[#a1a1a1]">Valid until {format(new Date(activeProposal.valid_until), 'MMM d, yyyy')}</p>
-            )}
-            <div className="border border-[#333333] rounded-lg overflow-hidden">
-              <div className="grid grid-cols-12 bg-[#0a0a0a] border-b border-[#333333] px-4 py-2 text-sm text-white/70">
-                <div className="col-span-5">Title</div>
-                <div className="col-span-5">Description</div>
-                <div className="col-span-2 text-right">Price</div>
-              </div>
-              {activeProposal.items?.map((item: any, idx: number) => (
-                <div key={idx} className="grid grid-cols-12 px-4 py-2 border-b border-[#333333] text-sm text-white">
-                  <div className="col-span-5">{item.title}</div>
-                  <div className="col-span-5 text-[#a1a1a1]">{item.description}</div>
-                  <div className="col-span-2 text-right">${Number(item.price || 0).toFixed(2)}</div>
-                </div>
-              ))}
-              <div className="grid grid-cols-12 px-4 py-3 text-sm text-white font-semibold">
-                <div className="col-span-10 text-right">Total</div>
-                <div className="col-span-2 text-right">${Number(activeProposal.total_amount || 0).toFixed(2)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showInvoiceModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-xl p-6 space-y-4">
@@ -1180,6 +2185,83 @@ export default function AdminProjectDetailPage() {
                 className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creatingInvoice ? 'Saving...' : editingInvoice ? 'Update Invoice' : 'Create Invoice'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Message Preview Modal */}
+      {showMessagePreview && previewMessage && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-xl font-semibold">Preview Message</h3>
+              <button
+                onClick={() => {
+                  setShowMessagePreview(false)
+                  setPreviewMessage(null)
+                }}
+                className="text-[#a1a1a1] hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-1">To</p>
+                <p className="text-white">{previewMessage.recipient}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Message</p>
+                <div className="bg-[#0a0a0a] border border-[#333333] rounded-lg p-4 min-h-[100px]">
+                  <p className="text-white whitespace-pre-wrap break-words">
+                    {formatMessageWithLinks(previewMessage.content)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-[#333333]">
+              <button
+                onClick={() => {
+                  setShowMessagePreview(false)
+                  setPreviewMessage(null)
+                }}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+              >
+                Edit
+              </button>
+              <button
+                onClick={previewMessage.onConfirm}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#81D8D0] to-[#5fb3ad] text-[#0a0a0a] font-semibold hover:opacity-90"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Message Confirmation Modal */}
+      {deletingMessageId && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 max-w-md w-full mx-4 space-y-4">
+            <h3 className="text-white text-xl font-semibold">Delete Message</h3>
+            <p className="text-[#a1a1a1]">
+              Are you sure you want to delete this message? The client will no longer see it.
+            </p>
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                onClick={() => setDeletingMessageId(null)}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-white/50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteMessage(deletingMessageId)}
+                className="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400 hover:bg-red-500/30"
+              >
+                Delete
               </button>
             </div>
           </div>

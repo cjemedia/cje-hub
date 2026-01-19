@@ -16,6 +16,7 @@ export default function EventsPage() {
   const [user, setUser] = useState<any>(null)
   const [myEvents, setMyEvents] = useState<any[]>([])
   const [communityEvents, setCommunityEvents] = useState<any[]>([])
+  const [pastEvents, setPastEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -69,8 +70,19 @@ export default function EventsPage() {
       .gte('date', today.toISOString())
       .order('date', { ascending: true })
 
+    // Fetch past approved community events (excluding user's own)
+    const { data: pastEventsData } = await supabase
+      .from('events')
+      .select('*')
+      .eq('status', 'approved')
+      .neq('user_id', user.id)
+      .lt('date', today.toISOString())
+      .order('date', { ascending: false })
+      .limit(6)
+
     setMyEvents(myEventsData || [])
     setCommunityEvents(communityEventsData || [])
+    setPastEvents(pastEventsData || [])
     setLoading(false)
   }
 
@@ -621,6 +633,69 @@ export default function EventsPage() {
             </div>
           )}
         </div>
+
+        {/* Section 5: Past Events */}
+        {pastEvents.length > 0 && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-semibold text-white mb-1">Past Events</h2>
+              <p className="text-[#a1a1a1]">Events from The CJE Experience community</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pastEvents.map((event) => {
+                const eventImage = getEventImage(event)
+                const eventDate = new Date(event.date)
+                return (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden hover:border-[#81D8D0]/30 transition-colors opacity-75"
+                  >
+                    {eventImage && (
+                      <div className="aspect-video w-full bg-[#0a0a0a] overflow-hidden grayscale">
+                        <img
+                          src={eventImage}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="p-5 space-y-3">
+                      <h3 className="text-xl font-semibold text-white/90">{event.title}</h3>
+                      {event.description && (
+                        <p className="text-[#a1a1a1]/70 text-sm line-clamp-3">{event.description}</p>
+                      )}
+                      <div className="space-y-2 text-sm text-[#a1a1a1]/70">
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="text-[#81D8D0]/70 flex-shrink-0" />
+                          <span>
+                            {format(eventDate, 'MMM d, yyyy')}
+                            {event.end_time && ` • ${formatTime12Hour(event.end_time)}`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="text-[#81D8D0]/70 flex-shrink-0" />
+                          <span>{event.location}</span>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-[#333333]">
+                        <a
+                          href={`https://ciarajevans.com/events/${event.slug || event.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full text-center px-4 py-2 bg-[#0a0a0a] border border-[#333333] text-white/70 rounded-lg font-semibold hover:border-[#81D8D0]/50 hover:text-white transition-colors"
+                        >
+                          View Details →
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Create Event Modal */}

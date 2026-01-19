@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
@@ -10,6 +10,8 @@ import Button from '@/components/Button'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -64,9 +66,11 @@ export default function LoginPage() {
           return
         }
 
-        // Redirect based on role
+        // Redirect based on role or redirectTo param
         const role = (userData?.role as 'client' | 'admin') ?? 'client'
-        if (role === 'admin') {
+        if (redirectTo) {
+          window.location.href = redirectTo
+        } else if (role === 'admin') {
           window.location.href = '/admin'
         } else {
           window.location.href = '/hub/dashboard'

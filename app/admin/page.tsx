@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Users, Calendar, FolderKanban, Receipt, ArrowRight, MessageSquare } from 'lucide-react'
+import { Users, Calendar, FolderKanban, Receipt, ArrowRight, MessageSquare, Ticket } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
 
@@ -76,10 +76,33 @@ async function getRecentActivity() {
     .order('created_at', { ascending: false })
     .limit(5)
 
+  // Recent client activity with project engagement
+  const { data: recentClients } = await supabase
+    .from('users')
+    .select(`
+      id, 
+      name, 
+      email, 
+      last_sign_in_at,
+      projects (
+        id,
+        name,
+        last_viewed_proposal,
+        last_viewed_style_guide,
+        last_viewed_resources,
+        last_viewed_invoice,
+        last_uploaded_assets
+      )
+    `)
+    .eq('role', 'client')
+    .order('last_sign_in_at', { ascending: false, nullsFirst: false })
+    .limit(5)
+
   return {
     recentBookings: recentBookings || [],
     recentContacts: recentContacts || [],
     recentMessages: recentMessages || [],
+    recentClients: recentClients || [],
   }
 }
 
@@ -126,7 +149,7 @@ export default async function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -138,7 +161,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {statCards.map((stat, idx) => {
             const Icon = stat.icon
             return (
@@ -159,7 +182,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-4 gap-4">
           {/* Recent Bookings */}
           <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
@@ -199,11 +222,11 @@ export default async function AdminDashboard() {
                 <p className="text-[#a1a1a1] text-sm">No submissions yet</p>
               ) : (
                 activity.recentContacts.map((contact: any) => (
-                  <div key={contact.id} className="border-b border-[#333333] pb-3 last:border-0 last:pb-0">
-                    <p className="text-white text-sm font-medium">
+                  <div key={contact.id} className="border-b border-[#333333] pb-3 last:border-0 last:pb-0 overflow-hidden">
+                    <p className="text-white text-sm font-medium truncate">
                       {contact.name || contact.sender_name || contact.sender_email || 'Website Visitor'}
                     </p>
-                    <p className="text-[#a1a1a1] text-xs">{contact.email || contact.sender_email}</p>
+                    <p className="text-[#a1a1a1] text-xs truncate">{contact.email || contact.sender_email}</p>
                     <p className="text-[#a1a1a1] text-xs line-clamp-1">{contact.subject || contact.message}</p>
                     <p className="text-[#a1a1a1] text-xs mt-1">
                       {format(new Date(contact.created_at), 'MMM d, yyyy')}
@@ -240,6 +263,61 @@ export default async function AdminDashboard() {
               )}
             </div>
           </div>
+
+          {/* Recent Client Activity */}
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-white">Client Activity</h2>
+              <Link href="/admin/clients" className="text-[#81D8D0] text-sm hover:underline">
+                View all
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {activity.recentClients.length === 0 ? (
+                <p className="text-[#a1a1a1] text-sm">No clients yet</p>
+              ) : (
+                activity.recentClients.map((client: any) => {
+                  // Get most recent activity across all projects
+                  const allActivities: { type: string; date: Date }[] = []
+                  
+                  client.projects?.forEach((project: any) => {
+                    if (project.last_viewed_proposal) 
+                      allActivities.push({ type: 'Proposal', date: new Date(project.last_viewed_proposal) })
+                    if (project.last_viewed_style_guide) 
+                      allActivities.push({ type: 'Style Guide', date: new Date(project.last_viewed_style_guide) })
+                    if (project.last_viewed_resources) 
+                      allActivities.push({ type: 'Resources', date: new Date(project.last_viewed_resources) })
+                    if (project.last_viewed_invoice) 
+                      allActivities.push({ type: 'Invoice', date: new Date(project.last_viewed_invoice) })
+                    if (project.last_uploaded_assets) 
+                      allActivities.push({ type: 'Uploaded Assets', date: new Date(project.last_uploaded_assets) })
+                  })
+                  
+                  // Sort by date, most recent first
+                  allActivities.sort((a, b) => b.date.getTime() - a.date.getTime())
+                  const recentActivity = allActivities[0]
+                  
+                  return (
+                    <div key={client.id} className="border-b border-[#333333] pb-3 last:border-0 last:pb-0">
+                      <p className="text-white text-sm font-medium">
+                        {client.name || client.email}
+                      </p>
+                      <p className="text-[#a1a1a1] text-xs">
+                        {client.last_sign_in_at 
+                          ? `Last login: ${format(new Date(client.last_sign_in_at), 'MMM d, yyyy')}`
+                          : 'Never logged in'}
+                      </p>
+                      {recentActivity && (
+                        <p className="text-[#81D8D0] text-xs mt-1">
+                          Viewed {recentActivity.type}: {format(recentActivity.date, 'MMM d')}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Quick Links */}
@@ -256,6 +334,7 @@ export default async function AdminDashboard() {
             <QuickLink href="/admin/projects" icon={FolderKanban} label="Projects" />
             <QuickLink href="/admin/messages" icon={MessageSquare} label="Messages" />
             <QuickLink href="/admin/invoices" icon={Receipt} label="Invoices" />
+            <QuickLink href="/admin/events" icon={Ticket} label="Events" />
           </div>
         </div>
       </div>

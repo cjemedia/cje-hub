@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
-import { Mail, MessageSquare, Send, Loader2, CheckCircle, Circle, Plus, X } from 'lucide-react'
+import { Mail, MessageSquare, Send, Loader2, CheckCircle, Circle, Plus, X, Pencil, Trash } from 'lucide-react'
+import { formatMessageWithLinks } from '@/lib/utils/message-formatting'
 
 type TabType = 'contact' | 'conversations'
 
@@ -26,6 +27,11 @@ export default function AdminMessagesPage() {
   const [loading, setLoading] = useState(true)
   const [showNewModal, setShowNewModal] = useState(false)
   const [creatingClientId, setCreatingClientId] = useState<string | null>(null)
+  const [showMessagePreview, setShowMessagePreview] = useState(false)
+  const [previewMessage, setPreviewMessage] = useState<{ content: string; recipient: string; onConfirm: () => void } | null>(null)
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editingMessageContent, setEditingMessageContent] = useState('')
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null)
   const supabase = createClient()
 
   const selectedUserInfo = useMemo(
@@ -53,6 +59,7 @@ export default function AdminMessagesPage() {
       supabase
         .from('messages')
         .select('*, users(name, email)')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false }),
       supabase.from('users').select('id, name, email').eq('role', 'client').order('name', { ascending: true }),
     ])
@@ -165,6 +172,7 @@ export default function AdminMessagesPage() {
       .from('messages')
       .select('*')
       .eq('user_id', userId)
+      .is('deleted_at', null)
       .order('created_at', { ascending: true })
 
     setUserMessages(data || [])
@@ -174,31 +182,91 @@ export default function AdminMessagesPage() {
     e.preventDefault()
     if (!newMessage.trim() || !selectedUser || sending) return
 
-    setSending(true)
+    const recipientName = selectedUserInfo?.name || selectedUserInfo?.email || 'Recipient'
+    setPreviewMessage({
+      content: newMessage.trim(),
+      recipient: recipientName,
+      onConfirm: async () => {
+        setSending(true)
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          const response = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: selectedUser,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: newMessage.trim(),
+            }),
+          })
+
+          if (!response.ok) {
+            const data = await response.json().catch(() => ({}))
+            throw new Error(data.error || 'Failed to send message')
+          }
+
+          setNewMessage('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await loadClientMessages(selectedUser)
+          await loadData()
+        } catch (error) {
+          console.error('Error sending message:', error)
+          alert('Failed to send message. Please try again.')
+        } finally {
+          setSending(false)
+        }
+      },
+    })
+    setShowMessagePreview(true)
+  }
+
+  const handleEditMessage = (message: any) => {
+    setEditingMessageId(message.id)
+    setEditingMessageContent(message.content)
+  }
+
+  const handleSaveMessage = async (messageId: string) => {
     try {
-      const response = await fetch('/api/messages/send', {
-        method: 'POST',
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: selectedUser,
-          sender_type: 'admin',
-          content: newMessage.trim(),
-        }),
+        body: JSON.stringify({ content: editingMessageContent }),
       })
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to send message')
+      if (response.ok) {
+        setEditingMessageId(null)
+        setEditingMessageContent('')
+        if (selectedUser) {
+          await loadClientMessages(selectedUser)
+        }
+        await loadData()
       }
-
-      setNewMessage('')
-      await loadClientMessages(selectedUser)
-      await loadData()
     } catch (error) {
-      console.error('Error sending message:', error)
-      alert('Failed to send message. Please try again.')
-    } finally {
-      setSending(false)
+      console.error('Error saving message:', error)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null)
+    setEditingMessageContent('')
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages/${messageId}`, {
+        method: 'DELETE',
+      })
+      if (response.ok) {
+        if (selectedUser) {
+          await loadClientMessages(selectedUser)
+        }
+        await loadData()
+      }
+      setDeletingMessageId(null)
+    } catch (error) {
+      console.error('Error deleting message:', error)
+      setDeletingMessageId(null)
     }
   }
 
@@ -211,10 +279,10 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      <div className="max-w-7xl mx-auto w-full flex flex-col h-screen overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)]">
         {/* Header */}
-        <div className="p-4 md:p-8 border-b border-[#333333]">
+        <div className="border-b border-[#333333] pb-4 mb-0">
           <div className="flex items-center gap-2 mb-2">
             <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
             <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
@@ -224,29 +292,29 @@ export default function AdminMessagesPage() {
         </div>
 
         {/* Tabs */}
-        <div className="px-8 border-b border-[#333333]">
-          <div className="flex gap-4">
+        <div className="px-4 md:px-8 border-b border-[#333333] overflow-x-hidden">
+          <div className="flex gap-2 md:gap-4">
             <button
               onClick={() => {
                 setActiveTab('contact')
                 setSelectedUser(null)
               }}
-              className={`px-4 py-3 border-b-2 transition-colors ${
+              className={`px-2 md:px-4 py-3 border-b-2 transition-colors ${
                 activeTab === 'contact'
                   ? 'border-[#81D8D0] text-white'
                   : 'border-transparent text-[#a1a1a1] hover:text-white'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <Mail size={18} />
-                <span>Contact Submissions</span>
+              <div className="flex items-center gap-1 md:gap-2">
+                <Mail size={16} className="md:w-[18px] md:h-[18px]" />
+                <span className="text-sm md:text-base">Contact Submissions</span>
                 {contactMessages.length > 0 && (
-                  <span className="bg-[#81D8D0]/20 text-[#81D8D0] px-2 py-0.5 rounded text-xs">
+                  <span className="bg-[#81D8D0]/20 text-[#81D8D0] px-1.5 md:px-2 py-0.5 rounded text-xs">
                     {contactMessages.length}
                   </span>
                 )}
                 {unreadContactCount > 0 && (
-                  <span className="bg-[#81D8D0] text-dark px-2 py-0.5 rounded text-xs font-semibold">
+                  <span className="bg-[#81D8D0] text-dark px-1.5 md:px-2 py-0.5 rounded text-xs font-semibold">
                     {unreadContactCount}
                   </span>
                 )}
@@ -257,17 +325,17 @@ export default function AdminMessagesPage() {
                 setActiveTab('conversations')
                 setSelectedUser(null)
               }}
-              className={`px-4 py-3 border-b-2 transition-colors ${
+              className={`px-2 md:px-4 py-3 border-b-2 transition-colors ${
                 activeTab === 'conversations'
                   ? 'border-[#81D8D0] text-white'
                   : 'border-transparent text-[#a1a1a1] hover:text-white'
               }`}
             >
-              <div className="flex items-center gap-2">
-                <MessageSquare size={18} />
-                <span>Client Conversations</span>
+              <div className="flex items-center gap-1 md:gap-2">
+                <MessageSquare size={16} className="md:w-[18px] md:h-[18px]" />
+                <span className="text-sm md:text-base">Client Conversations</span>
                 {conversations.length > 0 && (
-                  <span className="bg-[#81D8D0]/20 text-[#81D8D0] px-2 py-0.5 rounded text-xs">
+                  <span className="bg-[#81D8D0]/20 text-[#81D8D0] px-1.5 md:px-2 py-0.5 rounded text-xs">
                     {conversations.length}
                   </span>
                 )}
@@ -280,7 +348,7 @@ export default function AdminMessagesPage() {
         <div className="flex-1 overflow-hidden flex">
           {activeTab === 'contact' ? (
             /* Contact Submissions */
-            <div className="flex-1 overflow-y-auto p-4 md:p-8">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8">
               <div className="space-y-4">
                 {contactMessages.length === 0 ? (
                   <div className="text-center py-12 text-[#a1a1a1]">No contact submissions yet</div>
@@ -481,7 +549,53 @@ export default function AdminMessagesPage() {
                                       : 'bg-[#1a1a1a] text-white border border-[#333333]'
                                   }`}
                                 >
-                                  <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                                  {editingMessageId === message.id ? (
+                                    <div className="space-y-2">
+                                      <textarea
+                                        className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                                        rows={3}
+                                        value={editingMessageContent}
+                                        onChange={(e) => setEditingMessageContent(e.target.value)}
+                                      />
+                                      <div className="flex justify-end gap-2">
+                                        <button
+                                          onClick={handleCancelEdit}
+                                          className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          onClick={() => handleSaveMessage(message.id)}
+                                          disabled={!editingMessageContent.trim()}
+                                          className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                                        >
+                                          Save
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-start gap-2">
+                                      <p className="whitespace-pre-wrap break-words flex-1">{formatMessageWithLinks(message.content)}</p>
+                                      {isAdmin && (
+                                        <div className="flex items-center gap-1 mt-1">
+                                          <button
+                                            onClick={() => handleEditMessage(message)}
+                                            className="text-white/60 hover:text-white transition-colors"
+                                            title="Edit message"
+                                          >
+                                            <Pencil size={14} />
+                                          </button>
+                                          <button
+                                            onClick={() => setDeletingMessageId(message.id)}
+                                            className="text-white/60 hover:text-red-400 transition-colors"
+                                            title="Delete message"
+                                          >
+                                            <Trash size={14} />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                                 <p className="text-white/40 text-xs mt-1">
                                   {format(new Date(message.created_at), 'MMM d, h:mm a')}
@@ -494,13 +608,18 @@ export default function AdminMessagesPage() {
                     </div>
                     <div className="p-4 border-t border-[#333333]">
                       <form onSubmit={handleSendMessage} className="flex gap-3">
-                        <input
-                          type="text"
+                        <textarea
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           placeholder="Type your message..."
-                          className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                          className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
+                          rows={3}
                           disabled={sending}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault()
+                            }
+                          }}
                         />
                         <button
                           type="submit"
@@ -555,6 +674,83 @@ export default function AdminMessagesPage() {
           )}
         </div>
       </div>
+
+      {/* Message Preview Modal */}
+      {showMessagePreview && previewMessage && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-xl font-semibold">Preview Message</h3>
+              <button
+                onClick={() => {
+                  setShowMessagePreview(false)
+                  setPreviewMessage(null)
+                }}
+                className="text-[#a1a1a1] hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-1">To</p>
+                <p className="text-white">{previewMessage.recipient}</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Message</p>
+                <div className="bg-[#0a0a0a] border border-[#333333] rounded-lg p-4 min-h-[100px]">
+                  <p className="text-white whitespace-pre-wrap break-words">
+                    {formatMessageWithLinks(previewMessage.content)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-[#333333]">
+              <button
+                onClick={() => {
+                  setShowMessagePreview(false)
+                  setPreviewMessage(null)
+                }}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+              >
+                Edit
+              </button>
+              <button
+                onClick={previewMessage.onConfirm}
+                className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Message Confirmation Modal */}
+      {deletingMessageId && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 max-w-md w-full mx-4 space-y-4">
+            <h3 className="text-white text-xl font-semibold">Delete Message</h3>
+            <p className="text-[#a1a1a1]">
+              Are you sure you want to delete this message? The client will no longer see it.
+            </p>
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                onClick={() => setDeletingMessageId(null)}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-white/50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteMessage(deletingMessageId)}
+                className="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400 hover:bg-red-500/30"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

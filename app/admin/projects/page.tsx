@@ -36,7 +36,7 @@ const serviceTypeConfig: Record<
   creative_direction: { icon: Palette, label: 'Creative', color: '#81D8D0' },
 }
 
-type StatusFilter = 'all' | 'inquiry' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
+type StatusFilter = 'all' | 'inquiry' | 'consultation' | 'proposal' | 'confirmed' | 'asset_collection' | 'in_progress' | 'active' | 'completed' | 'cancelled'
 
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
@@ -45,15 +45,44 @@ export default function AdminProjectsPage() {
   const [creating, setCreating] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [clients, setClients] = useState<{ id: string; name: string; email: string }[]>([])
+  const [showNewClientFields, setShowNewClientFields] = useState(false)
+  const [newClient, setNewClient] = useState({
+    name: '',
+    email: '',
+    company: '',
+    phone: '',
+    sendInvite: true,
+  })
   const [form, setForm] = useState({
     user_id: '',
     name: '',
     description: '',
     service_type: '',
-    status: 'inquiry' as StatusFilter,
+    status: 'inquiry',
     start_date: '',
     end_date: '',
+    notes: '',
+    // Links
+    proposal_url: '',
+    style_guide_url: '',
+    dropbox_link: '',
+    assets_folder_url: '',
   })
+  const [showLinksSection, setShowLinksSection] = useState(false)
+  const [showInvoiceSection, setShowInvoiceSection] = useState(false)
+  const [showResourceSection, setShowResourceSection] = useState(false)
+  const [invoice, setInvoice] = useState({
+    amount: '',
+    description: '',
+    due_date: '',
+    stripe_link: '',
+  })
+  const [resource, setResource] = useState({
+    name: '',
+    description: '',
+    file_url: '',
+  })
+  const [statusMenuOpen, setStatusMenuOpen] = useState<string | null>(null)
   const router = useRouter()
 
   const loadProjects = useCallback(async () => {
@@ -101,32 +130,142 @@ export default function AdminProjectsPage() {
   }, [])
 
   const handleCreate = async () => {
-    if (!form.user_id || !form.name || !form.service_type || !form.status) return
+    let clientId = form.user_id
+
+    // If creating a new client, do that first
+    if (showNewClientFields) {
+      if (!newClient.name || !newClient.email) {
+        alert('Please fill in client name and email')
+        return
+      }
+      
+      try {
+        const clientRes = await fetch('/api/admin/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newClient),
+        })
+        
+        if (!clientRes.ok) {
+          const err = await clientRes.json()
+          alert(err?.error || 'Failed to create client')
+          return
+        }
+        
+        const clientData = await clientRes.json()
+        clientId = clientData.id
+        
+        // Refresh clients list
+        const supabase = createClient()
+        const { data: updatedClients } = await supabase
+          .from('users')
+          .select('id, name, email')
+          .eq('role', 'client')
+          .order('name')
+        setClients(updatedClients || [])
+      } catch (error) {
+        console.error('Error creating client:', error)
+        alert('Failed to create client')
+        return
+      }
+    }
+
+    if (!clientId || !form.name || !form.service_type || !form.status) {
+      alert('Please fill in all required fields')
+      return
+    }
+
     setCreating(true)
     try {
+      // Create project
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, user_id: clientId }),
       })
       if (!res.ok) {
         throw new Error('Failed to create project')
       }
+      const projectData = await res.json()
+      const projectId = projectData.id
+
+      // Create invoice if filled
+      if (showInvoiceSection && invoice.amount) {
+        await fetch('/api/invoices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...invoice,
+            project_id: projectId,
+            user_id: clientId,
+            status: 'pending',
+          }),
+        })
+      }
+
+      // Create resource/deliverable if filled
+      if (showResourceSection && resource.name && resource.file_url) {
+        const supabase = createClient()
+        await supabase.from('deliverables').insert({
+          project_id: projectId,
+          name: resource.name,
+          description: resource.description || null,
+          file_url: resource.file_url,
+        })
+      }
+
       await loadProjects()
       setShowCreateModal(false)
-      setForm({
-        user_id: '',
-        name: '',
-        description: '',
-        service_type: '',
-        status: 'inquiry',
-        start_date: '',
-        end_date: '',
-      })
+      resetForm()
     } catch (error) {
       console.error(error)
+      alert('Failed to create project')
     } finally {
       setCreating(false)
+    }
+  }
+
+  const resetForm = () => {
+    setShowNewClientFields(false)
+    setShowLinksSection(false)
+    setShowInvoiceSection(false)
+    setShowResourceSection(false)
+    setForm({
+      user_id: '',
+      name: '',
+      description: '',
+      service_type: '',
+      status: 'inquiry',
+      start_date: '',
+      end_date: '',
+      notes: '',
+      proposal_url: '',
+      style_guide_url: '',
+      dropbox_link: '',
+      assets_folder_url: '',
+    })
+    setNewClient({ name: '', email: '', company: '', phone: '', sendInvite: true })
+    setInvoice({ amount: '', description: '', due_date: '', stripe_link: '' })
+    setResource({ name: '', description: '', file_url: '' })
+  }
+
+  const handleStatusChange = async (projectId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Failed to update status' }))
+        throw new Error(error.error || 'Failed to update status')
+      }
+      
+      await loadProjects()
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert(error instanceof Error ? error.message : 'Failed to update status')
     }
   }
 
@@ -159,210 +298,445 @@ export default function AdminProjectsPage() {
         </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          {(['all', 'inquiry', 'confirmed', 'in_progress', 'completed', 'cancelled'] as StatusFilter[]).map((status) => (
+        {/* Status Filter - Mobile Dropdown */}
+        <div className="mb-6 md:hidden">
+          <label className="block text-sm font-medium text-white mb-2">
+            Filter by status
+          </label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+          >
+            {(['all', 'inquiry', 'consultation', 'proposal', 'confirmed', 'asset_collection', 'in_progress', 'active', 'completed', 'cancelled'] as const).map((status) => (
+              <option key={status} value={status}>
+                {status === 'all' ? 'All statuses' : status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Status Filter - Desktop Tabs */}
+        <div className="mb-6 hidden md:flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {(['all', 'inquiry', 'consultation', 'proposal', 'confirmed', 'asset_collection', 'in_progress', 'active', 'completed', 'cancelled'] as const).map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 statusFilter === status
-                  ? 'bg-[#81D8D0] text-dark'
-                  : 'bg-[#1a1a1a] border border-[#333333] text-white/70 hover:text-white'
+                  ? 'bg-[#81D8D0] text-[#0a0a0a]'
+                  : 'bg-[#1a1a1a] text-white border border-[#333333] hover:border-[#81D8D0]/50'
               }`}
             >
-              {status === 'in_progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1)}
+              {status === 'all' ? 'All' : status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </button>
           ))}
         </div>
 
-        {/* Projects Table */}
-        <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-[#333333]">
-                <tr>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Project Name</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Client</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Service Type</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Status</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">Start Date</th>
-                  <th className="text-left px-6 py-4 text-white/80 text-sm font-semibold">End Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-[#a1a1a1]">
-                      No projects found
-                    </td>
-                  </tr>
-                ) : (
-                  projects.map((project: any) => {
-                    const serviceConfig = serviceTypeConfig[project.service_type] || {
-                      icon: Settings,
-                      label: project.service_type || 'N/A',
-                      color: '#81D8D0',
-                    }
-                    const Icon = serviceConfig.icon
-
-                    return (
-                      <tr
-                        key={project.id}
-                        className="border-b border-[#333333] hover:bg-white/5 transition-colors cursor-pointer"
-                      >
-                        <td className="px-6 py-4">
-                          <Link href={`/admin/projects/${project.id}`} className="text-white hover:text-[#81D8D0] transition-colors">
-                            {project.name || 'Untitled Project'}
-                          </Link>
-                        </td>
-                        <td className="px-6 py-4 text-white">{project.users?.name || project.users?.email || 'N/A'}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2 text-[#81D8D0]">
-                            <Icon size={16} />
-                            <span className="text-sm">{serviceConfig.label}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <StatusBadge status={project.status} />
-                        </td>
-                        <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                          {project.start_date ? format(new Date(project.start_date + 'T00:00:00'), 'MMM d, yyyy') : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 text-[#a1a1a1] text-sm">
-                          {project.end_date ? format(new Date(project.end_date + 'T00:00:00'), 'MMM d, yyyy') : 'N/A'}
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+        {/* Projects Card Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.length === 0 ? (
+            <div className="col-span-full bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 text-center text-[#a1a1a1]">
+              No projects found
+            </div>
+          ) : (
+            projects.map((project: any) => (
+              <div
+                key={project.id}
+                onClick={() => router.push(`/admin/projects/${project.id}`)}
+                className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 cursor-pointer hover:border-[#81D8D0]/50 transition-colors flex flex-col"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-semibold text-lg truncate">{project.name}</h3>
+                    <p className="text-[#a1a1a1] text-sm truncate">
+                      {project.users?.name || project.users?.email || 'No client'}
+                    </p>
+                  </div>
+                  <div className="relative flex-shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setStatusMenuOpen(statusMenuOpen === project.id ? null : project.id)
+                      }}
+                      className="hover:opacity-80 transition-opacity"
+                    >
+                      <StatusBadge status={project.status} />
+                    </button>
+                    {statusMenuOpen === project.id && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setStatusMenuOpen(null)
+                          }}
+                        />
+                        <div className="absolute right-0 top-full mt-1 bg-[#1a1a1a] border border-[#333333] rounded-lg shadow-xl z-50 py-1 min-w-[160px]">
+                          {['inquiry', 'consultation', 'proposal', 'confirmed', 'asset_collection', 'in_progress', 'active', 'completed', 'cancelled'].map((status) => (
+                            <button
+                              key={status}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleStatusChange(project.id, status)
+                                setStatusMenuOpen(null)
+                              }}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-[#333333] transition-colors ${
+                                project.status === status ? 'text-[#81D8D0]' : 'text-white'
+                              }`}
+                            >
+                              {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              {project.status === status && <span className="ml-auto">✓</span>}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 mb-3">
+                  {project.service_type && serviceTypeConfig[project.service_type] && (
+                    <div className="flex items-center gap-1.5 text-[#81D8D0] text-sm">
+                      {(() => {
+                        const Icon = serviceTypeConfig[project.service_type].icon
+                        return <Icon size={14} />
+                      })()}
+                      <span>{serviceTypeConfig[project.service_type].label}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-auto pt-3 border-t border-[#333333] flex justify-between text-xs text-[#a1a1a1]">
+                  <span>
+                    {project.start_date 
+                      ? `Start: ${format(new Date(project.start_date + 'T00:00:00'), 'MMM d, yyyy')}`
+                      : 'No start date'}
+                  </span>
+                  <span>
+                    {project.end_date 
+                      ? `End: ${format(new Date(project.end_date + 'T00:00:00'), 'MMM d, yyyy')}`
+                      : ''}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-[#1a1a1a] border-b border-[#333333] px-6 py-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-white">Create Project</h2>
               <button
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => { setShowCreateModal(false); resetForm(); }}
                 className="text-[#a1a1a1] hover:text-white transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="p-6 space-y-6">
+              {/* CLIENT SECTION */}
               <div>
-                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Client</label>
-                <select
-                  value={form.user_id}
-                  onChange={(e) => setForm((prev) => ({ ...prev, user_id: e.target.value }))}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-[#81D8D0] text-[#0a0a0a] text-xs flex items-center justify-center font-bold">1</span>
+                  Client
+                </h3>
+                {!showNewClientFields ? (
+                  <div className="space-y-2">
+                    <select
+                      value={form.user_id}
+                      onChange={(e) => setForm((prev) => ({ ...prev, user_id: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                    >
+                      <option value="">Select existing client</option>
+                      {clients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name || c.email} ({c.email})
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => { setShowNewClientFields(true); setForm((prev) => ({ ...prev, user_id: '' })); }}
+                      className="text-[#81D8D0] text-sm hover:underline"
+                    >
+                      + Create new client instead
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3 p-4 bg-[#0a0a0a] border border-[#333333] rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#81D8D0] font-medium">New Client</span>
+                      <button
+                        type="button"
+                        onClick={() => { setShowNewClientFields(false); setNewClient({ name: '', email: '', company: '', phone: '', sendInvite: true }); }}
+                        className="text-[#a1a1a1] text-xs hover:text-white"
+                      >
+                        ← Select existing instead
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        placeholder="Name *"
+                        value={newClient.name}
+                        onChange={(e) => setNewClient((p) => ({ ...p, name: e.target.value }))}
+                        className="bg-[#1a1a1a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                      />
+                      <input
+                        type="email"
+                        placeholder="Email *"
+                        value={newClient.email}
+                        onChange={(e) => setNewClient((p) => ({ ...p, email: e.target.value }))}
+                        className="bg-[#1a1a1a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                      />
+                      <input
+                        placeholder="Company"
+                        value={newClient.company}
+                        onChange={(e) => setNewClient((p) => ({ ...p, company: e.target.value }))}
+                        className="bg-[#1a1a1a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                      />
+                      <input
+                        placeholder="Phone"
+                        value={newClient.phone}
+                        onChange={(e) => setNewClient((p) => ({ ...p, phone: e.target.value }))}
+                        className="bg-[#1a1a1a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                      />
+                    </div>
+                    <label className="flex items-center gap-2 text-xs text-white/80">
+                      <input
+                        type="checkbox"
+                        checked={newClient.sendInvite}
+                        onChange={(e) => setNewClient((p) => ({ ...p, sendInvite: e.target.checked }))}
+                        className="h-4 w-4 rounded border-[#333333] bg-[#1a1a1a]"
+                      />
+                      Send portal invite email
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* PROJECT BASICS */}
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-[#81D8D0] text-[#0a0a0a] text-xs flex items-center justify-center font-bold">2</span>
+                  Project Details
+                </h3>
+                <div className="space-y-3">
+                  <input
+                    placeholder="Project Name *"
+                    value={form.name}
+                    onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                  />
+                  <textarea
+                    placeholder="Description (optional)"
+                    value={form.description}
+                    onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                    rows={2}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={form.service_type}
+                      onChange={(e) => setForm((prev) => ({ ...prev, service_type: e.target.value }))}
+                      className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                    >
+                      <option value="">Service Type *</option>
+                      <option value="speaking_engagement">Speaking</option>
+                      <option value="workshop">Workshop</option>
+                      <option value="event_hosting">Event Hosting</option>
+                      <option value="coaching_1on1">1:1 Coaching</option>
+                      <option value="coaching_cohort">Cohort Program</option>
+                      <option value="website">Website</option>
+                      <option value="client_portal">Portal</option>
+                      <option value="business_tools">Business Tools</option>
+                      <option value="brand_consulting">Brand Consulting</option>
+                      <option value="creative_direction">Creative Direction</option>
+                    </select>
+                    <select
+                      value={form.status}
+                      onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
+                      className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                    >
+                      <option value="inquiry">Inquiry</option>
+                      <option value="consultation">Consultation</option>
+                      <option value="proposal">Proposal</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="asset_collection">Asset Collection</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="active">Active</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-white/60 mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={form.start_date}
+                        onChange={(e) => setForm((prev) => ({ ...prev, start_date: e.target.value }))}
+                        className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-white/60 mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={form.end_date}
+                        onChange={(e) => setForm((prev) => ({ ...prev, end_date: e.target.value }))}
+                        className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                      />
+                    </div>
+                  </div>
+                  <textarea
+                    placeholder="Internal notes (optional, client won't see)"
+                    value={form.notes}
+                    onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
+                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none text-sm"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              {/* RESOURCE SECTION - COLLAPSIBLE */}
+              <div className="border border-[#333333] rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowResourceSection(!showResourceSection)}
+                  className="w-full px-4 py-3 flex items-center justify-between bg-[#0a0a0a] hover:bg-[#111] transition-colors"
                 >
-                  <option value="">Select client</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name || c.email} ({c.email})
-                    </option>
-                  ))}
-                </select>
+                  <span className="text-sm font-medium text-white">Add Resource (optional)</span>
+                  <span className="text-[#a1a1a1]">{showResourceSection ? '−' : '+'}</span>
+                </button>
+                {showResourceSection && (
+                  <div className="p-4 space-y-3 border-t border-[#333333]">
+                    <input
+                      placeholder="Resource name *"
+                      value={resource.name}
+                      onChange={(e) => setResource((prev) => ({ ...prev, name: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                    <input
+                      placeholder="File URL *"
+                      value={resource.file_url}
+                      onChange={(e) => setResource((prev) => ({ ...prev, file_url: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                    <input
+                      placeholder="Description (optional)"
+                      value={resource.description}
+                      onChange={(e) => setResource((prev) => ({ ...prev, description: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Project Name</label>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                  placeholder="Project name"
-                />
+              {/* LINKS SECTION - COLLAPSIBLE */}
+              <div className="border border-[#333333] rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowLinksSection(!showLinksSection)}
+                  className="w-full px-4 py-3 flex items-center justify-between bg-[#0a0a0a] hover:bg-[#111] transition-colors"
+                >
+                  <span className="text-sm font-medium text-white">Links & Assets (optional)</span>
+                  <span className="text-[#a1a1a1]">{showLinksSection ? '−' : '+'}</span>
+                </button>
+                {showLinksSection && (
+                  <div className="p-4 space-y-3 border-t border-[#333333]">
+                    <input
+                      placeholder="Proposal URL"
+                      value={form.proposal_url}
+                      onChange={(e) => setForm((prev) => ({ ...prev, proposal_url: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                    <input
+                      placeholder="Style Guide URL"
+                      value={form.style_guide_url}
+                      onChange={(e) => setForm((prev) => ({ ...prev, style_guide_url: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                    <input
+                      placeholder="Client Asset Upload Link (Dropbox/Google Drive request)"
+                      value={form.dropbox_link}
+                      onChange={(e) => setForm((prev) => ({ ...prev, dropbox_link: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                    <input
+                      placeholder="Assets Folder URL (admin view)"
+                      value={form.assets_folder_url}
+                      onChange={(e) => setForm((prev) => ({ ...prev, assets_folder_url: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                  className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
-                  rows={3}
-                  placeholder="Optional description"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Service Type</label>
-                  <select
-                    value={form.service_type}
-                    onChange={(e) => setForm((prev) => ({ ...prev, service_type: e.target.value }))}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                  >
-                    <option value="">Select service</option>
-                    <option value="speaking_engagement">Speaking</option>
-                    <option value="workshop">Workshop</option>
-                    <option value="event_hosting">Event Hosting</option>
-                    <option value="coaching_1on1">1:1 Coaching</option>
-                    <option value="coaching_cohort">Cohort Program</option>
-                    <option value="website">Website</option>
-                    <option value="client_portal">Portal</option>
-                    <option value="business_tools">Business Tools</option>
-                    <option value="brand_consulting">Brand Consulting</option>
-                    <option value="creative_direction">Creative Direction</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Status</label>
-                  <select
-                    value={form.status}
-                    onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value as StatusFilter }))}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                  >
-                    <option value="inquiry">Inquiry</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">Start Date</label>
-                  <input
-                    type="date"
-                    value={form.start_date}
-                    onChange={(e) => setForm((prev) => ({ ...prev, start_date: e.target.value }))}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-1">End Date</label>
-                  <input
-                    type="date"
-                    value={form.end_date}
-                    onChange={(e) => setForm((prev) => ({ ...prev, end_date: e.target.value }))}
-                    className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
-                  />
-                </div>
+              {/* INVOICE SECTION - COLLAPSIBLE */}
+              <div className="border border-[#333333] rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowInvoiceSection(!showInvoiceSection)}
+                  className="w-full px-4 py-3 flex items-center justify-between bg-[#0a0a0a] hover:bg-[#111] transition-colors"
+                >
+                  <span className="text-sm font-medium text-white">Add Invoice (optional)</span>
+                  <span className="text-[#a1a1a1]">{showInvoiceSection ? '−' : '+'}</span>
+                </button>
+                {showInvoiceSection && (
+                  <div className="p-4 space-y-3 border-t border-[#333333]">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="Amount *"
+                        value={invoice.amount}
+                        onChange={(e) => setInvoice((prev) => ({ ...prev, amount: e.target.value }))}
+                        className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                      />
+                      <div>
+                        <input
+                          type="date"
+                          value={invoice.due_date}
+                          onChange={(e) => setInvoice((prev) => ({ ...prev, due_date: e.target.value }))}
+                          className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                          placeholder="Due Date"
+                        />
+                      </div>
+                    </div>
+                    <input
+                      placeholder="Invoice description"
+                      value={invoice.description}
+                      onChange={(e) => setInvoice((prev) => ({ ...prev, description: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                    <input
+                      placeholder="Stripe Payment Link"
+                      value={invoice.stripe_link}
+                      onChange={(e) => setInvoice((prev) => ({ ...prev, stripe_link: e.target.value }))}
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
+            {/* FOOTER */}
+            <div className="sticky bottom-0 bg-[#1a1a1a] border-t border-[#333333] px-6 py-4 flex items-center justify-end gap-3">
               <button
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => { setShowCreateModal(false); resetForm(); }}
                 className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-white/50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
-                disabled={creating || !form.user_id || !form.name || !form.service_type}
-                className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                disabled={creating || (!form.user_id && !showNewClientFields) || (showNewClientFields && (!newClient.name || !newClient.email)) || !form.name || !form.service_type}
+                className="px-6 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creating ? 'Creating...' : 'Create Project'}
               </button>

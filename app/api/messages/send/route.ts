@@ -5,7 +5,7 @@ import { sendEmail } from '@/lib/resend'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { user_id, sender_type, content, project_id } = body || {}
+    const { user_id, sender_type, content, project_id, sender_id, message_type } = body || {}
 
     if (!user_id || !sender_type || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -19,10 +19,11 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id,
         sender_type,
-        sender_id: null,
+        sender_id: sender_id || null,
         content,
         read: false,
         project_id: project_id || null,
+        message_type: message_type || null,
       })
       .select()
       .single()
@@ -70,7 +71,12 @@ export async function POST(request: NextRequest) {
     <div style="background-color: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 20px; margin: 24px 0;">
       <p style="color: #ffffff; margin: 0; white-space: pre-wrap; line-height: 1.6;">${content}</p>
     </div>
-    <p style="margin-top: 24px; text-align: center;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/hub/messages" style="color: #ffffff; text-decoration: underline;">View messages</a></p>
+    ${project_id ? `
+      <p style="margin-top: 24px; text-align: center;">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ciarajevans.com'}/hub/projects/${project_id}" style="color: #ffffff; text-decoration: underline;">View your project in the portal</a>
+      </p>
+    ` : ''}
+    <p style="margin-top: ${project_id ? '12' : '24'}px; text-align: center;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/hub/messages" style="color: #ffffff; text-decoration: underline;">View messages</a></p>
   </div>
 </body>
 </html>

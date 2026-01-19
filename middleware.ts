@@ -58,6 +58,7 @@ export async function middleware(request: NextRequest) {
       // Only redirect if we have no user AND no auth error
       if (!user && !authError) {
         const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
         return NextResponse.redirect(loginUrl)
       }
     } catch (error) {
@@ -79,6 +80,7 @@ export async function middleware(request: NextRequest) {
 
       if (!user) {
         const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
         return NextResponse.redirect(loginUrl)
       }
 

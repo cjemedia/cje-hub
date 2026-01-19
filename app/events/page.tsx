@@ -185,6 +185,9 @@ export default function SpeakingPage() {
       {/* UPCOMING EVENTS SECTION */}
       <UpcomingEventsSection />
 
+      {/* PAST EVENTS SECTION */}
+      <PastEventsSection />
+
       <Footer />
     </main>
   )
@@ -300,3 +303,117 @@ function UpcomingEventsSection() {
   )
 }
 
+function PastEventsSection() {
+  const [events, setEvents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showAll, setShowAll] = useState(false)
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('status', 'approved')
+        .lt('date', new Date().toISOString())
+        .order('date', { ascending: false })
+        .limit(showAll ? 50 : 6)
+
+      if (!error && data) {
+        setEvents(data)
+      }
+      setLoading(false)
+    }
+
+    loadEvents()
+  }, [showAll])
+
+  if (loading) {
+    return null
+  }
+
+  if (events.length === 0) {
+    return null
+  }
+
+  return (
+    <section className="section-padding bg-dark-light">
+      <div className="section-max-width">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
+            Past Events
+          </h2>
+          <p className="text-lg text-white/80 max-w-2xl mx-auto">
+            Browse our event archive
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {events.map((event, index) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <Link
+                href={`/events/${event.slug || event.id}`}
+                className="block bg-dark border-2 border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all duration-300 group opacity-75"
+              >
+                {((event.image_urls && event.image_urls.length > 0) || event.image_url) && (
+                  <div className="relative w-full h-48 overflow-hidden grayscale">
+                    <Image
+                      src={(event.image_urls && event.image_urls[0]) || event.image_url}
+                      alt={event.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-white/90 mb-3 group-hover:text-accent/80 transition-colors">
+                    {event.title}
+                  </h3>
+                  {event.description && (
+                    <p className="text-white/60 mb-4 line-clamp-2 text-sm">
+                      {event.description}
+                    </p>
+                  )}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-white/60 text-sm">
+                      <Calendar size={16} className="text-accent/70 flex-shrink-0" />
+                      <span>
+                        {format(new Date(event.date), 'MMMM d, yyyy • h:mm a')}
+                        {event.end_time && ` - ${formatTime12Hour(event.end_time)}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/60 text-sm">
+                      <MapPin size={16} className="text-accent/70 flex-shrink-0" />
+                      <span>{event.location}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>        {events.length >= 6 && !showAll && (
+          <div className="text-center mt-8">
+            <button
+              onClick={() => setShowAll(true)}
+              className="px-6 py-3 bg-dark border-2 border-white/10 text-white rounded-lg hover:border-accent transition-colors"
+            >
+              Load More Past Events
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}

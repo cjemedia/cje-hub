@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
 import { StatusBadge } from '@/components/StatusBadge'
-import { Calendar, Clock, Info, Mail, Phone, Plus } from 'lucide-react'
+import { Calendar, Clock, Info, Plus } from 'lucide-react'
 
 const inquiryTypeLabels: Record<string, string> = {
   speaking: 'Speaking Engagement',
@@ -30,7 +30,6 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [filter, setFilter] = useState<FilterType>('all')
   const [loading, setLoading] = useState(true)
-  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -81,9 +80,6 @@ export default function AdminBookingsPage() {
     }
   }
 
-  const toggleNotes = (id: string) => {
-    setExpandedNotes((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
 
   if (loading) {
     return (
@@ -97,7 +93,7 @@ export default function AdminBookingsPage() {
     <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between gap-4">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
@@ -132,85 +128,63 @@ export default function AdminBookingsPage() {
           ))}
         </div>
 
-        {/* Booking Cards */}
-        <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl overflow-hidden">
-          <div className="divide-y divide-[#333333]">
-            {bookings.length === 0 ? (
-              <div className="px-6 py-12 text-center text-[#a1a1a1]">No bookings found</div>
-            ) : (
-              bookings.map((booking: any) => {
-                const isExpanded = expandedNotes[booking.id]
-                const notes = booking.notes || ''
-                const truncated = notes.length > 140 && !isExpanded ? `${notes.slice(0, 140)}...` : notes
-                return (
-                  <div key={booking.id} className="p-5 space-y-3 hover:bg-white/5 transition-colors">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <Link href={`/admin/bookings/${booking.id}`} className="text-white font-semibold hover:text-[#81D8D0]">
-                          {booking.users?.name || booking.name || 'N/A'}
-                        </Link>
-                        <div className="flex items-center gap-2 text-sm text-[#a1a1a1]">
-                          <Mail size={14} />
-                          <span>{booking.users?.email || booking.email || 'N/A'}</span>
-                        </div>
-                        {booking.phone && (
-                          <div className="flex items-center gap-2 text-sm text-[#a1a1a1]">
-                            <Phone size={14} />
-                            <span>{booking.phone}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {renderStatus(booking.status)}
-                        <Link href={`/admin/bookings/${booking.id}`} className="text-sm text-[#81D8D0] hover:underline">
-                          View
-                        </Link>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-white">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={14} className="text-[#a1a1a1]" />
-                        <span>{booking.booking_date ? formatDate(booking.booking_date) : 'TBD'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock size={14} className="text-[#a1a1a1]" />
-                        <span>{booking.booking_time || 'TBD'}</span>
-                      </div>
-                      <div className="flex items-center gap-2 md:col-span-2">
-                        <Info size={14} className="text-[#a1a1a1]" />
-                        <span className="capitalize text-[#81D8D0]">
-                          {inquiryTypeLabels[booking.inquiry_type] || booking.inquiry_type || booking.type || 'N/A'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {notes && (
-                      <div className="text-sm text-[#a1a1a1]">
-                        <p className="text-white font-medium mb-1">Notes</p>
-                        <p>{truncated}</p>
-                        {notes.length > 140 && (
-                          <button
-                            onClick={() => toggleNotes(booking.id)}
-                            className="text-xs text-[#81D8D0] hover:underline mt-1"
-                          >
-                            {isExpanded ? 'Show less' : 'Show more'}
-                          </button>
-                        )}
-                      </div>
-                    )}
-
-                    {booking.status === 'rescheduled' && booking.original_date && (
-                      <p className="text-xs text-amber-300">
-                        Rescheduled from {format(new Date(booking.original_date), 'MMM d, yyyy')}
-                        {booking.original_time ? ` at ${booking.original_time}` : ''}
-                      </p>
-                    )}
+        {/* Booking Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {bookings.length === 0 ? (
+            <div className="col-span-full bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 text-center text-[#a1a1a1]">
+              No bookings found
+            </div>
+          ) : (
+            bookings.map((booking: any) => (
+              <Link
+                key={booking.id}
+                href={`/admin/bookings/${booking.id}`}
+                className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 hover:border-[#81D8D0]/50 transition-colors flex flex-col"
+              >
+                {/* Top: Name and Status */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-semibold text-lg truncate">
+                      {booking.users?.name || booking.name || 'N/A'}
+                    </h3>
+                    <p className="text-[#a1a1a1] text-sm truncate">
+                      {booking.users?.email || booking.email || 'N/A'}
+                    </p>
                   </div>
-                )
-              })
-            )}
-          </div>
+                  <div className="flex-shrink-0">
+                    {renderStatus(booking.status)}
+                  </div>
+                </div>
+
+                {/* Middle: Date, Time, Type */}
+                <div className="space-y-2 text-sm text-[#a1a1a1] mb-3">
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="text-[#81D8D0]" />
+                    <span>{booking.booking_date ? formatDate(booking.booking_date) : 'TBD'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className="text-[#81D8D0]" />
+                    <span>{booking.booking_time || 'TBD'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Info size={14} className="text-[#81D8D0]" />
+                    <span className="text-[#81D8D0] truncate">
+                      {inquiryTypeLabels[booking.inquiry_type] || booking.inquiry_type || booking.type || 'N/A'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom: Footer with notes preview */}
+                <div className="mt-auto pt-3 border-t border-[#333333] text-xs text-[#a1a1a1]">
+                  {booking.notes ? (
+                    <p className="line-clamp-2">{booking.notes}</p>
+                  ) : (
+                    <p>No notes</p>
+                  )}
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>

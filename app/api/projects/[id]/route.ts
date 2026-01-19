@@ -57,7 +57,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
     const body = await request.json()
-    const { name, description, status, service_type, start_date, end_date, dropbox_link } = body || {}
+    const { 
+      name, description, status, service_type, start_date, end_date, dropbox_link, assets_folder_url,
+      proposal_url, proposal_sent_at, proposal_message_id,
+      style_guide_url, style_guide_sent_at, style_guide_message_id
+    } = body || {}
     const projectId = params.id
 
     const supabase = createServiceClient()
@@ -66,17 +70,25 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
+    const updateData: any = {}
+    if (name !== undefined) updateData.name = name
+    if (description !== undefined) updateData.description = description
+    if (status !== undefined) updateData.status = status
+    if (service_type !== undefined) updateData.service_type = service_type
+    if (start_date !== undefined) updateData.start_date = start_date || null
+    if (end_date !== undefined) updateData.end_date = end_date || null
+    if (dropbox_link !== undefined) updateData.dropbox_link = dropbox_link || null
+    if (assets_folder_url !== undefined) updateData.assets_folder_url = assets_folder_url || null
+    if (proposal_url !== undefined) updateData.proposal_url = proposal_url || null
+    if (proposal_sent_at !== undefined) updateData.proposal_sent_at = proposal_sent_at || null
+    if (proposal_message_id !== undefined) updateData.proposal_message_id = proposal_message_id || null
+    if (style_guide_url !== undefined) updateData.style_guide_url = style_guide_url || null
+    if (style_guide_sent_at !== undefined) updateData.style_guide_sent_at = style_guide_sent_at || null
+    if (style_guide_message_id !== undefined) updateData.style_guide_message_id = style_guide_message_id || null
+
     const { data, error } = await supabase
       .from('projects')
-      .update({
-        name,
-        description,
-        status,
-        service_type,
-        start_date: start_date || null,
-        end_date: end_date || null,
-        dropbox_link: dropbox_link || null,
-      })
+      .update(updateData)
       .eq('id', projectId)
       .select('*')
       .single()

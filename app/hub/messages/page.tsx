@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
-import { Send, Loader2, Mail, MessageSquare } from 'lucide-react'
+import { Send, Loader2, Mail, MessageSquare, X } from 'lucide-react'
+import { formatMessageWithLinks } from '@/lib/utils/message-formatting'
 import { format, isToday, isYesterday, isSameDay } from 'date-fns'
 
 type Message = {
@@ -33,6 +34,8 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false)
   const [newMessage, setNewMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'messages' | 'inquiries'>('messages')
+  const [showMessagePreview, setShowMessagePreview] = useState(false)
+  const [previewMessage, setPreviewMessage] = useState<{ content: string; onConfirm: () => void } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
@@ -44,6 +47,7 @@ export default function MessagesPage() {
       .from('messages')
       .select('*')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -118,32 +122,40 @@ export default function MessagesPage() {
     e.preventDefault()
     if (!newMessage.trim() || !user?.id || sending) return
 
-    setSending(true)
-    try {
-      const res = await fetch('/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: user.id,
-          sender_type: 'client',
-          content: newMessage.trim(),
-        }),
-      })
+    setPreviewMessage({
+      content: newMessage.trim(),
+      onConfirm: async () => {
+        setSending(true)
+        try {
+          const res = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id,
+              sender_type: 'client',
+              content: newMessage.trim(),
+            }),
+          })
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        throw new Error(data.error || 'Failed to send message')
-      }
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}))
+            throw new Error(data.error || 'Failed to send message')
+          }
 
-      setNewMessage('')
-      // Refetch messages to show the new message
-      await loadMessages()
-    } catch (error) {
-      console.error('Error sending message:', error)
-      alert('Failed to send message. Please try again.')
-    } finally {
-      setSending(false)
-    }
+          setNewMessage('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          // Refetch messages to show the new message
+          await loadMessages()
+        } catch (error) {
+          console.error('Error sending message:', error)
+          alert('Failed to send message. Please try again.')
+        } finally {
+          setSending(false)
+        }
+      },
+    })
+    setShowMessagePreview(true)
   }
 
   const formatMessageDate = (dateString: string) => {
@@ -290,13 +302,18 @@ export default function MessagesPage() {
             {/* Input Area */}
             <div className="p-8 border-t border-[#333333]">
               <form onSubmit={handleSend} className="flex gap-3">
-                <input
-                  type="text"
+                <textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your message..."
-                  className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors"
+                  className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
+                  rows={3}
                   disabled={sending}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                    }
+                  }}
                 />
                 <button
                   type="submit"
@@ -367,6 +384,57 @@ export default function MessagesPage() {
           </div>
         )}
       </div>
+
+      {/* Message Preview Modal */}
+      {showMessagePreview && previewMessage && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-xl font-semibold">Preview Message</h3>
+              <button
+                onClick={() => {
+                  setShowMessagePreview(false)
+                  setPreviewMessage(null)
+                }}
+                className="text-[#a1a1a1] hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-1">To</p>
+                <p className="text-white">The CJE Experience team</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Message</p>
+                <div className="bg-[#0a0a0a] border border-[#333333] rounded-lg p-4 min-h-[100px]">
+                  <p className="text-white whitespace-pre-wrap break-words">
+                    {formatMessageWithLinks(previewMessage.content)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-[#333333]">
+              <button
+                onClick={() => {
+                  setShowMessagePreview(false)
+                  setPreviewMessage(null)
+                }}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+              >
+                Edit
+              </button>
+              <button
+                onClick={previewMessage.onConfirm}
+                className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

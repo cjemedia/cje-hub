@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, DollarSign, Users, CheckCircle, X, AlertCircle, Clock, Plus, Edit, ChevronUp, ChevronDown, ZoomIn } from 'lucide-react'
+import { Calendar, MapPin, DollarSign, Users, CheckCircle, X, AlertCircle, Clock, Plus, Edit, ChevronUp, ChevronDown, ZoomIn, Trash } from 'lucide-react'
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { formatTime12Hour } from '@/lib/time-format'
@@ -402,6 +402,27 @@ export default function AdminEventsPage() {
     }
   }
 
+  const handleDeleteEvent = async (eventId: string) => {
+    const confirmed = window.confirm('Are you sure you want to delete this event? This action cannot be undone.')
+    if (!confirmed) return
+
+    try {
+      const res = await fetch(`/api/events/${eventId}/delete`, {
+        method: 'POST',
+      })
+
+      if (!res.ok) {
+        alert('Failed to delete event. Please try again.')
+        return
+      }
+
+      loadEvents()
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      alert('Failed to delete event. Please try again.')
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const badges = {
       pending: { label: 'Pending', icon: Clock, color: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30' },
@@ -429,27 +450,49 @@ export default function AdminEventsPage() {
   const filteredEvents = filter === 'all' ? events : events.filter(e => e.status === filter)
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
-      <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
-            Event Management
-          </h1>
-          <p className="text-[#a1a1a1]">
-            Review and manage event submissions
-          </p>
+    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">
+              Event Management
+            </h1>
+            <p className="text-[#a1a1a1]">
+              Review and manage event submissions
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg font-semibold hover:opacity-90 transition-opacity"
+            >
+              <Plus size={18} />
+              Create Event
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#81D8D0] text-[#0a0a0a] rounded-lg font-semibold hover:opacity-90 transition-opacity"
+
+      {/* Filters - Mobile Dropdown */}
+      <div className="mb-6 md:hidden">
+        <label className="block text-sm font-medium text-white mb-2">
+          Filter by status
+        </label>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as typeof filter)}
+          className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
         >
-          <Plus size={18} />
-          Create Event
-        </button>
+          {(['all', 'pending', 'approved', 'rejected'] as const).map((f) => (
+            <option key={f} value={f}>
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {f !== 'all' && ` (${events.filter(e => e.status === f).length})`}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Filters */}
-      <div className="mb-6 flex gap-2 flex-wrap">
+      {/* Filters - Desktop Buttons */}
+      <div className="mb-6 hidden md:flex gap-2 flex-wrap">
         {(['all', 'pending', 'approved', 'rejected'] as const).map((f) => (
           <button
             key={f}
@@ -470,8 +513,8 @@ export default function AdminEventsPage() {
         ))}
       </div>
 
-      {/* Events List */}
-      <div className="space-y-4">
+        {/* Events List */}
+        <div className="space-y-4">
         {filteredEvents.length === 0 ? (
           <div className="bg-[#1A1A1A] border border-primary-tiffany/30 rounded-lg p-8 text-center">
             <Calendar size={48} className="text-primary-tiffany/50 mx-auto mb-4" />
@@ -549,7 +592,7 @@ export default function AdminEventsPage() {
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 {event.status === 'pending' && (
                   <>
                     <button
@@ -575,17 +618,27 @@ export default function AdminEventsPage() {
                     View Public Page
                   </Link>
                 )}
-                <button
-                  onClick={() => handleEditEvent(event)}
-                  className="px-4 py-2 border border-[#333333] text-white rounded-lg hover:bg-[#0a0a0a] transition-colors flex items-center gap-2"
-                >
-                  <Edit size={16} />
-                  Edit
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEditEvent(event)}
+                    className="px-4 py-2 border border-[#333333] text-white rounded-lg hover:bg-[#0a0a0a] transition-colors flex items-center gap-2"
+                  >
+                    <Edit size={16} />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEvent(event.id)}
+                    className="px-4 py-2 bg-red-500/20 border border-red-500/60 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors flex items-center gap-2"
+                  >
+                    <Trash size={16} />
+                    Delete
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))
         )}
+        </div>
       </div>
 
       {/* Create Event Modal */}
