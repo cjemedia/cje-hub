@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
     </div>
     ${project ? `
       <p style="color: rgba(255, 255, 255, 0.7); margin-top: 8px; text-align: center; font-size: 14px;">
-        This message was sent from project: <strong>${project.name}</strong> (ID: ${project.id}).
+        This message was sent from project: <strong>${project.name}</strong>.
       </p>
       <p style="margin-top: 8px; text-align: center;">
         <a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/admin/projects/${project.id}" style="color: #ffffff; text-decoration: underline;">Open this project in admin</a>
