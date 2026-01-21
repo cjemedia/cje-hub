@@ -20,10 +20,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-const serviceTypeConfig: Record<
-  string,
-  { icon: LucideIcon; label: string; color: string }
-> = {
+const serviceTypeConfig: Record<string, { icon: LucideIcon; label: string; color: string }> = {
   speaking_engagement: { icon: Mic, label: 'Speaking', color: '#81D8D0' },
   workshop: { icon: BookOpen, label: 'Workshop', color: '#81D8D0' },
   event_hosting: { icon: PartyPopper, label: 'Event Hosting', color: '#81D8D0' },
@@ -54,7 +51,7 @@ export default function AdminProjectsPage() {
     sendInvite: true,
   })
   const [form, setForm] = useState({
-    user_id: '',
+    user_ids: [] as string[],
     name: '',
     description: '',
     service_type: '',
@@ -62,7 +59,6 @@ export default function AdminProjectsPage() {
     start_date: '',
     end_date: '',
     notes: '',
-    // Links
     proposal_url: '',
     style_guide_url: '',
     dropbox_link: '',
@@ -90,7 +86,7 @@ export default function AdminProjectsPage() {
 
     let query = supabase
       .from('projects')
-      .select('*, users(name, email)')
+      .select('*, project_clients(user_id, role, users(id, name, email))')
       .order('created_at', { ascending: false })
 
     if (statusFilter !== 'all') {
@@ -130,9 +126,8 @@ export default function AdminProjectsPage() {
   }, [])
 
   const handleCreate = async () => {
-    let clientId = form.user_id
+    let clientIds = [...form.user_ids]
 
-    // If creating a new client, do that first
     if (showNewClientFields) {
       if (!newClient.name || !newClient.email) {
         alert('Please fill in client name and email')
@@ -153,9 +148,8 @@ export default function AdminProjectsPage() {
         }
         
         const clientData = await clientRes.json()
-        clientId = clientData.id
+        clientIds = [clientData.id, ...clientIds]
         
-        // Refresh clients list
         const supabase = createClient()
         const { data: updatedClients } = await supabase
           .from('users')
@@ -170,18 +164,32 @@ export default function AdminProjectsPage() {
       }
     }
 
-    if (!clientId || !form.name || !form.service_type || !form.status) {
-      alert('Please fill in all required fields')
+    if (clientIds.length === 0 || !form.name || !form.service_type || !form.status) {
+      alert('Please fill in all required fields (at least one client)')
       return
     }
 
     setCreating(true)
     try {
-      // Create project
+      const projectPayload = {
+        name: form.name,
+        description: form.description,
+        service_type: form.service_type,
+        status: form.status,
+        start_date: form.start_date || null,
+        end_date: form.end_date || null,
+        notes: form.notes,
+        proposal_url: form.proposal_url,
+        style_guide_url: form.style_guide_url,
+        dropbox_link: form.dropbox_link,
+        assets_folder_url: form.assets_folder_url,
+        user_id: clientIds[0],
+      }
+      
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, user_id: clientId }),
+        body: JSON.stringify(projectPayload),
       })
       if (!res.ok) {
         throw new Error('Failed to create project')
@@ -189,7 +197,21 @@ export default function AdminProjectsPage() {
       const projectData = await res.json()
       const projectId = projectData.id
 
-      // Create invoice if filled
+      const supabase = createClient()
+      const projectClientsData = clientIds.map((clientId, index) => ({
+        project_id: projectId,
+        user_id: clientId,
+        role: index === 0 ? 'primary' : 'stakeholder',
+      }))
+      
+      const { error: junctionError } = await supabase
+        .from('project_clients')
+        .insert(projectClientsData)
+      
+      if (junctionError) {
+        console.error('Error inserting project_clients:', junctionError)
+      }
+
       if (showInvoiceSection && invoice.amount) {
         await fetch('/api/invoices', {
           method: 'POST',
@@ -197,15 +219,13 @@ export default function AdminProjectsPage() {
           body: JSON.stringify({
             ...invoice,
             project_id: projectId,
-            user_id: clientId,
+            user_id: clientIds[0],
             status: 'pending',
           }),
         })
       }
 
-      // Create resource/deliverable if filled
       if (showResourceSection && resource.name && resource.file_url) {
-        const supabase = createClient()
         await supabase.from('deliverables').insert({
           project_id: projectId,
           name: resource.name,
@@ -231,7 +251,7 @@ export default function AdminProjectsPage() {
     setShowInvoiceSection(false)
     setShowResourceSection(false)
     setForm({
-      user_id: '',
+      user_ids: [],
       name: '',
       description: '',
       service_type: '',
@@ -280,7 +300,6 @@ export default function AdminProjectsPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto w-full">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <div className="h-1 w-1 rounded-full bg-[#81D8D0]"></div>
@@ -288,21 +307,18 @@ export default function AdminProjectsPage() {
           </div>
           <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">All Projects</h1>
           <p className="text-[#a1a1a1]">View and manage all client projects</p>
-        <div className="mt-4">
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 bg-[#81D8D0] text-[#0a0a0a] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl"
-          >
-            New Project
-          </button>
-        </div>
+          <div className="mt-4">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 bg-[#81D8D0] text-[#0a0a0a] px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl"
+            >
+              New Project
+            </button>
+          </div>
         </div>
 
-        {/* Status Filter - Mobile Dropdown */}
         <div className="mb-6 md:hidden">
-          <label className="block text-sm font-medium text-white mb-2">
-            Filter by status
-          </label>
+          <label className="block text-sm font-medium text-white mb-2">Filter by status</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
@@ -316,7 +332,6 @@ export default function AdminProjectsPage() {
           </select>
         </div>
 
-        {/* Status Filter - Desktop Tabs */}
         <div className="mb-6 hidden md:flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {(['all', 'inquiry', 'consultation', 'proposal', 'confirmed', 'asset_collection', 'in_progress', 'active', 'completed', 'cancelled'] as const).map((status) => (
             <button
@@ -333,7 +348,6 @@ export default function AdminProjectsPage() {
           ))}
         </div>
 
-        {/* Projects Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.length === 0 ? (
             <div className="col-span-full bg-[#1a1a1a] border border-[#333333] rounded-xl p-8 text-center text-[#a1a1a1]">
@@ -350,7 +364,9 @@ export default function AdminProjectsPage() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white font-semibold text-lg truncate">{project.name}</h3>
                     <p className="text-[#a1a1a1] text-sm truncate">
-                      {project.users?.name || project.users?.email || 'No client'}
+                      {project.project_clients?.length > 0
+                        ? project.project_clients.map((pc: any) => pc.users?.name || pc.users?.email).join(', ')
+                        : project.users?.name || project.users?.email || 'No client'}
                     </p>
                   </div>
                   <div className="relative flex-shrink-0">
@@ -443,25 +459,53 @@ export default function AdminProjectsPage() {
               <div>
                 <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-[#81D8D0] text-[#0a0a0a] text-xs flex items-center justify-center font-bold">1</span>
-                  Client
+                  Client(s)
                 </h3>
+                
+                {form.user_ids.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {form.user_ids.map((id, index) => {
+                      const client = clients.find(c => c.id === id)
+                      return (
+                        <div key={id} className="flex items-center gap-2 bg-[#0a0a0a] border border-[#333333] rounded-full px-3 py-1">
+                          <span className="text-white text-sm">{client?.name || client?.email}</span>
+                          {index === 0 && <span className="text-[#81D8D0] text-xs">(Primary)</span>}
+                          <button
+                            type="button"
+                            onClick={() => setForm(prev => ({ ...prev, user_ids: prev.user_ids.filter(uid => uid !== id) }))}
+                            className="text-[#a1a1a1] hover:text-white text-xs"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
                 {!showNewClientFields ? (
                   <div className="space-y-2">
                     <select
-                      value={form.user_id}
-                      onChange={(e) => setForm((prev) => ({ ...prev, user_id: e.target.value }))}
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value && !form.user_ids.includes(e.target.value)) {
+                          setForm(prev => ({ ...prev, user_ids: [...prev.user_ids, e.target.value] }))
+                        }
+                      }}
                       className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
                     >
-                      <option value="">Select existing client</option>
-                      {clients.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name || c.email} ({c.email})
-                        </option>
-                      ))}
+                      <option value="">Add a client...</option>
+                      {clients
+                        .filter(c => !form.user_ids.includes(c.id))
+                        .map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name || c.email} ({c.email})
+                          </option>
+                        ))}
                     </select>
                     <button
                       type="button"
-                      onClick={() => { setShowNewClientFields(true); setForm((prev) => ({ ...prev, user_id: '' })); }}
+                      onClick={() => setShowNewClientFields(true)}
                       className="text-[#81D8D0] text-sm hover:underline"
                     >
                       + Create new client instead
@@ -603,7 +647,7 @@ export default function AdminProjectsPage() {
                 </div>
               </div>
 
-              {/* RESOURCE SECTION - COLLAPSIBLE */}
+              {/* RESOURCE SECTION */}
               <div className="border border-[#333333] rounded-lg overflow-hidden">
                 <button
                   type="button"
@@ -637,7 +681,7 @@ export default function AdminProjectsPage() {
                 )}
               </div>
 
-              {/* LINKS SECTION - COLLAPSIBLE */}
+              {/* LINKS SECTION */}
               <div className="border border-[#333333] rounded-lg overflow-hidden">
                 <button
                   type="button"
@@ -677,7 +721,7 @@ export default function AdminProjectsPage() {
                 )}
               </div>
 
-              {/* INVOICE SECTION - COLLAPSIBLE */}
+              {/* INVOICE SECTION */}
               <div className="border border-[#333333] rounded-lg overflow-hidden">
                 <button
                   type="button"
@@ -698,15 +742,12 @@ export default function AdminProjectsPage() {
                         onChange={(e) => setInvoice((prev) => ({ ...prev, amount: e.target.value }))}
                         className="bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
                       />
-                      <div>
-                        <input
-                          type="date"
-                          value={invoice.due_date}
-                          onChange={(e) => setInvoice((prev) => ({ ...prev, due_date: e.target.value }))}
-                          className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
-                          placeholder="Due Date"
-                        />
-                      </div>
+                      <input
+                        type="date"
+                        value={invoice.due_date}
+                        onChange={(e) => setInvoice((prev) => ({ ...prev, due_date: e.target.value }))}
+                        className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm"
+                      />
                     </div>
                     <input
                       placeholder="Invoice description"
@@ -725,7 +766,6 @@ export default function AdminProjectsPage() {
               </div>
             </div>
 
-            {/* FOOTER */}
             <div className="sticky bottom-0 bg-[#1a1a1a] border-t border-[#333333] px-6 py-4 flex items-center justify-end gap-3">
               <button
                 onClick={() => { setShowCreateModal(false); resetForm(); }}
@@ -735,7 +775,7 @@ export default function AdminProjectsPage() {
               </button>
               <button
                 onClick={handleCreate}
-                disabled={creating || (!form.user_id && !showNewClientFields) || (showNewClientFields && (!newClient.name || !newClient.email)) || !form.name || !form.service_type}
+                disabled={creating || (form.user_ids.length === 0 && !showNewClientFields) || (showNewClientFields && (!newClient.name || !newClient.email)) || !form.name || !form.service_type}
                 className="px-6 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creating ? 'Creating...' : 'Create Project'}
@@ -747,4 +787,3 @@ export default function AdminProjectsPage() {
     </div>
   )
 }
-
