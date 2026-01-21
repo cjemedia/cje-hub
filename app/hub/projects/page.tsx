@@ -26,7 +26,7 @@ import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
 import type { Project, ServiceType } from '@/types/database'
 
-const serviceTypeConfig: Record<
+const serviceTypeConfig: Record
   string,
   { icon: LucideIcon; label: string; color: string }
 > = {
@@ -55,11 +55,27 @@ export default function ProjectsPage() {
       if (!user) return
       const supabase = createClient()
 
+      // First, get projects from junction table
+      const { data: projectClients } = await supabase
+        .from('project_clients')
+        .select('project_id')
+        .eq('user_id', user.id)
+
+      const projectIds = projectClients?.map(pc => pc.project_id) || []
+
+      // Build query - get projects from junction table OR legacy user_id
       let query = supabase
         .from('projects')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
+
+      if (projectIds.length > 0) {
+        // User has projects in junction table - include those AND any legacy ones
+        query = query.or(`id.in.(${projectIds.join(',')}),user_id.eq.${user.id}`)
+      } else {
+        // Fallback to legacy user_id only
+        query = query.eq('user_id', user.id)
+      }
 
       if (filter !== 'all') {
         query = query.eq('service_type', filter)
@@ -67,7 +83,10 @@ export default function ProjectsPage() {
 
       const { data } = await query
 
-      setProjects(data || [])
+      // Deduplicate in case a project appears in both
+      const uniqueProjects = data ? Array.from(new Map(data.map(p => [p.id, p])).values()) : []
+
+      setProjects(uniqueProjects)
       setLoading(false)
     }
 
