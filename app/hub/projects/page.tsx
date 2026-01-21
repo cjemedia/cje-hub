@@ -26,10 +26,7 @@ import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
 import type { Project, ServiceType } from '@/types/database'
 
-const serviceTypeConfig: Record
-  string,
-  { icon: LucideIcon; label: string; color: string }
-> = {
+const serviceTypeConfig: Record<string, { icon: LucideIcon; label: string; color: string }> = {
   speaking_engagement: { icon: Mic, label: 'Speaking', color: '#81D8D0' },
   workshop: { icon: BookOpen, label: 'Workshop', color: '#81D8D0' },
   event_hosting: { icon: PartyPopper, label: 'Event Hosting', color: '#81D8D0' },
