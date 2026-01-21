@@ -144,7 +144,7 @@ export default function AdminProjectDetailPage() {
     setProjectClients(clients || [])
   }
 }
-  }
+  
 
   const loadIntakeForms = async () => {
     const res = await fetch('/api/intake-forms')
