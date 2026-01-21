@@ -31,6 +31,7 @@ export default function AdminProjectDetailPage() {
   const [saving, setSaving] = useState(false)
   const [projectData, setProjectData] = useState<Project | null>(null)
   const [stats, setStats] = useState<any>({})
+  const [projectClients, setProjectClients] = useState<any[]>([])
   const [tab, setTab] = useState('overview')
 
   // Collections
@@ -123,23 +124,26 @@ export default function AdminProjectDetailPage() {
     }
   }, [projectData])
 
-  const loadProject = async () => {
-    const res = await fetch(`/api/projects/${projectId}`)
-    if (res.ok) {
-      const json = await res.json()
-      setProjectData(json.project)
-      setStats(json.stats || {})
-      setEditForm({
-        name: json.project.name || '',
-        description: json.project.description || '',
-        status: json.project.status || '',
-        service_type: json.project.service_type || '',
-        start_date: json.project.start_date || '',
-        end_date: json.project.end_date || '',
-        dropbox_link: json.project.dropbox_link || '',
-        assets_folder_url: json.project.assets_folder_url || '',
-      })
-    }
+ const loadProject = async () => {
+  const res = await fetch(`/api/projects/${projectId}`)
+  if (res.ok) {
+    const json = await res.json()
+    setProjectData(json.project)
+    setStats(json.stats || {})
+    setEditForm({
+      name: json.project.name || '',
+      description: json.project.description || '',
+      status: json.project.status || '',
+      service_type: json.project.service_type || '',
+      start_date: json.project.start_date || '',
+      end_date: json.project.end_date || '',
+      dropbox_link: json.project.dropbox_link || '',
+      assets_folder_url: json.project.assets_folder_url || '',
+    })
+    const { data: clients } = await supabase.from('project_clients').select('*, users(id, name, email)').eq('project_id', projectId).order('role', { ascending: true })
+    setProjectClients(clients || [])
+  }
+}
   }
 
   const loadIntakeForms = async () => {
@@ -1078,12 +1082,21 @@ export default function AdminProjectDetailPage() {
               <span className="text-[#81D8D0] text-sm font-medium uppercase tracking-wider">Admin</span>
             </div>
             <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">{projectData.name}</h1>
-            <div className="flex items-center gap-3 text-sm text-[#a1a1a1]">
-              <Link href={`/admin/clients/${projectData.user_id || ''}`} className="text-[#81D8D0] hover:underline">
-                {projectData.users?.name || projectData.users?.email || 'Client'}
-              </Link>
-              <StatusBadge status={projectData.status} />
-            </div>
+           
+          <div className="flex items-center gap-3 text-sm text-[#a1a1a1] flex-wrap">
+  {projectClients.length > 0 ? (
+    projectClients.map((pc, index) => (
+      <span key={pc.id} className="flex items-center gap-1">
+        <Link href={`/admin/clients/${pc.user_id}`} className="text-[#81D8D0] hover:underline">{pc.users?.name || pc.users?.email || 'Client'}</Link>
+        {pc.role === 'primary' && <span className="text-xs text-[#81D8D0]/60">(Primary)</span>}
+        {index < projectClients.length - 1 && <span className="text-[#333]">•</span>}
+      </span>
+    ))
+  ) : (
+    <Link href={`/admin/clients/${projectData.user_id || ''}`} className="text-[#81D8D0] hover:underline">{projectData.users?.name || projectData.users?.email || 'Client'}</Link>
+  )}
+  <StatusBadge status={projectData.status} />
+</div>
           </div>
           <div className="flex items-center gap-2">
             <button
