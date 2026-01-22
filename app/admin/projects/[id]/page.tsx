@@ -40,12 +40,20 @@ export default function AdminProjectDetailPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [messageDraft, setMessageDraft] = useState('')
+  const [selectedRecipientId, setSelectedRecipientId] = useState<string | null>(null)
+  const [sendToAllClients, setSendToAllClients] = useState(false)
   const [proposalMessages, setProposalMessages] = useState<Message[]>([])
   const [proposalMessageDraft, setProposalMessageDraft] = useState('')
+  const [proposalSelectedRecipientId, setProposalSelectedRecipientId] = useState<string | null>(null)
+  const [proposalSendToAllClients, setProposalSendToAllClients] = useState(false)
   const [styleGuideMessages, setStyleGuideMessages] = useState<Message[]>([])
   const [styleGuideMessageDraft, setStyleGuideMessageDraft] = useState('')
+  const [styleGuideSelectedRecipientId, setStyleGuideSelectedRecipientId] = useState<string | null>(null)
+  const [styleGuideSendToAllClients, setStyleGuideSendToAllClients] = useState(false)
   const [resourceMessages, setResourceMessages] = useState<Message[]>([])
   const [resourceMessageDraft, setResourceMessageDraft] = useState('')
+  const [resourceSelectedRecipientId, setResourceSelectedRecipientId] = useState<string | null>(null)
+  const [resourceSendToAllClients, setResourceSendToAllClients] = useState(false)
   const [deliverables, setDeliverables] = useState<Deliverable[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [activity, setActivity] = useState<Activity[]>([])
@@ -121,6 +129,11 @@ export default function AdminProjectDetailPage() {
       loadProposalMessages()
       loadStyleGuideMessages()
       loadResourceMessages()
+      // Set default recipient to primary client
+      setSelectedRecipientId(projectData.user_id)
+      setProposalSelectedRecipientId(projectData.user_id)
+      setStyleGuideSelectedRecipientId(projectData.user_id)
+      setResourceSelectedRecipientId(projectData.user_id)
     }
   }, [projectData])
 
@@ -698,23 +711,52 @@ export default function AdminProjectDetailPage() {
 
   const handleSendMessage = async () => {
     if (!projectData || !messageDraft.trim()) return
+    if (!sendToAllClients && !selectedRecipientId) return
+    
+    const recipientNames = sendToAllClients 
+      ? projectClients.map(pc => pc.users?.name || pc.users?.email || 'Client').join(', ')
+      : (projectClients.find(pc => pc.user_id === selectedRecipientId)?.users || projectData.users)?.name || 
+        (projectClients.find(pc => pc.user_id === selectedRecipientId)?.users || projectData.users)?.email || 
+        'Client'
+    
     setPreviewMessage({
       content: messageDraft.trim(),
-      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      recipient: sendToAllClients ? `All clients (${projectClients.length})` : recipientNames,
       onConfirm: async () => {
         try {
           const { data: { user } } = await supabase.auth.getUser()
-          await fetch('/api/messages/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: projectData.user_id,
-              sender_type: 'admin',
-              sender_id: user?.id || null,
-              content: messageDraft.trim(),
-              project_id: projectId,
-            }),
-          })
+          
+          if (sendToAllClients) {
+            // Send to all clients
+            const sendPromises = projectClients.map(pc =>
+              fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  user_id: pc.user_id,
+                  sender_type: 'admin',
+                  sender_id: user?.id || null,
+                  content: messageDraft.trim(),
+                  project_id: projectId,
+                }),
+              })
+            )
+            await Promise.all(sendPromises)
+          } else {
+            // Send to single client
+            await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: selectedRecipientId,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: messageDraft.trim(),
+                project_id: projectId,
+              }),
+            })
+          }
+          
           setMessageDraft('')
           setShowMessagePreview(false)
           setPreviewMessage(null)
@@ -763,30 +805,59 @@ export default function AdminProjectDetailPage() {
 
   const handleSendProposalMessage = async () => {
     if (!proposalMessageDraft.trim() || !projectData) return
+    if (!proposalSendToAllClients && !proposalSelectedRecipientId) return
+    
+    const recipientNames = proposalSendToAllClients 
+      ? projectClients.map(pc => pc.users?.name || pc.users?.email || 'Client').join(', ')
+      : (projectClients.find(pc => pc.user_id === proposalSelectedRecipientId)?.users || projectData.users)?.name || 
+        (projectClients.find(pc => pc.user_id === proposalSelectedRecipientId)?.users || projectData.users)?.email || 
+        'Client'
+    
     setPreviewMessage({
       content: proposalMessageDraft.trim(),
-      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      recipient: proposalSendToAllClients ? `All clients (${projectClients.length})` : recipientNames,
       onConfirm: async () => {
         try {
           const { data: { user } } = await supabase.auth.getUser()
-          const response = await fetch('/api/messages/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              project_id: projectId,
-              user_id: projectData.user_id,
-              sender_type: 'admin',
-              sender_id: user?.id || null,
-              content: proposalMessageDraft.trim(),
-              message_type: 'proposal',
-            }),
-          })
           
-          if (!response.ok) {
-            const error = await response.json()
-            console.error('Error sending message:', error)
-            alert(`Failed to send message: ${error.error || 'Unknown error'}`)
-            return
+          if (proposalSendToAllClients) {
+            // Send to all clients
+            const sendPromises = projectClients.map(pc =>
+              fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  project_id: projectId,
+                  user_id: pc.user_id,
+                  sender_type: 'admin',
+                  sender_id: user?.id || null,
+                  content: proposalMessageDraft.trim(),
+                  message_type: 'proposal',
+                }),
+              })
+            )
+            await Promise.all(sendPromises)
+          } else {
+            // Send to single client
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: proposalSelectedRecipientId,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: proposalMessageDraft.trim(),
+                message_type: 'proposal',
+              }),
+            })
+          
+            if (!response.ok) {
+              const error = await response.json()
+              console.error('Error sending message:', error)
+              alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+              return
+            }
           }
           
           setProposalMessageDraft('')
@@ -806,30 +877,59 @@ export default function AdminProjectDetailPage() {
 
   const handleSendStyleGuideMessage = async () => {
     if (!styleGuideMessageDraft.trim() || !projectData) return
+    if (!styleGuideSendToAllClients && !styleGuideSelectedRecipientId) return
+    
+    const recipientNames = styleGuideSendToAllClients 
+      ? projectClients.map(pc => pc.users?.name || pc.users?.email || 'Client').join(', ')
+      : (projectClients.find(pc => pc.user_id === styleGuideSelectedRecipientId)?.users || projectData.users)?.name || 
+        (projectClients.find(pc => pc.user_id === styleGuideSelectedRecipientId)?.users || projectData.users)?.email || 
+        'Client'
+    
     setPreviewMessage({
       content: styleGuideMessageDraft.trim(),
-      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      recipient: styleGuideSendToAllClients ? `All clients (${projectClients.length})` : recipientNames,
       onConfirm: async () => {
         try {
           const { data: { user } } = await supabase.auth.getUser()
-          const response = await fetch('/api/messages/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              project_id: projectId,
-              user_id: projectData.user_id,
-              sender_type: 'admin',
-              sender_id: user?.id || null,
-              content: styleGuideMessageDraft.trim(),
-              message_type: 'style_guide',
-            }),
-          })
           
-          if (!response.ok) {
-            const error = await response.json()
-            console.error('Error sending message:', error)
-            alert(`Failed to send message: ${error.error || 'Unknown error'}`)
-            return
+          if (styleGuideSendToAllClients) {
+            // Send to all clients
+            const sendPromises = projectClients.map(pc =>
+              fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  project_id: projectId,
+                  user_id: pc.user_id,
+                  sender_type: 'admin',
+                  sender_id: user?.id || null,
+                  content: styleGuideMessageDraft.trim(),
+                  message_type: 'style_guide',
+                }),
+              })
+            )
+            await Promise.all(sendPromises)
+          } else {
+            // Send to single client
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: styleGuideSelectedRecipientId,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: styleGuideMessageDraft.trim(),
+                message_type: 'style_guide',
+              }),
+            })
+          
+            if (!response.ok) {
+              const error = await response.json()
+              console.error('Error sending message:', error)
+              alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+              return
+            }
           }
           
           setStyleGuideMessageDraft('')
@@ -849,30 +949,59 @@ export default function AdminProjectDetailPage() {
 
   const handleSendResourceMessage = async () => {
     if (!resourceMessageDraft.trim() || !projectData) return
+    if (!resourceSendToAllClients && !resourceSelectedRecipientId) return
+    
+    const recipientNames = resourceSendToAllClients 
+      ? projectClients.map(pc => pc.users?.name || pc.users?.email || 'Client').join(', ')
+      : (projectClients.find(pc => pc.user_id === resourceSelectedRecipientId)?.users || projectData.users)?.name || 
+        (projectClients.find(pc => pc.user_id === resourceSelectedRecipientId)?.users || projectData.users)?.email || 
+        'Client'
+    
     setPreviewMessage({
       content: resourceMessageDraft.trim(),
-      recipient: projectData.users?.name || projectData.users?.email || 'Client',
+      recipient: resourceSendToAllClients ? `All clients (${projectClients.length})` : recipientNames,
       onConfirm: async () => {
         try {
           const { data: { user } } = await supabase.auth.getUser()
-          const response = await fetch('/api/messages/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              project_id: projectId,
-              user_id: projectData.user_id,
-              sender_type: 'admin',
-              sender_id: user?.id || null,
-              content: resourceMessageDraft.trim(),
-              message_type: 'resource',
-            }),
-          })
           
-          if (!response.ok) {
-            const error = await response.json()
-            console.error('Error sending message:', error)
-            alert(`Failed to send message: ${error.error || 'Unknown error'}`)
-            return
+          if (resourceSendToAllClients) {
+            // Send to all clients
+            const sendPromises = projectClients.map(pc =>
+              fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  project_id: projectId,
+                  user_id: pc.user_id,
+                  sender_type: 'admin',
+                  sender_id: user?.id || null,
+                  content: resourceMessageDraft.trim(),
+                  message_type: 'resource',
+                }),
+              })
+            )
+            await Promise.all(sendPromises)
+          } else {
+            // Send to single client
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: resourceSelectedRecipientId,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: resourceMessageDraft.trim(),
+                message_type: 'resource',
+              }),
+            })
+          
+            if (!response.ok) {
+              const error = await response.json()
+              console.error('Error sending message:', error)
+              alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+              return
+            }
           }
           
           setResourceMessageDraft('')
@@ -1455,6 +1584,44 @@ export default function AdminProjectDetailPage() {
                     </div>
                   )}
                   <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                    {projectClients.length > 1 && (
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Recipient</label>
+                          <select
+                            value={proposalSelectedRecipientId || ''}
+                            onChange={(e) => {
+                              setProposalSelectedRecipientId(e.target.value)
+                              setProposalSendToAllClients(false)
+                            }}
+                            disabled={proposalSendToAllClients}
+                            className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm disabled:opacity-50"
+                          >
+                            {projectClients.map((pc) => (
+                              <option key={pc.user_id} value={pc.user_id}>
+                                {pc.users?.name || pc.users?.email || 'Client'} {pc.role === 'primary' ? '(Primary)' : ''}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={proposalSendToAllClients}
+                            onChange={(e) => {
+                              setProposalSendToAllClients(e.target.checked)
+                              if (e.target.checked) {
+                                setProposalSelectedRecipientId(null)
+                              } else {
+                                setProposalSelectedRecipientId(projectData?.user_id || null)
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-[#333333] bg-[#0a0a0a] text-[#81D8D0] focus:ring-[#81D8D0]"
+                          />
+                          <span className="text-sm text-white">Send to all clients ({projectClients.length})</span>
+                        </label>
+                      </div>
+                    )}
                     <textarea
                       className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
                       rows={3}
@@ -1465,7 +1632,7 @@ export default function AdminProjectDetailPage() {
                     <div className="flex justify-end">
                       <button
                         onClick={handleSendProposalMessage}
-                        disabled={!proposalMessageDraft.trim()}
+                        disabled={!proposalMessageDraft.trim() || (!proposalSendToAllClients && !proposalSelectedRecipientId)}
                         className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
                       >
                         Send
@@ -1588,6 +1755,44 @@ export default function AdminProjectDetailPage() {
                     </div>
                   )}
                   <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                    {projectClients.length > 1 && (
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Recipient</label>
+                          <select
+                            value={styleGuideSelectedRecipientId || ''}
+                            onChange={(e) => {
+                              setStyleGuideSelectedRecipientId(e.target.value)
+                              setStyleGuideSendToAllClients(false)
+                            }}
+                            disabled={styleGuideSendToAllClients}
+                            className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm disabled:opacity-50"
+                          >
+                            {projectClients.map((pc) => (
+                              <option key={pc.user_id} value={pc.user_id}>
+                                {pc.users?.name || pc.users?.email || 'Client'} {pc.role === 'primary' ? '(Primary)' : ''}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={styleGuideSendToAllClients}
+                            onChange={(e) => {
+                              setStyleGuideSendToAllClients(e.target.checked)
+                              if (e.target.checked) {
+                                setStyleGuideSelectedRecipientId(null)
+                              } else {
+                                setStyleGuideSelectedRecipientId(projectData?.user_id || null)
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-[#333333] bg-[#0a0a0a] text-[#81D8D0] focus:ring-[#81D8D0]"
+                          />
+                          <span className="text-sm text-white">Send to all clients ({projectClients.length})</span>
+                        </label>
+                      </div>
+                    )}
                     <textarea
                       className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
                       rows={3}
@@ -1598,7 +1803,7 @@ export default function AdminProjectDetailPage() {
                     <div className="flex justify-end">
                       <button
                         onClick={handleSendStyleGuideMessage}
-                        disabled={!styleGuideMessageDraft.trim()}
+                        disabled={!styleGuideMessageDraft.trim() || (!styleGuideSendToAllClients && !styleGuideSelectedRecipientId)}
                         className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
                       >
                         Send
@@ -1748,6 +1953,44 @@ export default function AdminProjectDetailPage() {
                 )}
               </div>
               <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-2">
+                {projectClients.length > 1 && (
+                  <div className="space-y-2">
+                    <div>
+                      <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Recipient</label>
+                      <select
+                        value={selectedRecipientId || ''}
+                        onChange={(e) => {
+                          setSelectedRecipientId(e.target.value)
+                          setSendToAllClients(false)
+                        }}
+                        disabled={sendToAllClients}
+                        className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm disabled:opacity-50"
+                      >
+                        {projectClients.map((pc) => (
+                          <option key={pc.user_id} value={pc.user_id}>
+                            {pc.users?.name || pc.users?.email || 'Client'} {pc.role === 'primary' ? '(Primary)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={sendToAllClients}
+                        onChange={(e) => {
+                          setSendToAllClients(e.target.checked)
+                          if (e.target.checked) {
+                            setSelectedRecipientId(null)
+                          } else {
+                            setSelectedRecipientId(projectData?.user_id || null)
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-[#333333] bg-[#0a0a0a] text-[#81D8D0] focus:ring-[#81D8D0]"
+                      />
+                      <span className="text-sm text-white">Send to all clients ({projectClients.length})</span>
+                    </label>
+                  </div>
+                )}
                 <textarea
                   className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
                   rows={3}
@@ -1758,7 +2001,7 @@ export default function AdminProjectDetailPage() {
                 <div className="flex justify-end">
                   <button
                     onClick={handleSendMessage}
-                    disabled={!messageDraft.trim()}
+                    disabled={!messageDraft.trim() || (!sendToAllClients && !selectedRecipientId)}
                     className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
                   >
                     Send
@@ -1926,6 +2169,44 @@ export default function AdminProjectDetailPage() {
                   </div>
                 )}
                 <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                  {projectClients.length > 1 && (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Recipient</label>
+                        <select
+                          value={resourceSelectedRecipientId || ''}
+                          onChange={(e) => {
+                            setResourceSelectedRecipientId(e.target.value)
+                            setResourceSendToAllClients(false)
+                          }}
+                          disabled={resourceSendToAllClients}
+                          className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm disabled:opacity-50"
+                        >
+                          {projectClients.map((pc) => (
+                            <option key={pc.user_id} value={pc.user_id}>
+                              {pc.users?.name || pc.users?.email || 'Client'} {pc.role === 'primary' ? '(Primary)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={resourceSendToAllClients}
+                          onChange={(e) => {
+                            setResourceSendToAllClients(e.target.checked)
+                            if (e.target.checked) {
+                              setResourceSelectedRecipientId(null)
+                            } else {
+                              setResourceSelectedRecipientId(projectData?.user_id || null)
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-[#333333] bg-[#0a0a0a] text-[#81D8D0] focus:ring-[#81D8D0]"
+                        />
+                        <span className="text-sm text-white">Send to all clients ({projectClients.length})</span>
+                      </label>
+                    </div>
+                  )}
                   <textarea
                     className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
                     rows={3}
@@ -1936,7 +2217,7 @@ export default function AdminProjectDetailPage() {
                   <div className="flex justify-end">
                     <button
                       onClick={handleSendResourceMessage}
-                      disabled={!resourceMessageDraft.trim()}
+                      disabled={!resourceMessageDraft.trim() || (!resourceSendToAllClients && !resourceSelectedRecipientId)}
                       className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                       Send
