@@ -388,7 +388,7 @@ export default function MessagesPage() {
       {/* Message Preview Modal */}
       {showMessagePreview && previewMessage && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl p-6 space-y-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-white text-xl font-semibold">Preview Message</h3>
               <button
