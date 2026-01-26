@@ -104,21 +104,22 @@ export default function DashboardPage() {
         })
       }
 
-      // Projects with dropbox_link
-      const { data: projectsWithDropbox } = await supabase
+      // Projects with URLs (dropbox, proposals, style guides, content calendars)
+      const { data: projectsWithUrls } = await supabase
         .from('projects')
-        .select('id, dropbox_link')
+        .select('id, name, dropbox_link, proposal_url, proposal_sent_at, last_viewed_proposal, style_guide_url, style_guide_sent_at, last_viewed_style_guide, content_calendar_url, content_calendar_sent_at, last_viewed_content_calendar, last_viewed_resources')
         .eq('user_id', user.id)
-        .not('dropbox_link', 'is', null)
 
-      if (projectsWithDropbox && projectsWithDropbox.length > 0) {
-        const firstDropbox = projectsWithDropbox[0]
-        actions.push({
-          type: 'dropbox',
-          label: 'Upload Your Assets',
-          href: firstDropbox.dropbox_link,
-          external: true,
-        })
+      if (projectsWithUrls && projectsWithUrls.length > 0) {
+        const firstDropbox = projectsWithUrls.find(p => p.dropbox_link)
+        if (firstDropbox) {
+          actions.push({
+            type: 'dropbox',
+            label: 'Upload Your Assets',
+            href: firstDropbox.dropbox_link,
+            external: true,
+          })
+        }
       }
 
       // Pending intake forms
@@ -149,6 +150,61 @@ export default function DashboardPage() {
           label: 'Review Proposal',
           href: `/hub/projects/${firstProposal.project_id}#proposals`,
         })
+      }
+
+      // Unviewed proposals (proposal_url exists and not viewed or updated since last view)
+      projectsWithUrls?.forEach(project => {
+        if (project.proposal_url && 
+            (!project.last_viewed_proposal || 
+             (project.proposal_sent_at && new Date(project.proposal_sent_at) > new Date(project.last_viewed_proposal)))) {
+          actions.push({
+            type: 'proposal',
+            label: `View Proposal - ${project.name}`,
+            href: `/hub/projects/${project.id}#proposal`,
+          })
+        }
+      })
+
+      // Unviewed style guides
+      projectsWithUrls?.forEach(project => {
+        if (project.style_guide_url && 
+            (!project.last_viewed_style_guide || 
+             (project.style_guide_sent_at && new Date(project.style_guide_sent_at) > new Date(project.last_viewed_style_guide)))) {
+          actions.push({
+            type: 'style_guide',
+            label: `View Style Guide - ${project.name}`,
+            href: `/hub/projects/${project.id}#style-guide`,
+          })
+        }
+      })
+
+      // Unviewed content calendars
+      projectsWithUrls?.forEach(project => {
+        if (project.content_calendar_url && 
+            (!project.last_viewed_content_calendar || 
+             (project.content_calendar_sent_at && new Date(project.content_calendar_sent_at) > new Date(project.last_viewed_content_calendar)))) {
+          actions.push({
+            type: 'content_calendar',
+            label: `View Content Calendar - ${project.name}`,
+            href: `/hub/projects/${project.id}#content-calendar`,
+          })
+        }
+      })
+
+      // Unviewed resources (has deliverables and never viewed resources)
+      for (const project of (projectsWithUrls || [])) {
+        const { count } = await supabase
+          .from('deliverables')
+          .select('*', { count: 'exact', head: true })
+          .eq('project_id', project.id)
+        
+        if (count && count > 0 && !project.last_viewed_resources) {
+          actions.push({
+            type: 'resource',
+            label: `View Resources - ${project.name}`,
+            href: `/hub/projects/${project.id}#resources`,
+          })
+        }
       }
 
       setActionItems(actions)
