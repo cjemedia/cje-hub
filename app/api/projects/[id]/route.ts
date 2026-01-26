@@ -60,7 +60,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const { 
       name, description, status, service_type, start_date, end_date, dropbox_link, assets_folder_url,
       proposal_url, proposal_sent_at, proposal_message_id,
-      style_guide_url, style_guide_sent_at, style_guide_message_id
+      style_guide_url, style_guide_sent_at, style_guide_message_id,
+      content_calendar_url, content_calendar_sent_at, content_calendar_message_id
     } = body || {}
     const projectId = params.id
 
@@ -85,6 +86,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (style_guide_url !== undefined) updateData.style_guide_url = style_guide_url || null
     if (style_guide_sent_at !== undefined) updateData.style_guide_sent_at = style_guide_sent_at || null
     if (style_guide_message_id !== undefined) updateData.style_guide_message_id = style_guide_message_id || null
+    if (content_calendar_url !== undefined) updateData.content_calendar_url = content_calendar_url || null
+    if (content_calendar_sent_at !== undefined) updateData.content_calendar_sent_at = content_calendar_sent_at || null
+    if (content_calendar_message_id !== undefined) updateData.content_calendar_message_id = content_calendar_message_id || null
 
     const { data, error } = await supabase
       .from('projects')

@@ -50,6 +50,10 @@ export default function AdminProjectDetailPage() {
   const [styleGuideMessageDraft, setStyleGuideMessageDraft] = useState('')
   const [styleGuideSelectedRecipientId, setStyleGuideSelectedRecipientId] = useState<string | null>(null)
   const [styleGuideSendToAllClients, setStyleGuideSendToAllClients] = useState(false)
+  const [contentCalendarMessages, setContentCalendarMessages] = useState<Message[]>([])
+  const [contentCalendarMessageDraft, setContentCalendarMessageDraft] = useState('')
+  const [contentCalendarSelectedRecipientId, setContentCalendarSelectedRecipientId] = useState<string | null>(null)
+  const [contentCalendarSendToAllClients, setContentCalendarSendToAllClients] = useState(false)
   const [resourceMessages, setResourceMessages] = useState<Message[]>([])
   const [resourceMessageDraft, setResourceMessageDraft] = useState('')
   const [resourceSelectedRecipientId, setResourceSelectedRecipientId] = useState<string | null>(null)
@@ -78,12 +82,19 @@ export default function AdminProjectDetailPage() {
     url: '',
     message: '',
   })
+  const [contentCalendarForm, setContentCalendarForm] = useState({
+    url: '',
+    message: '',
+  })
   const [sendingProposal, setSendingProposal] = useState(false)
   const [sendingStyleGuide, setSendingStyleGuide] = useState(false)
+  const [sendingContentCalendar, setSendingContentCalendar] = useState(false)
   const [editingProposal, setEditingProposal] = useState(false)
   const [editingStyleGuide, setEditingStyleGuide] = useState(false)
+  const [editingContentCalendar, setEditingContentCalendar] = useState(false)
   const [deletingProposal, setDeletingProposal] = useState(false)
   const [deletingStyleGuide, setDeletingStyleGuide] = useState(false)
+  const [deletingContentCalendar, setDeletingContentCalendar] = useState(false)
   const [showMessagePreview, setShowMessagePreview] = useState(false)
   const [previewMessage, setPreviewMessage] = useState<{ content: string; recipient: string; onConfirm: () => void } | null>(null)
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
@@ -128,11 +139,13 @@ export default function AdminProjectDetailPage() {
     if (projectData) {
       loadProposalMessages()
       loadStyleGuideMessages()
+      loadContentCalendarMessages()
       loadResourceMessages()
       // Set default recipient to primary client
       setSelectedRecipientId(projectData.user_id)
       setProposalSelectedRecipientId(projectData.user_id)
       setStyleGuideSelectedRecipientId(projectData.user_id)
+      setContentCalendarSelectedRecipientId(projectData.user_id)
       setResourceSelectedRecipientId(projectData.user_id)
     }
   }, [projectData])
@@ -707,6 +720,282 @@ export default function AdminProjectDetailPage() {
     } finally {
       setDeletingStyleGuide(false)
     }
+  }
+
+  const loadContentCalendarMessages = async () => {
+    if (!projectData?.content_calendar_sent_at) {
+      setContentCalendarMessages([])
+      return
+    }
+    // Load messages filtered by message_type = 'content_calendar'
+    // If message_type column doesn't exist, this will show all project messages
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('message_type', 'content_calendar')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: true })
+    
+    // If message_type column doesn't exist (error code 42703 = undefined column), show all messages
+    if (error && error.code === '42703') {
+      const { data: allData } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true })
+      setContentCalendarMessages(allData || [])
+    } else if (error) {
+      console.error('Error loading content calendar messages:', error)
+      setContentCalendarMessages([])
+    } else {
+      setContentCalendarMessages(data || [])
+    }
+  }
+
+  const handleSendContentCalendar = async () => {
+    if (!projectData || !contentCalendarForm.url.trim()) return
+    setSendingContentCalendar(true)
+    try {
+      const normalizedUrl = normalizeUrl(contentCalendarForm.url.trim())
+      
+      // Update project with content calendar URL and sent date
+      const updateRes = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content_calendar_url: normalizedUrl,
+          content_calendar_sent_at: new Date().toISOString(),
+        }),
+      })
+      
+      if (!updateRes.ok) {
+        alert('Failed to save content calendar URL')
+        setSendingContentCalendar(false)
+        return
+      }
+
+      // Create message if there's a message
+      if (contentCalendarForm.message.trim()) {
+        const { data: { user } } = await supabase.auth.getUser()
+        const sendMessage = async () => {
+          const messageRes = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: contentCalendarForm.message.trim(),
+              project_id: projectId,
+            }),
+          })
+          
+          if (messageRes.ok) {
+            const { message } = await messageRes.json()
+            // Update project with message ID
+            await fetch(`/api/projects/${projectId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                content_calendar_message_id: message.id,
+              }),
+            })
+          }
+        }
+        
+        setPreviewMessage({
+          content: contentCalendarForm.message.trim(),
+          recipient: projectData.users?.name || projectData.users?.email || 'Client',
+          onConfirm: async () => {
+            await sendMessage()
+            setContentCalendarForm({ url: '', message: '' })
+            setShowMessagePreview(false)
+            setPreviewMessage(null)
+            setSendingContentCalendar(false)
+            await loadProject()
+            await loadMessages()
+            await loadContentCalendarMessages()
+            await loadActivity()
+          },
+        })
+        setShowMessagePreview(true)
+        setSendingContentCalendar(false)
+        return
+      }
+
+      setContentCalendarForm({ url: '', message: '' })
+      await loadProject()
+      await loadMessages()
+      await loadContentCalendarMessages()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error sending content calendar:', error)
+      alert('Failed to send content calendar')
+    } finally {
+      setSendingContentCalendar(false)
+    }
+  }
+
+  const handleUpdateContentCalendar = async () => {
+    if (!projectData || !contentCalendarForm.url.trim()) return
+    setSendingContentCalendar(true)
+    try {
+      const normalizedUrl = normalizeUrl(contentCalendarForm.url.trim())
+      
+      // Update project URL
+      await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content_calendar_url: normalizedUrl,
+        }),
+      })
+
+      // Create message if there's a message
+      if (contentCalendarForm.message.trim()) {
+        const { data: { user } } = await supabase.auth.getUser()
+        const sendMessage = async () => {
+          await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: projectData.user_id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: contentCalendarForm.message.trim(),
+              project_id: projectId,
+            }),
+          })
+        }
+        
+        setPreviewMessage({
+          content: contentCalendarForm.message.trim(),
+          recipient: projectData.users?.name || projectData.users?.email || 'Client',
+          onConfirm: async () => {
+            await sendMessage()
+            setContentCalendarForm({ url: '', message: '' })
+            setEditingContentCalendar(false)
+            setShowMessagePreview(false)
+            setPreviewMessage(null)
+            setSendingContentCalendar(false)
+            await loadProject()
+            await loadMessages()
+            await loadActivity()
+          },
+        })
+        setShowMessagePreview(true)
+        setSendingContentCalendar(false)
+        return
+      }
+
+      setContentCalendarForm({ url: '', message: '' })
+      setEditingContentCalendar(false)
+      await loadProject()
+      await loadMessages()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error updating content calendar:', error)
+      alert('Failed to update content calendar')
+    } finally {
+      setSendingContentCalendar(false)
+    }
+  }
+
+  const handleDeleteContentCalendar = async () => {
+    if (!confirm('Are you sure you want to delete this content calendar? The client will no longer see it.')) return
+    setDeletingContentCalendar(true)
+    try {
+      await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content_calendar_url: null,
+          content_calendar_sent_at: null,
+          content_calendar_message_id: null,
+        }),
+      })
+      await loadProject()
+      await loadActivity()
+    } catch (error) {
+      console.error('Error deleting content calendar:', error)
+      alert('Failed to delete content calendar')
+    } finally {
+      setDeletingContentCalendar(false)
+    }
+  }
+
+  const handleSendContentCalendarMessage = async () => {
+    if (!contentCalendarMessageDraft.trim() || !projectData) return
+    if (!contentCalendarSendToAllClients && !contentCalendarSelectedRecipientId) return
+    
+    const recipientNames = contentCalendarSendToAllClients 
+      ? projectClients.map(pc => pc.users?.name || pc.users?.email || 'Client').join(', ')
+      : (projectClients.find(pc => pc.user_id === contentCalendarSelectedRecipientId)?.users || projectData.users)?.name || 
+        (projectClients.find(pc => pc.user_id === contentCalendarSelectedRecipientId)?.users || projectData.users)?.email || 
+        'Client'
+    
+    setPreviewMessage({
+      content: contentCalendarMessageDraft.trim(),
+      recipient: contentCalendarSendToAllClients ? `All clients (${projectClients.length})` : recipientNames,
+      onConfirm: async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          
+          if (contentCalendarSendToAllClients) {
+            // Send to all clients
+            const sendPromises = projectClients.map(pc =>
+              fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  project_id: projectId,
+                  user_id: pc.user_id,
+                  sender_type: 'admin',
+                  sender_id: user?.id || null,
+                  content: contentCalendarMessageDraft.trim(),
+                  message_type: 'content_calendar',
+                }),
+              })
+            )
+            await Promise.all(sendPromises)
+          } else {
+            // Send to single client
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: contentCalendarSelectedRecipientId,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: contentCalendarMessageDraft.trim(),
+                message_type: 'content_calendar',
+              }),
+            })
+          
+            if (!response.ok) {
+              const error = await response.json()
+              console.error('Error sending message:', error)
+              alert(`Failed to send message: ${error.error || 'Unknown error'}`)
+              return
+            }
+          }
+          
+          setContentCalendarMessageDraft('')
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await loadMessages()
+          await loadContentCalendarMessages()
+          await loadActivity()
+        } catch (error) {
+          console.error('Error sending content calendar message:', error)
+          alert('Failed to send message. Please try again.')
+        }
+      },
+    })
+    setShowMessagePreview(true)
   }
 
   const handleSendMessage = async () => {
@@ -1361,7 +1650,7 @@ export default function AdminProjectDetailPage() {
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2 border-b border-[#333333] pb-2">
-            {['overview','proposals','style-guide','bookings','messages','resources','invoices','activity'].map((t) => (
+            {['overview','proposals','style-guide','content-calendar','bookings','messages','resources','invoices','activity'].map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -1369,7 +1658,7 @@ export default function AdminProjectDetailPage() {
                   tab === t ? 'border-[#81D8D0] text-[#81D8D0]' : 'border-transparent text-[#a1a1a1]'
                 }`}
               >
-                {t === 'style-guide' ? 'Style Guide' : t.charAt(0).toUpperCase() + t.slice(1)}
+                {t === 'style-guide' ? 'Style Guide' : t === 'content-calendar' ? 'Content Calendar' : t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
           </div>
@@ -1854,6 +2143,223 @@ export default function AdminProjectDetailPage() {
                       className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                       {sendingStyleGuide ? 'Sending...' : editingStyleGuide ? 'Save' : 'Send Style Guide'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'content-calendar' && (
+            <div className="space-y-4">
+              {projectData?.content_calendar_url && !editingContentCalendar ? (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">Content Calendar</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Content Calendar URL</p>
+                      <a
+                        href={projectData.content_calendar_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#81D8D0] hover:underline break-all"
+                      >
+                        {projectData.content_calendar_url}
+                      </a>
+                    </div>
+                    {projectData.content_calendar_sent_at && (
+                      <div>
+                        <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Sent</p>
+                        <p className="text-white">{format(new Date(projectData.content_calendar_sent_at), 'MMM d, yyyy p')}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2 pt-2 border-t border-[#333333]">
+                      <button
+                        onClick={() => {
+                          setEditingContentCalendar(true)
+                          setContentCalendarForm({ url: projectData.content_calendar_url || '', message: '' })
+                        }}
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={handleDeleteContentCalendar}
+                        disabled={deletingContentCalendar}
+                        className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 hover:border-red-500/80 flex items-center gap-2"
+                      >
+                        <Trash size={16} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Content Calendar Message Thread */}
+              {projectData?.content_calendar_url && (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">Message History</h3>
+                  {contentCalendarMessages.length === 0 ? (
+                    <p className="text-[#a1a1a1] text-sm">No messages yet.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                      {contentCalendarMessages.map((m) => (
+                        <div key={m.id} className="p-3 border border-[#333333] rounded-lg">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-xs text-[#a1a1a1]">
+                              {m.sender_type === 'admin' ? 'You' : projectData.users?.name || projectData.users?.email || 'Client'} • {format(new Date(m.created_at), 'MMM d, yyyy p')}
+                            </p>
+                            {m.sender_type === 'admin' && (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditMessage(m)}
+                                  className="text-white/60 hover:text-white transition-colors"
+                                  title="Edit message"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={() => setDeletingMessageId(m.id)}
+                                  className="text-white/60 hover:text-red-400 transition-colors"
+                                  title="Delete message"
+                                >
+                                  <Trash size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {editingMessageId === m.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                                rows={3}
+                                value={editingMessageContent}
+                                onChange={(e) => setEditingMessageContent(e.target.value)}
+                              />
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleSaveMessage(m.id)}
+                                  disabled={!editingMessageContent.trim()}
+                                  className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-white whitespace-pre-wrap">{formatMessageWithLinks(m.content)}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="bg-[#0a0a0a] border border-[#333333] rounded-xl p-3 space-y-2">
+                    {projectClients.length > 1 && (
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Recipient</label>
+                          <select
+                            value={contentCalendarSelectedRecipientId || ''}
+                            onChange={(e) => {
+                              setContentCalendarSelectedRecipientId(e.target.value)
+                              setContentCalendarSendToAllClients(false)
+                            }}
+                            disabled={contentCalendarSendToAllClients}
+                            className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white text-sm disabled:opacity-50"
+                          >
+                            {projectClients.map((pc) => (
+                              <option key={pc.user_id} value={pc.user_id}>
+                                {pc.users?.name || pc.users?.email || 'Client'} {pc.role === 'primary' ? '(Primary)' : ''}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={contentCalendarSendToAllClients}
+                            onChange={(e) => {
+                              setContentCalendarSendToAllClients(e.target.checked)
+                              if (e.target.checked) {
+                                setContentCalendarSelectedRecipientId(null)
+                              } else {
+                                setContentCalendarSelectedRecipientId(projectData?.user_id || null)
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-[#333333] bg-[#0a0a0a] text-[#81D8D0] focus:ring-[#81D8D0]"
+                          />
+                          <span className="text-sm text-white">Send to all clients ({projectClients.length})</span>
+                        </label>
+                      </div>
+                    )}
+                    <textarea
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                      rows={3}
+                      placeholder="Reply to this content calendar..."
+                      value={contentCalendarMessageDraft}
+                      onChange={(e) => setContentCalendarMessageDraft(e.target.value)}
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleSendContentCalendarMessage}
+                        disabled={!contentCalendarMessageDraft.trim() || (!contentCalendarSendToAllClients && !contentCalendarSelectedRecipientId)}
+                        className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!projectData?.content_calendar_url && (
+                <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-4 space-y-3">
+                  <h3 className="text-white font-semibold">{editingContentCalendar ? 'Update Content Calendar' : 'Send Content Calendar'}</h3>
+                  <div>
+                    <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Content Calendar URL</label>
+                    <input
+                      type="url"
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white"
+                      placeholder="https://your-content-calendar.vercel.app"
+                      value={contentCalendarForm.url}
+                      onChange={(e) => setContentCalendarForm((p) => ({ ...p, url: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-white/60 uppercase tracking-wider mb-2">Message to Client</label>
+                    <textarea
+                      className="w-full bg-[#0a0a0a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none"
+                      rows={4}
+                      placeholder="Add a message about this content calendar..."
+                      value={contentCalendarForm.message}
+                      onChange={(e) => setContentCalendarForm((p) => ({ ...p, message: e.target.value }))}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    {editingContentCalendar && (
+                      <button
+                        onClick={() => {
+                          setEditingContentCalendar(false)
+                          setContentCalendarForm({ url: '', message: '' })
+                        }}
+                        className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    <button
+                      onClick={editingContentCalendar ? handleUpdateContentCalendar : handleSendContentCalendar}
+                      disabled={sendingContentCalendar || !contentCalendarForm.url.trim()}
+                      className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50"
+                    >
+                      {sendingContentCalendar ? 'Sending...' : editingContentCalendar ? 'Save' : 'Send Content Calendar'}
                     </button>
                   </div>
                 </div>

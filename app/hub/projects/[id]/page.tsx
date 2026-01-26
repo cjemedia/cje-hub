@@ -26,8 +26,10 @@ export default function HubProjectDetailPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [proposalReply, setProposalReply] = useState('')
   const [styleGuideReply, setStyleGuideReply] = useState('')
+  const [contentCalendarReply, setContentCalendarReply] = useState('')
   const [proposalMessages, setProposalMessages] = useState<any[]>([])
   const [styleGuideMessages, setStyleGuideMessages] = useState<any[]>([])
+  const [contentCalendarMessages, setContentCalendarMessages] = useState<any[]>([])
   const [resourceMessages, setResourceMessages] = useState<any[]>([])
   const [resourceMessageDraft, setResourceMessageDraft] = useState('')
   const [deliverables, setDeliverables] = useState<any[]>([])
@@ -37,10 +39,11 @@ export default function HubProjectDetailPage() {
 
   const [responseDrafts, setResponseDrafts] = useState<Record<string, any>>({})
 
-  const trackActivity = async (activityType: 'proposal' | 'style_guide' | 'resources' | 'invoice' | 'assets') => {
+  const trackActivity = async (activityType: 'proposal' | 'style_guide' | 'content_calendar' | 'resources' | 'invoice' | 'assets') => {
     const columnMap = {
       proposal: 'last_viewed_proposal',
       style_guide: 'last_viewed_style_guide',
+      content_calendar: 'last_viewed_content_calendar',
       resources: 'last_viewed_resources',
       invoice: 'last_viewed_invoice',
       assets: 'last_uploaded_assets',
@@ -66,6 +69,7 @@ export default function HubProjectDetailPage() {
         loadResourceMessages(),
         loadProposalMessages(),
         loadStyleGuideMessages(),
+        loadContentCalendarMessages(),
       ])
       setLoading(false)
     }
@@ -192,6 +196,36 @@ export default function HubProjectDetailPage() {
     }
   }
 
+  const loadContentCalendarMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('message_type', 'content_calendar')
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true })
+      
+      if (error && error.code === '42703') {
+        const { data: allData } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('project_id', projectId)
+          .is('deleted_at', null)
+          .order('created_at', { ascending: true })
+        setContentCalendarMessages(allData || [])
+      } else if (error) {
+        console.error('Error loading content calendar messages:', error)
+        setContentCalendarMessages([])
+      } else {
+        setContentCalendarMessages(data || [])
+      }
+    } catch (error) {
+      console.error('Error loading content calendar messages:', error)
+      setContentCalendarMessages([])
+    }
+  }
+
   const loadResourceMessages = async () => {
     try {
       const { data, error } = await supabase
@@ -296,6 +330,31 @@ export default function HubProjectDetailPage() {
     setShowMessagePreview(true)
   }
 
+  const handleSendContentCalendarReply = async () => {
+    if (!contentCalendarReply.trim() || !user) return
+    setPreviewMessage({
+      content: contentCalendarReply.trim(),
+      onConfirm: async () => {
+        await fetch('/api/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user.id,
+            sender_type: 'client',
+            content: contentCalendarReply.trim(),
+            project_id: projectId,
+            message_type: 'content_calendar',
+          }),
+        })
+        setContentCalendarReply('')
+        setShowMessagePreview(false)
+        setPreviewMessage(null)
+        await loadContentCalendarMessages()
+      },
+    })
+    setShowMessagePreview(true)
+  }
+
   const handleSendResourceMessage = async () => {
     if (!resourceMessageDraft.trim() || !user) return
     setPreviewMessage({
@@ -350,6 +409,13 @@ export default function HubProjectDetailPage() {
       label: 'View style guide',
       target: 'style-guide',
     },
+    // Only show content calendar if it exists AND (never viewed OR updated after last view)
+    project?.content_calendar_url && 
+    (!project.last_viewed_content_calendar || 
+     (project.content_calendar_sent_at && new Date(project.content_calendar_sent_at) > new Date(project.last_viewed_content_calendar))) && {
+      label: 'View content calendar',
+      target: 'content-calendar',
+    },
     // Only show resources if they exist AND (never viewed OR has new resources)
     (deliverables.length > 0 || resourceMessages.length > 0) && 
     !project?.last_viewed_resources && {
@@ -389,6 +455,7 @@ export default function HubProjectDetailPage() {
     proposals: useRef(null),
     proposal: useRef(null),
     'style-guide': useRef(null),
+    'content-calendar': useRef(null),
     bookings: useRef(null),
     messages: useRef(null),
     resources: useRef(null),
@@ -752,6 +819,69 @@ export default function HubProjectDetailPage() {
                   <button
                     onClick={handleSendStyleGuideReply}
                     disabled={!styleGuideReply.trim()}
+                    className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Content Calendar */}
+        {project?.content_calendar_url && (
+          <section ref={sectionRefs['content-calendar']} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-3 sm:p-4 space-y-3">
+            <div>
+              <h2 className="text-white font-semibold text-lg mb-1">Content Calendar</h2>
+              {project.content_calendar_sent_at && (
+                <p className="text-[#a1a1a1] text-sm">
+                  Sent: {format(new Date(project.content_calendar_sent_at), 'MMM d, yyyy h:mm a')}
+                </p>
+              )}
+            </div>
+            <a
+              href={project.content_calendar_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackActivity('content_calendar')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#81D8D0] to-[#5fb3ad] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity"
+            >
+              <ExternalLink size={18} />
+              View Content Calendar
+            </a>
+
+            {/* Content Calendar Message History */}
+            <div className="bg-[#0a0a0a] border border-[#333333] rounded-lg p-3 space-y-2">
+              <h3 className="text-white font-medium text-sm">Message History</h3>
+              {contentCalendarMessages.length === 0 ? (
+                <p className="text-[#a1a1a1] text-xs">No messages yet.</p>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {contentCalendarMessages.map((m) => (
+                    <div key={m.id} className="p-2 border border-[#333333] rounded text-sm">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs text-[#a1a1a1]">
+                          {m.sender_type === 'admin' ? 'The CJE Experience team' : 'You'} • {format(new Date(m.created_at), 'MMM d, yyyy p')}
+                        </p>
+                      </div>
+                      <p className="text-white whitespace-pre-wrap text-sm">{formatMessageWithLinks(m.content)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-2">
+                <textarea
+                  className="w-full bg-[#1a1a1a] border border-[#333333] rounded-lg px-3 py-2 text-white resize-none text-sm"
+                  rows={2}
+                  value={contentCalendarReply}
+                  onChange={(e) => setContentCalendarReply(e.target.value)}
+                  placeholder="Reply to this content calendar..."
+                />
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleSendContentCalendarReply}
+                    disabled={!contentCalendarReply.trim()}
                     className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
                   >
                     Send
