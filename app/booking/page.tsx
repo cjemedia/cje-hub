@@ -404,36 +404,7 @@ function BookingContent() {
                     </label>
                     
                     {/* Date Input */}
-                    <div 
-                      className="relative cursor-pointer"
-                      onClick={(e) => {
-                        const input = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement
-                        if (input) {
-                          if (input.showPicker) {
-                            input.showPicker()
-                          } else {
-                            input.click()
-                          }
-                        }
-                      }}
-                    >
-                      {/* Visual display - shows selected date */}
-                      <div className="w-full border-b border-white/20 px-0 py-4 text-left flex items-center justify-between group pointer-events-none">
-                        <div>
-                          {selectedDate ? (
-                            <span className="text-white text-lg font-light">
-                              {formatDate(selectedDate)}
-                            </span>
-                          ) : (
-                            <span className="text-white/30 text-lg font-light">
-                              Select a date
-                            </span>
-                          )}
-                        </div>
-                        <Calendar className="w-5 h-5 text-white/60 group-hover:text-accent transition-colors" size={20} />
-                      </div>
-                      
-                      {/* Date input - fully covers the visual display */}
+                    <div className="relative">
                       <input
                         type="date"
                         id="date-picker"
@@ -441,19 +412,15 @@ function BookingContent() {
                         value={selectedDate}
                         onChange={(e) => {
                           const date = e.target.value
-                          // Always update the state when a date is selected
                           if (date) {
                             setSelectedDate(date)
-                            // Clear time selection if weekend is selected
                             if (isWeekend(date)) {
                               setSelectedTime('')
                             }
                           }
                         }}
-                        className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none"
-                        style={{ 
-                          fontSize: '16px', // Prevents zoom on iOS
-                        }}
+                        className="w-full bg-transparent border-b border-white/20 px-0 py-4 text-white text-lg font-light focus:outline-none focus:border-accent transition-colors cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        style={{ fontSize: '16px', colorScheme: 'dark' }}
                         required
                       />
                     </div>

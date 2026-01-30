@@ -437,33 +437,7 @@ function BookingContent() {
                 <label className="block text-white/60 text-xs uppercase tracking-wider mb-4">
                   2. Select Date
                 </label>
-                <div 
-                  className="relative cursor-pointer"
-                  onClick={(e) => {
-                    const input = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement
-                    if (input) {
-                      if (input.showPicker) {
-                        input.showPicker()
-                      } else {
-                        input.click()
-                      }
-                    }
-                  }}
-                >
-                  <div className="w-full border-b border-white/20 px-0 py-4 text-left flex items-center justify-between group pointer-events-none">
-                    <div>
-                      {selectedDate ? (
-                        <span className="text-white text-lg font-light">
-                          {formatDate(selectedDate)}
-                        </span>
-                      ) : (
-                        <span className="text-white/30 text-lg font-light">
-                          Select a date
-                        </span>
-                      )}
-                    </div>
-                    <Calendar className="w-5 h-5 text-white/60 group-hover:text-[#81D8D0] transition-colors" />
-                  </div>
+                <div className="relative">
                   <input
                     type="date"
                     min={getMinDate()}
@@ -477,8 +451,8 @@ function BookingContent() {
                         }
                       }
                     }}
-                    className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none"
-                    style={{ fontSize: '16px' }}
+                    className="w-full bg-transparent border-b border-white/20 px-0 py-4 text-white text-lg font-light focus:outline-none focus:border-[#81D8D0] transition-colors cursor-pointer [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    style={{ fontSize: '16px', colorScheme: 'dark' }}
                     required
                   />
                 </div>
