@@ -468,9 +468,9 @@ export default function AdminMessagesPage() {
             </div>
           ) : (
             /* Conversations area */
-            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-w-0">
               {/* Sidebar */}
-              <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-[#333333] flex-col`}>
+              <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-[#333333] flex-col overflow-hidden`}>
                 <div className="p-4 border-b border-[#333333] flex items-center justify-between">
                   <h3 className="text-white font-semibold">Clients</h3>
                   <button
@@ -481,7 +481,7 @@ export default function AdminMessagesPage() {
                     New
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden">
                   {conversations.length === 0 ? (
                     <div className="text-center text-[#a1a1a1] p-6">No clients yet</div>
                   ) : (
