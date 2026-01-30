@@ -468,9 +468,9 @@ export default function AdminMessagesPage() {
             </div>
           ) : (
             /* Conversations area */
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
               {/* Sidebar */}
-              <div className="w-80 border-r border-[#333333] flex flex-col">
+              <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-[#333333] flex-col`}>
                 <div className="p-4 border-b border-[#333333] flex items-center justify-between">
                   <h3 className="text-white font-semibold">Clients</h3>
                   <button
@@ -521,14 +521,22 @@ export default function AdminMessagesPage() {
               </div>
 
               {/* Thread */}
-              <div className="flex-1 flex flex-col">
+              <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
                 {selectedUser ? (
                   <>
-                    <div className="p-4 border-b border-[#333333]">
-                      <p className="text-white font-semibold">
-                        {selectedUserInfo?.name || selectedUserInfo?.email || 'Client'}
-                      </p>
-                      <p className="text-[#a1a1a1] text-sm">{selectedUserInfo?.email}</p>
+                    <div className="p-4 border-b border-[#333333] flex items-center gap-3">
+                      <button
+                        onClick={() => setSelectedUser(null)}
+                        className="md:hidden text-[#a1a1a1] hover:text-white"
+                      >
+                        ←
+                      </button>
+                      <div>
+                        <p className="text-white font-semibold">
+                          {selectedUserInfo?.name || selectedUserInfo?.email || 'Client'}
+                        </p>
+                        <p className="text-[#a1a1a1] text-sm">{selectedUserInfo?.email}</p>
+                      </div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6 space-y-4">
                       {userMessages.length === 0 ? (
