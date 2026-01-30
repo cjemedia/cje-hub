@@ -280,7 +280,7 @@ export default function AdminMessagesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden max-w-[100vw]">
-      <div className="max-w-7xl mx-auto w-full flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="max-w-7xl mx-auto w-full flex flex-col h-[calc(100dvh-2rem)] md:h-[calc(100vh-4rem)] overflow-hidden">
         {/* Header */}
         <div className="border-b border-[#333333] pb-4 mb-0">
           <div className="flex items-center gap-2 mb-2">
@@ -521,7 +521,7 @@ export default function AdminMessagesPage() {
               </div>
 
               {/* Thread */}
-              <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
+              <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-h-0 overflow-hidden`}>
                 {selectedUser ? (
                   <>
                     <div className="p-4 border-b border-[#333333] flex items-center gap-3">
@@ -538,7 +538,7 @@ export default function AdminMessagesPage() {
                         <p className="text-[#a1a1a1] text-sm">{selectedUserInfo?.email}</p>
                       </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 min-h-0">
                       {userMessages.length === 0 ? (
                         <div className="text-center text-[#a1a1a1] py-12">No messages yet</div>
                       ) : (
