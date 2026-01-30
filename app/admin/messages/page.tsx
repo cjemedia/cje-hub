@@ -468,7 +468,7 @@ export default function AdminMessagesPage() {
             </div>
           ) : (
             /* Conversations area */
-            <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-w-0">
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-w-0 min-h-0">
               {/* Sidebar */}
               <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-[#333333] flex-col overflow-hidden`}>
                 <div className="p-4 border-b border-[#333333] flex items-center justify-between">
@@ -521,7 +521,7 @@ export default function AdminMessagesPage() {
               </div>
 
               {/* Thread */}
-              <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-h-0 overflow-hidden`}>
+              <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-h-0 overflow-hidden max-h-full`}>
                 {selectedUser ? (
                   <>
                     <div className="p-4 border-b border-[#333333] flex items-center gap-3">
