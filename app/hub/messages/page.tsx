@@ -309,11 +309,6 @@ export default function MessagesPage() {
                   className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#81D8D0] transition-colors resize-none"
                   rows={3}
                   disabled={sending}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                    }
-                  }}
                 />
                 <button
                   type="submit"
