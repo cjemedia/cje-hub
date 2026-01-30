@@ -279,8 +279,8 @@ export default function AdminMessagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto w-full flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)]">
+    <div className="min-h-screen bg-[#0a0a0a] p-4 md:p-8 overflow-x-hidden max-w-[100vw]">
+      <div className="max-w-7xl mx-auto w-full flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] overflow-hidden">
         {/* Header */}
         <div className="border-b border-[#333333] pb-4 mb-0">
           <div className="flex items-center gap-2 mb-2">
@@ -292,7 +292,7 @@ export default function AdminMessagesPage() {
         </div>
 
         {/* Tabs */}
-        <div className="px-4 md:px-8 border-b border-[#333333] overflow-x-hidden">
+        <div className="border-b border-[#333333] overflow-x-hidden">
           <div className="flex gap-2 md:gap-4">
             <button
               onClick={() => {
@@ -345,7 +345,7 @@ export default function AdminMessagesPage() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden flex">
+        <div className="flex-1 overflow-hidden flex min-w-0">
           {activeTab === 'contact' ? (
             /* Contact Submissions */
             <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8">
