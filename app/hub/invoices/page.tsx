@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
+import { getUserProjectIds } from '@/lib/utils'
 
 type Invoice = {
   id: string
@@ -33,6 +34,8 @@ export default function InvoicesPage() {
       if (!user?.id) return
       const supabase = createClient()
 
+      const projectIds = await getUserProjectIds(supabase, user.id)
+
       const { data, error } = await supabase
         .from('invoices')
         .select(`
@@ -50,7 +53,7 @@ export default function InvoicesPage() {
             name
           )
         `)
-        .eq('user_id', user.id)
+        .or("user_id.eq." + user.id + ",project_id.in.(" + projectIds.join(",") + ")")
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -177,7 +180,7 @@ export default function InvoicesPage() {
                     >
                       Stripe Link →
                     </a>
-                  )}
+                )}
                   {invoice.receipt_url && (
                     <a
                       href={invoice.receipt_url}
@@ -200,4 +203,3 @@ export default function InvoicesPage() {
     </div>
   )
 }
-

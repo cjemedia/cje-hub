@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
-import { Loader2, Pencil, Trash, Upload, FileText, Calendar, MessageSquare, Paperclip, CheckCircle, Send, StickyNote, Link as LinkIcon, Percent, X } from 'lucide-react'
+import { Loader2, Pencil, Trash, Upload, FileText, Calendar, MessageSquare, Paperclip, CheckCircle, Send, StickyNote, Link as LinkIcon, Percent, X, UserPlus } from 'lucide-react'
 import { formatMessageWithLinks } from '@/lib/utils/message-formatting'
 
 type Project = any
@@ -32,6 +32,9 @@ export default function AdminProjectDetailPage() {
   const [projectData, setProjectData] = useState<Project | null>(null)
   const [stats, setStats] = useState<any>({})
   const [projectClients, setProjectClients] = useState<any[]>([])
+  const [showAddClient, setShowAddClient] = useState(false)
+  const [allClients, setAllClients] = useState<any[]>([])
+  const [clientSearchQuery, setClientSearchQuery] = useState('')
   const [tab, setTab] = useState('overview')
 
   // Collections
@@ -329,6 +332,53 @@ export default function AdminProjectDetailPage() {
   const loadActivity = async () => {
     const res = await fetch(`/api/projects/${projectId}/activity`)
     if (res.ok) setActivity(await res.json())
+  }
+
+  // Add Client to Project
+  const handleOpenAddClient = async () => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('users')
+      .select('id, name, email')
+      .eq('role', 'client')
+      .order('name')
+    setAllClients(data || [])
+    setClientSearchQuery('')
+    setShowAddClient(true)
+  }
+
+  const handleAddClientToProject = async (clientId: string) => {
+    const supabase = createClient()
+    // Check if already added
+    const existing = projectClients.find(pc => pc.user_id === clientId)
+    if (existing) return
+
+    const { error } = await supabase.from('project_clients').insert({
+      project_id: projectId,
+      user_id: clientId,
+      role: 'collaborator'
+    })
+
+    if (!error) {
+      // Refresh project clients
+      const { data: clients } = await supabase.from('project_clients').select('*, users(id, name, email)').eq('project_id', projectId).order('role', { ascending: true })
+      setProjectClients(clients || [])
+    }
+    setShowAddClient(false)
+  }
+
+  const handleRemoveClient = async (clientId: string) => {
+    // Don't remove primary client
+    const client = projectClients.find(pc => pc.user_id === clientId)
+    if (client?.role === 'primary') return
+    if (!confirm('Remove this client from the project?')) return
+
+    const supabase = createClient()
+    await supabase.from('project_clients').delete().eq('project_id', projectId).eq('user_id', clientId)
+
+    // Refresh
+    const { data: clients } = await supabase.from('project_clients').select('*, users(id, name, email)').eq('project_id', projectId).order('role', { ascending: true })
+    setProjectClients(clients || [])
   }
 
   const handleSaveProject = async () => {
@@ -1501,20 +1551,69 @@ export default function AdminProjectDetailPage() {
             </div>
             <h1 className="text-3xl lg:text-4xl font-semibold text-white mb-2">{projectData.name}</h1>
            
-          <div className="flex items-center gap-3 text-sm text-[#a1a1a1] flex-wrap">
-  {projectClients.length > 0 ? (
-    projectClients.map((pc, index) => (
-      <span key={pc.id} className="flex items-center gap-1">
-        <Link href={`/admin/clients/${pc.user_id}`} className="text-[#81D8D0] hover:underline">{pc.users?.name || pc.users?.email || 'Client'}</Link>
-        {pc.role === 'primary' && <span className="text-xs text-[#81D8D0]/60">(Primary)</span>}
-        {index < projectClients.length - 1 && <span className="text-[#333]">•</span>}
-      </span>
-    ))
-  ) : (
-    <Link href={`/admin/clients/${projectData.user_id || ''}`} className="text-[#81D8D0] hover:underline">{projectData.users?.name || projectData.users?.email || 'Client'}</Link>
-  )}
-  <StatusBadge status={projectData.status} />
-</div>
+          <div className="flex items-center gap-3 text-sm text-[#a1a1a1] flex-wrap relative">
+            {projectClients.length > 0 ? (
+              projectClients.map((pc, index) => (
+                <span key={pc.id} className="flex items-center gap-1 group">
+                  <Link href={`/admin/clients/${pc.user_id}`} className="text-[#81D8D0] hover:underline">{pc.users?.name || pc.users?.email || 'Client'}</Link>
+                  {pc.role === 'primary' && <span className="text-xs text-[#81D8D0]/60">(Primary)</span>}
+                  {pc.role !== 'primary' && (
+                    <button onClick={() => handleRemoveClient(pc.user_id)} className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity" title="Remove client">
+                      <X size={14} />
+                    </button>
+                  )}
+                  {index < projectClients.length - 1 && <span className="text-[#333]">&bull;</span>}
+                </span>
+              ))
+            ) : (
+              <Link href={`/admin/clients/${projectData.user_id || ''}`} className="text-[#81D8D0] hover:underline">{projectData.users?.name || projectData.users?.email || 'Client'}</Link>
+            )}
+            <button onClick={handleOpenAddClient} className="w-6 h-6 rounded-full bg-[#81D8D0]/20 text-[#81D8D0] flex items-center justify-center hover:bg-[#81D8D0]/30 transition-colors" title="Add client">
+              <UserPlus size={14} />
+            </button>
+            <StatusBadge status={projectData.status} />
+
+            {showAddClient && (
+              <div className="absolute top-8 left-0 z-50 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-xl w-72 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white text-sm font-medium">Add Client</span>
+                  <button onClick={() => setShowAddClient(false)} className="text-[#a1a1a1] hover:text-white"><X size={16} /></button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search clients..."
+                  value={clientSearchQuery}
+                  onChange={(e) => setClientSearchQuery(e.target.value)}
+                  className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white text-sm mb-2 focus:outline-none focus:border-[#81D8D0]"
+                  autoFocus
+                />
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {allClients
+                    .filter(c => !projectClients.find(pc => pc.user_id === c.id))
+                    .filter(c => {
+                      if (!clientSearchQuery) return true
+                      const q = clientSearchQuery.toLowerCase()
+                      return (c.name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q))
+                    })
+                    .map(client => (
+                      <button
+                        key={client.id}
+                        onClick={() => handleAddClientToProject(client.id)}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-[#333] transition-colors"
+                      >
+                        <p className="text-white text-sm">{client.name || 'No name'}</p>
+                        <p className="text-[#a1a1a1] text-xs">{client.email}</p>
+                      </button>
+                    ))
+                  }
+                  {allClients.filter(c => !projectClients.find(pc => pc.user_id === c.id)).length === 0 && (
+                    <p className="text-[#a1a1a1] text-xs text-center py-2">No available clients</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           </div>
           <div className="flex items-center gap-2">
             <button

@@ -60,19 +60,12 @@ export default function ProjectsPage() {
 
       const projectIds = projectClients?.map(pc => pc.project_id) || []
 
-      // Build query - get projects from junction table OR legacy user_id
+      // Build query using project IDs from junction table
       let query = supabase
         .from('projects')
         .select('*')
+        .in('id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
         .order('created_at', { ascending: false })
-
-      if (projectIds.length > 0) {
-        // User has projects in junction table - include those AND any legacy ones
-        query = query.or(`id.in.(${projectIds.join(',')}),user_id.eq.${user.id}`)
-      } else {
-        // Fallback to legacy user_id only
-        query = query.eq('user_id', user.id)
-      }
 
       if (filter !== 'all') {
         query = query.eq('service_type', filter)
@@ -80,8 +73,7 @@ export default function ProjectsPage() {
 
       const { data } = await query
 
-      // Deduplicate in case a project appears in both
-      const uniqueProjects = data ? Array.from(new Map(data.map(p => [p.id, p])).values()) : []
+      const uniqueProjects = data || []
 
       setProjects(uniqueProjects)
       setLoading(false)

@@ -22,6 +22,7 @@ import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
 import { formatDate } from '@/lib/utils/date'
 import { formatTime12Hour } from '@/lib/time-format'
+import { getUserProjectIds } from '@/lib/utils'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -44,11 +45,14 @@ export default function DashboardPage() {
       if (!user) return
       const supabase = createClient()
 
+      // Get all project IDs this user has access to (junction table + legacy)
+      const projectIds = await getUserProjectIds(supabase, user.id)
+
       // Outstanding Balance - sum of unpaid invoices
       const { data: invoices } = await supabase
         .from('invoices')
         .select('amount, status')
-        .eq('user_id', user.id)
+        .or("user_id.eq." + user.id + ",project_id.in.(" + projectIds.join(",") + ")")
         .neq('status', 'paid')
 
       const outstandingBalance = (invoices || []).reduce(
@@ -57,10 +61,7 @@ export default function DashboardPage() {
       )
 
       // Active Projects count
-      const { count: projectsCount } = await supabase
-        .from('projects')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+      const activeProjectsCount = projectIds.length
 
       // Unread Messages count (messages where sender_type = 'admin' and read = false)
       const { count: messagesCount } = await supabase
@@ -71,20 +72,14 @@ export default function DashboardPage() {
         .eq('read', false)
 
       // Resources count
-      const { data: userProjects } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('user_id', user.id)
-
-      const projectIds = userProjects?.map(p => p.id) || []
       const { count: resourcesCount } = await supabase
         .from('deliverables')
         .select('*', { count: 'exact', head: true })
-        .in('project_id', projectIds)
+        .in('project_id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
 
       setStats({
         outstandingBalance,
-        activeProjects: projectsCount || 0,
+        activeProjects: activeProjectsCount,
         unreadMessages: messagesCount || 0,
         resources: resourcesCount || 0,
       })
@@ -108,7 +103,7 @@ export default function DashboardPage() {
       const { data: projectsWithUrls } = await supabase
         .from('projects')
         .select('id, name, dropbox_link, proposal_url, proposal_sent_at, last_viewed_proposal, style_guide_url, style_guide_sent_at, last_viewed_style_guide, content_calendar_url, content_calendar_sent_at, last_viewed_content_calendar, last_viewed_resources')
-        .eq('user_id', user.id)
+        .in('id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
 
       if (projectsWithUrls && projectsWithUrls.length > 0) {
         const firstDropbox = projectsWithUrls.find(p => p.dropbox_link)
@@ -152,7 +147,7 @@ export default function DashboardPage() {
         })
       }
 
-      // Unviewed proposals (proposal_url exists and not viewed or updated since last view)
+      // Unviewed proposals
       projectsWithUrls?.forEach(project => {
         if (project.proposal_url && 
             (!project.last_viewed_proposal || 
@@ -191,7 +186,7 @@ export default function DashboardPage() {
         }
       })
 
-      // Unviewed resources (has deliverables and never viewed resources)
+      // Unviewed resources
       for (const project of (projectsWithUrls || [])) {
         const { count } = await supabase
           .from('deliverables')
@@ -213,7 +208,7 @@ export default function DashboardPage() {
       const { data: projectsData } = await supabase
         .from('projects')
         .select('*')
-        .eq('user_id', user.id)
+        .in('id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
         .order('created_at', { ascending: false })
         .limit(3)
 
@@ -243,7 +238,7 @@ export default function DashboardPage() {
       const { data: recentDeliverables } = await supabase
         .from('deliverables')
         .select('id, name, created_at, project_id')
-        .in('project_id', projectIds)
+        .in('project_id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
         .order('created_at', { ascending: false })
         .limit(3)
 
@@ -260,7 +255,7 @@ export default function DashboardPage() {
       const { data: recentInvoices } = await supabase
         .from('invoices')
         .select('id, amount, status, paid_at, created_at')
-        .eq('user_id', user.id)
+        .or("user_id.eq." + user.id + ",project_id.in.(" + projectIds.join(",") + ")")
         .eq('status', 'paid')
         .order('paid_at', { ascending: false })
         .limit(3)
@@ -333,7 +328,7 @@ export default function DashboardPage() {
           Welcome back, {user?.name?.split(' ')[0] || 'there'}
         </h1>
         <p className="text-[#a1a1a1]">
-          Here's what's happening with your projects
+          Here&apos;s what&apos;s happening with your projects
         </p>
       </motion.div>
 
@@ -385,7 +380,6 @@ export default function DashboardPage() {
 
       {/* Row 3: Two Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Left: Current Projects */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -413,12 +407,11 @@ export default function DashboardPage() {
           )}
         </motion.div>
 
-        {/* Right: Recent Activity */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5"
+          className="bg-[#1a1a1a] border border-[#333333] round-xl p-5"
         >
           <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
           {recentActivity.length === 0 ? (
@@ -437,7 +430,6 @@ export default function DashboardPage() {
 
       {/* Row 4: Two Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Upcoming Bookings */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -465,7 +457,6 @@ export default function DashboardPage() {
           )}
         </motion.div>
 
-        {/* Right: Upcoming Community Events */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -513,7 +504,7 @@ function StatCard({
   return (
     <Link
       href={href}
-      className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 hover:border-[#81D8D0]/50 transition-colors cursor-pointer group"
+      className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 hover:border-[#81D8D0]/50 transition-colors curs-pointer group"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="text-[#a1a1a1] text-sm">{label}</div>
@@ -542,7 +533,7 @@ function ActionItem({ action }: { action: any }) {
 
   if (action.external) {
     return (
-      <a
+        <a
         href={action.href}
         target="_blank"
         rel="noopener noreferrer"
@@ -580,7 +571,7 @@ function ProjectCard({ project }: { project: any }) {
           Send Message
         </Link>
         {project.dropbox_link && (
-          <a
+            <a
             href={project.dropbox_link}
             target="_blank"
             rel="noopener noreferrer"
@@ -701,7 +692,7 @@ function EventCard({ event }: { event: any }) {
   const eventDate = new Date(event.date)
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#333333] rounded-lg overflow-hidden">
+    <div className="bg-[#0a0a0a] border border-[33333] rounded-lg overflow-hidden">
       {eventImage && (
         <div className="aspect-video w-full bg-[#1a1a1a] overflow-hidden">
           <img
@@ -716,7 +707,7 @@ function EventCard({ event }: { event: any }) {
         <p className="text-sm text-[#a1a1a1] mb-3">
           {format(eventDate, 'MMM d, yyyy')}
         </p>
-        <a
+          <a
           href={`https://ciarajevans.com/events/${event.slug || event.id}`}
           target="_blank"
           rel="noopener noreferrer"

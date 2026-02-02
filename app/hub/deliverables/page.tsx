@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Download, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useHubUser } from '@/components/hub/HubUserProvider'
+import { getUserProjectIds } from '@/lib/utils'
 
 export default function DeliverablesPage() {
   const { user } = useHubUser()
@@ -17,17 +18,12 @@ export default function DeliverablesPage() {
       if (!user) return
       const supabase = createClient()
 
-      const { data: projects } = await supabase
-        .from('projects')
-        .select('id, name')
-        .eq('user_id', user.id)
-
-      const projectIds = projects?.map(p => p.id) || []
+      const projectIds = await getUserProjectIds(supabase, user.id)
 
       const { data } = await supabase
         .from('deliverables')
         .select('*, projects(name)')
-        .in('project_id', projectIds)
+        .in('project_id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
         .order('created_at', { ascending: false })
 
       setDeliverables(data || [])
@@ -123,4 +119,3 @@ export default function DeliverablesPage() {
     </div>
   )
 }
-

@@ -28,6 +28,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getUserProjectIds } from '@/lib/utils'
 import { useHubUser } from '@/components/hub/HubUserProvider'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
@@ -66,10 +67,18 @@ export default function BookingsPage() {
 
       const today = new Date().toISOString().split('T')[0]
 
+      // Get all users who share projects with this user
+      const projectIds = await getUserProjectIds(supabase, user.id)
+      const { data: sharedClients } = await supabase
+        .from('project_clients')
+        .select('user_id')
+        .in('project_id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
+      const allUserIds = [...new Set([user.id, ...(sharedClients?.map(c => c.user_id) || [])])]
+
       let query = supabase
         .from('bookings')
         .select('*')
-        .eq('user_id', user.id)
+        .in('user_id', allUserIds)
         .order('booking_date', { ascending: false })
         .order('booking_time', { ascending: false })
 
@@ -176,10 +185,16 @@ export default function BookingsPage() {
                 if (!user?.id) return
                 const supabase = createClient()
                 const today = new Date().toISOString().split('T')[0]
+                const projectIds = await getUserProjectIds(supabase, user.id)
+                const { data: sharedClients } = await supabase
+                  .from('project_clients')
+                  .select('user_id')
+                  .in('project_id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
+                const allUserIds = [...new Set([user.id, ...(sharedClients?.map(c => c.user_id) || [])])]
                 let query = supabase
                   .from('bookings')
                   .select('*')
-                  .eq('user_id', user.id)
+                  .in('user_id', allUserIds)
                   .order('booking_date', { ascending: false })
                   .order('booking_time', { ascending: false })
                 if (filter === 'upcoming') {

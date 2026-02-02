@@ -6,6 +6,7 @@ import { useHubUser } from '@/components/hub/HubUserProvider'
 import { Send, Loader2, Mail, MessageSquare, X } from 'lucide-react'
 import { formatMessageWithLinks } from '@/lib/utils/message-formatting'
 import { format, isToday, isYesterday, isSameDay } from 'date-fns'
+import { getUserProjectIds } from '@/lib/utils'
 
 type Message = {
   id: string
@@ -15,6 +16,7 @@ type Message = {
   content: string
   read: boolean
   created_at: string
+  project_id?: string | null
 }
 
 type ContactMessage = {
@@ -43,18 +45,29 @@ export default function MessagesPage() {
   const loadMessages = async () => {
     if (!user?.id) return
 
-    const { data, error } = await supabase
+    const projectIds = await getUserProjectIds(supabase, user.id)
+
+    let query = supabase
       .from('messages')
       .select('*')
-      .eq('user_id', user.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: true })
+
+    if (projectIds.length > 0) {
+      query = query.or("user_id.eq." + user.id + ",project_id.in.(" + projectIds.join(",") + ")")
+    } else {
+      query = query.eq('user_id', user.id)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.error('Error loading messages:', error)
       setMessages([])
     } else {
-      setMessages(data || [])
+      // Deduplicate in case a message matches both user_id and project_id
+      const unique = data ? Array.from(new Map(data.map(m => [m.id, m])).values()) : []
+      setMessages(unique)
     }
   }
 
@@ -91,7 +104,7 @@ export default function MessagesPage() {
 
     loadAll()
 
-    // Subscribe to new messages
+    // Subscribe to new messages (direct + project-based)
     const channel = supabase
       .channel('messages')
       .on(
@@ -103,7 +116,11 @@ export default function MessagesPage() {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message])
+          setMessages((prev) => {
+            const exists = prev.some(m => m.id === (payload.new as Message).id)
+            if (exists) return prev
+            return [...prev, payload.new as Message]
+          })
         }
       )
       .subscribe()
