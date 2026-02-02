@@ -28,10 +28,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Client has no email' }, { status: 400 })
     }
 
+    // Get all clients on this project
+    const recipients: string[] = [client.email]
+    if (invoice.project_id) {
+      const { data: projectClients } = await supabase
+        .from('project_clients')
+        .select('user_id, users(email)')
+        .eq('project_id', invoice.project_id)
+
+      if (projectClients) {
+        for (const pc of projectClients) {
+          const email = (pc.users as any)?.email
+          if (email && !recipients.includes(email)) {
+            recipients.push(email)
+          }
+        }
+      }
+    }
+
     const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(invoice.amount)
 
     await sendEmail({
-      to: client.email,
+      to: recipients,
       cc: 'media@ciarajevans.com',
       subject: isUpdate ? `Invoice Updated - The CJE Experience - ${formattedAmount}` : `Invoice Reminder from The CJE Experience - ${formattedAmount}`,
       html: `
