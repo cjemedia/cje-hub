@@ -76,6 +76,16 @@ export default function AdminInvoiceDetailPage() {
       .eq('id', invoiceId)
 
     await loadInvoice()
+
+    // Send email notification about update
+    try {
+      await fetch('/api/invoices/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId, isUpdate: true }),
+      })
+    } catch {}
+
     router.refresh()
     setSaving(false)
   }

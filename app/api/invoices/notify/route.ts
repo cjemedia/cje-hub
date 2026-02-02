@@ -4,7 +4,7 @@ import { sendEmail } from '@/lib/resend'
 
 export async function POST(request: NextRequest) {
   try {
-    const { invoiceId } = await request.json()
+    const { invoiceId, isUpdate } = await request.json()
     if (!invoiceId) {
       return NextResponse.json({ error: 'Missing invoiceId' }, { status: 400 })
     }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     await sendEmail({
       to: client.email,
       cc: 'media@ciarajevans.com',
-      subject: `Invoice Reminder from The CJE Experience - ${formattedAmount}`,
+      subject: isUpdate ? `Invoice Updated - The CJE Experience - ${formattedAmount}` : `Invoice Reminder from The CJE Experience - ${formattedAmount}`,
       html: `
 <!DOCTYPE html>
 <html>
@@ -50,9 +50,9 @@ export async function POST(request: NextRequest) {
       <img src="https://ciarajevans.com/images/cje-logo.png" alt="The CJE Experience" width="240" height="auto" style="max-width: 240px; width: 240px; height: auto; display: block; margin: 0 auto 24px; border: 0; outline: none; text-decoration: none; filter: brightness(0) invert(1);" />
     </div>
     <div style="text-align: center; margin-bottom: 32px;">
-      <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 30px; font-weight: 700;">Invoice Reminder</h2>
+      <h2 style="color: #ffffff; margin: 0 0 8px; font-size: 30px; font-weight: 700;">${isUpdate ? "Invoice Updated" : "Invoice Reminder"}</h2>
       <p style="color: rgba(255, 255, 255, 0.7); font-size: 16px; margin: 0;">
-        You have an invoice from The CJE Experience
+        ${isUpdate ? "Your invoice has been updated" : "You have an invoice from The CJE Experience"}
       </p>
     </div>
     <div style="background-color: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 24px; margin: 24px 0; text-align: center;">
