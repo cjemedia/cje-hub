@@ -2906,6 +2906,23 @@ export default function AdminProjectDetailPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch('/api/invoices/notify', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ invoiceId: inv.id }),
+                                })
+                                if (res.ok) alert('Invoice email sent!')
+                                else alert('Failed to send email')
+                              } catch { alert('Failed to send email') }
+                            }}
+                            className="px-3 py-1.5 rounded-lg border border-[#81D8D0]/50 text-[#81D8D0] hover:bg-[#81D8D0]/10 text-sm transition-colors flex items-center gap-1"
+                          >
+                            <Send size={14} />
+                            Email
+                          </button>
+                          <button
                             onClick={() => openEditInvoice(inv)}
                             className="px-3 py-1.5 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60 text-sm transition-colors"
                           >
