@@ -18,12 +18,14 @@ export async function sendEmail({
   html,
   from = 'The CJE Experience <booking@ciarajevans.com>',
   replyTo,
+  cc,
 }: {
   to: string | string[]
   subject: string
   html: string
   from?: string
   replyTo?: string
+  cc?: string | string[]
 }) {
   try {
     const resend = getResendClient()
@@ -41,6 +43,11 @@ export async function sendEmail({
     // Add reply-to if provided
     if (replyTo) {
       emailOptions.reply_to = replyTo
+    }
+
+    // Add CC if provided
+    if (cc) {
+      emailOptions.cc = Array.isArray(cc) ? cc : [cc]
     }
 
     // Add headers to improve deliverability

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { logProjectActivity } from '@/lib/activity'
+import { sendEmail } from '@/lib/resend'
 
 export async function POST(request: NextRequest) {
   try {

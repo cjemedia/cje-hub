@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { StatusBadge } from '@/components/StatusBadge'
 import { format } from 'date-fns'
-import { ArrowLeft, Trash } from 'lucide-react'
+import { ArrowLeft, Trash, Send } from 'lucide-react'
 
 export default function AdminInvoiceDetailPage() {
   const params = useParams()
@@ -16,6 +16,7 @@ export default function AdminInvoiceDetailPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [sending, setSending] = useState(false)
   const [invoice, setInvoice] = useState<any>(null)
   const [project, setProject] = useState<any>(null)
   const [client, setClient] = useState<any>(null)
@@ -85,6 +86,26 @@ export default function AdminInvoiceDetailPage() {
     router.push('/admin/invoices')
   }
 
+  const handleSendEmail = async () => {
+    setSending(true)
+    try {
+      const res = await fetch('/api/invoices/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId }),
+      })
+      if (res.ok) {
+        alert('Invoice email sent!')
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Failed to send email')
+      }
+    } catch {
+      alert('Failed to send email')
+    }
+    setSending(false)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white/70">
@@ -130,6 +151,14 @@ export default function AdminInvoiceDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleSendEmail}
+              disabled={sending}
+              className="px-4 py-2 rounded-lg border border-[#81D8D0] text-[#81D8D0] hover:bg-[#81D8D0]/10 transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              <Send size={16} />
+              {sending ? 'Sending...' : 'Send Email'}
+            </button>
             <button
               onClick={handleSave}
               disabled={saving}
