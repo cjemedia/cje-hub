@@ -61,7 +61,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
       name, description, status, service_type, start_date, end_date, dropbox_link, assets_folder_url,
       proposal_url, proposal_sent_at, proposal_message_id,
       style_guide_url, style_guide_sent_at, style_guide_message_id,
-      content_calendar_url, content_calendar_sent_at, content_calendar_message_id
+      content_calendar_url, content_calendar_sent_at, content_calendar_message_id,
+      proposal_html, proposal_services, proposal_terms, proposal_maintenance_plans, proposal_expires_at, proposal_status, deposit_percentage,
+      style_guide_html, style_guide_expires_at, style_guide_status
     } = body || {}
     const projectId = params.id
 
@@ -89,6 +91,16 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (content_calendar_url !== undefined) updateData.content_calendar_url = content_calendar_url || null
     if (content_calendar_sent_at !== undefined) updateData.content_calendar_sent_at = content_calendar_sent_at || null
     if (content_calendar_message_id !== undefined) updateData.content_calendar_message_id = content_calendar_message_id || null
+    if (proposal_html !== undefined) updateData.proposal_html = proposal_html || null
+    if (proposal_services !== undefined) updateData.proposal_services = proposal_services || null
+    if (proposal_terms !== undefined) updateData.proposal_terms = proposal_terms || null
+    if (proposal_maintenance_plans !== undefined) updateData.proposal_maintenance_plans = proposal_maintenance_plans || null
+    if (proposal_expires_at !== undefined) updateData.proposal_expires_at = proposal_expires_at || null
+    if (proposal_status !== undefined) updateData.proposal_status = proposal_status || null
+    if (deposit_percentage !== undefined) updateData.deposit_percentage = deposit_percentage
+    if (style_guide_html !== undefined) updateData.style_guide_html = style_guide_html || null
+    if (style_guide_expires_at !== undefined) updateData.style_guide_expires_at = style_guide_expires_at || null
+    if (style_guide_status !== undefined) updateData.style_guide_status = style_guide_status || null
 
     const { data, error } = await supabase
       .from('projects')

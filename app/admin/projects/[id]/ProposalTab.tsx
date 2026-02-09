@@ -387,6 +387,19 @@ export default function ProposalTab({ projectId, projectData, projectClients, on
                 value={linkForm.url}
                 onChange={(e) => setLinkForm(p => ({ ...p, url: e.target.value }))}
               />
+              <textarea
+                className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white resize-none"
+                rows={3}
+                placeholder="Message to client (optional)..."
+                value={linkForm.message}
+                onChange={(e) => setLinkForm(p => ({ ...p, message: e.target.value }))}
+              /><textarea
+              className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white resize-none"
+              rows={3}
+              placeholder="Message to client (optional)..."
+              value={linkForm.message}
+              onChange={(e) => setLinkForm(p => ({ ...p, message: e.target.value }))}
+            />
               <div className="flex justify-end gap-2">
                 {editingLink && (
                   <button onClick={() => { setEditingLink(false); setLinkForm({ url: '', message: '' }) }} className="px-4 py-2 rounded-lg border border-[#333] text-white">Cancel</button>
