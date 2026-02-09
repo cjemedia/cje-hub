@@ -61,14 +61,51 @@ const DEFAULT_MAINTENANCE_PLANS: MaintenancePlan[] = [
   },
 ]
 
+type Message = {
+  id: string
+  content: string
+  sender_type: string
+  created_at: string
+  user_id: string
+}
+
 type Props = {
   projectId: string
   projectData: any
   projectClients: any[]
   onReload: () => Promise<void>
+  // Message system
+  messages: Message[]
+  messageDraft: string
+  setMessageDraft: (v: string) => void
+  selectedRecipientId: string | null
+  setSelectedRecipientId: (v: string | null) => void
+  sendToAllClients: boolean
+  setSendToAllClients: (v: boolean) => void
+  onSendMessage: () => Promise<void>
+  onLoadMessages: () => Promise<void>
+  // Message editing
+  editingMessageId: string | null
+  editingMessageContent: string
+  onEditMessage: (m: any) => void
+  onSaveMessage: (id: string) => Promise<void>
+  onCancelEdit: () => void
+  onDeleteMessage: (id: string) => void
+  deletingMessageId: string | null
+  onConfirmDeleteMessage: (id: string) => Promise<void>
+  onCancelDeleteMessage: () => void
+  // Supabase for auth
+  supabase: any
 }
 
-export default function ProposalTab({ projectId, projectData, projectClients, onReload }: Props) {
+export default function ProposalTab({ 
+  projectId, projectData, projectClients, onReload,
+  messages, messageDraft, setMessageDraft, selectedRecipientId, setSelectedRecipientId,
+  sendToAllClients, setSendToAllClients, onSendMessage, onLoadMessages,
+  editingMessageId, editingMessageContent, onEditMessage, onSaveMessage, onCancelEdit,
+  onDeleteMessage, deletingMessageId, onConfirmDeleteMessage, onCancelDeleteMessage,
+  supabase
+}: Props) {
   // Mode: 'link' (old URL) or 'html' (new full proposal)
   const hasHtml = !!projectData?.proposal_html
   const hasUrl = !!projectData?.proposal_url
@@ -607,6 +644,91 @@ export default function ProposalTab({ projectId, projectData, projectClients, on
               placeholder="HTML terms content..."
             />
             <p className="text-xs text-[#a1a1a1]">Supports HTML formatting. The default template is pre-loaded.</p>
+          </div>
+
+          {/* Message Thread */}
+          <div className="bg-[#1a1a1a] border border-[#333] rounded-xl p-4 space-y-3">
+            <h3 className="text-white font-semibold">Message History</h3>
+            {messages.length === 0 ? (
+              <p className="text-[#a1a1a1] text-sm">No messages yet.</p>
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                {messages.map((m) => (
+                  <div key={m.id} className="p-3 border border-[#333] rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs text-[#a1a1a1]">
+                        {m.sender_type === 'admin' ? 'You' : projectClients.find(pc => pc.user_id === m.user_id)?.users?.name || 'Client'} • {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      </p>
+                      {m.sender_type === 'admin' && (
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => onEditMessage(m)} className="text-white/60 hover:text-white"><Pencil size={14} /></button>
+                          <button onClick={() => onDeleteMessage(m.id)} className="text-white/60 hover:text-red-400"><Trash size={14} /></button>
+                        </div>
+                      )}
+                    </div>
+                    {editingMessageId === m.id ? (
+                      <div className="space-y-2">
+                        <textarea className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white resize-none" rows={3} value={editingMessageContent} onChange={(e) => {}} />
+                        <div className="flex justify-end gap-2">
+                          <button onClick={onCancelEdit} className="px-3 py-1.5 rounded-lg border border-[#333] text-white text-sm">Cancel</button>
+                          <button onClick={() => onSaveMessage(m.id)} className="px-3 py-1.5 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold text-sm">Save</button>
+                        </div>
+                      </div>
+                    ) : deletingMessageId === m.id ? (
+                      <div className="space-y-2">
+                        <p className="text-red-400 text-sm">Delete this message?</p>
+                        <div className="flex gap-2">
+                          <button onClick={() => onConfirmDeleteMessage(m.id)} className="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 text-sm">Delete</button>
+                          <button onClick={onCancelDeleteMessage} className="px-3 py-1.5 rounded-lg border border-[#333] text-white text-sm">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-white whitespace-pre-wrap">{m.content}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* New Message */}
+            <div className="border-t border-[#333] pt-3 space-y-2">
+              {projectClients.length > 1 && (
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
+                    <input type="checkbox" checked={sendToAllClients} onChange={(e) => { setSendToAllClients(e.target.checked); if (e.target.checked) setSelectedRecipientId(null) }} className="w-4 h-4 rounded" />
+                    Send to all clients
+                  </label>
+                  {!sendToAllClients && (
+                    <select
+                      className="bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-1.5 text-white text-sm"
+                      value={selectedRecipientId || ''}
+                      onChange={(e) => setSelectedRecipientId(e.target.value || null)}
+                    >
+                      <option value="">Select recipient...</option>
+                      {projectClients.map(pc => (
+                        <option key={pc.user_id} value={pc.user_id}>{pc.users?.name || pc.users?.email}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              )}
+              <textarea
+                className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white resize-none"
+                rows={3}
+                placeholder="Reply about this proposal..."
+                value={messageDraft}
+                onChange={(e) => setMessageDraft(e.target.value)}
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={onSendMessage}
+                  disabled={!messageDraft.trim()}
+                  className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Actions */}

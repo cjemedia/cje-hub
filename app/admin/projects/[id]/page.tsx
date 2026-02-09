@@ -1825,6 +1825,25 @@ export default function AdminProjectDetailPage() {
               projectData={projectData}
               projectClients={projectClients}
               onReload={loadProject}
+              messages={proposalMessages}
+              messageDraft={proposalMessageDraft}
+              setMessageDraft={setProposalMessageDraft}
+              selectedRecipientId={proposalSelectedRecipientId}
+              setSelectedRecipientId={setProposalSelectedRecipientId}
+              sendToAllClients={proposalSendToAllClients}
+              setSendToAllClients={setProposalSendToAllClients}
+              onSendMessage={handleSendProposalMessage}
+              onLoadMessages={loadProposalMessages}
+              editingMessageId={editingMessageId}
+              editingMessageContent={editingMessageContent}
+              onEditMessage={handleEditMessage}
+              onSaveMessage={handleSaveMessage}
+              onCancelEdit={handleCancelEdit}
+              onDeleteMessage={setDeletingMessageId}
+              deletingMessageId={deletingMessageId}
+              onConfirmDeleteMessage={async (id) => { await handleDeleteMessage(id) }}
+              onCancelDeleteMessage={() => setDeletingMessageId(null)}
+              supabase={supabase}
             />
           )}
           {tab === 'style-guide' && (
@@ -1833,6 +1852,25 @@ export default function AdminProjectDetailPage() {
               projectData={projectData}
               projectClients={projectClients}
               onReload={loadProject}
+              messages={styleGuideMessages}
+              messageDraft={styleGuideMessageDraft}
+              setMessageDraft={setStyleGuideMessageDraft}
+              selectedRecipientId={styleGuideSelectedRecipientId}
+              setSelectedRecipientId={setStyleGuideSelectedRecipientId}
+              sendToAllClients={styleGuideSendToAllClients}
+              setSendToAllClients={setStyleGuideSendToAllClients}
+              onSendMessage={handleSendStyleGuideMessage}
+              onLoadMessages={loadStyleGuideMessages}
+              editingMessageId={editingMessageId}
+              editingMessageContent={editingMessageContent}
+              onEditMessage={handleEditMessage}
+              onSaveMessage={handleSaveMessage}
+              onCancelEdit={handleCancelEdit}
+              onDeleteMessage={setDeletingMessageId}
+              deletingMessageId={deletingMessageId}
+              onConfirmDeleteMessage={async (id) => { await handleDeleteMessage(id) }}
+              onCancelDeleteMessage={() => setDeletingMessageId(null)}
+              supabase={supabase}
             />
           )}
 
