@@ -430,13 +430,7 @@ export default function ProposalTab({
                 placeholder="Message to client (optional)..."
                 value={linkForm.message}
                 onChange={(e) => setLinkForm(p => ({ ...p, message: e.target.value }))}
-              /><textarea
-              className="w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white resize-none"
-              rows={3}
-              placeholder="Message to client (optional)..."
-              value={linkForm.message}
-              onChange={(e) => setLinkForm(p => ({ ...p, message: e.target.value }))}
-            />
+              />
               <div className="flex justify-end gap-2">
                 {editingLink && (
                   <button onClick={() => { setEditingLink(false); setLinkForm({ url: '', message: '' }) }} className="px-4 py-2 rounded-lg border border-[#333] text-white">Cancel</button>
@@ -492,16 +486,26 @@ export default function ProposalTab({
             <div className="flex items-center gap-3">
               <label className="inline-flex items-center gap-2 px-3 py-2 border border-[#333] rounded-lg text-white hover:border-[#81D8D0]/60 cursor-pointer">
                 <Upload size={16} />
-                {htmlContent ? 'Replace HTML' : 'Upload HTML File'}
+                {htmlContent ? 'Replace File' : 'Upload HTML File'}
                 <input type="file" accept=".html,.htm" className="hidden" onChange={handleFileUpload} />
               </label>
               {htmlContent && (
                 <span className="text-green-400 text-sm">✓ HTML loaded ({Math.round(htmlContent.length / 1024)}KB)</span>
               )}
             </div>
+            <details className="text-sm">
+              <summary className="text-[#81D8D0] cursor-pointer">{htmlContent ? 'Edit HTML' : 'Or paste HTML directly'}</summary>
+              <textarea
+                className="mt-2 w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white text-sm resize-none font-mono"
+                rows={12}
+                placeholder="Paste your HTML here..."
+                value={htmlContent}
+                onChange={(e) => { setHtmlContent(e.target.value); setHtmlSaved(false) }}
+              />
+            </details>
             {htmlContent && (
               <details className="text-sm">
-                <summary className="text-[#81D8D0] cursor-pointer">Preview HTML</summary>
+                <summary className="text-[#81D8D0] cursor-pointer">Preview</summary>
                 <div className="mt-2 bg-white rounded-lg p-4 max-h-96 overflow-y-auto">
                   <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
                 </div>
