@@ -274,9 +274,13 @@ export default function StyleGuideTab({
             {htmlContent && (
               <details className="text-sm">
                 <summary className="text-[#81D8D0] cursor-pointer">Preview</summary>
-                <div className="mt-2 bg-white rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                </div>
+                <iframe
+                  srcDoc={htmlContent}
+                  className="mt-2 w-full rounded-lg border border-[#333]"
+                  style={{ height: '500px', background: '#fff' }}
+                  sandbox="allow-same-origin"
+                  title="Preview"
+                />
               </details>
             )}
           </div>

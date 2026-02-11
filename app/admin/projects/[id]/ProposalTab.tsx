@@ -270,11 +270,10 @@ export default function ProposalTab({
       const clientEmail = primaryClient?.users?.email || projectData?.users?.email
 
       if (clientEmail) {
-        await fetch('/api/proposals/accept', {
+        await fetch('/api/proposals/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: 'notify',
             project_id: projectId,
             client_email: clientEmail,
             client_name: primaryClient?.users?.name || projectData?.users?.name || 'Client',
@@ -463,7 +462,15 @@ export default function ProposalTab({
                   </p>
                   {projectData.proposal_status !== 'draft' && (
                     <p className="text-[#a1a1a1] text-sm mt-1">
-                      <a href={proposalLink} target="_blank" rel="noopener noreferrer" className="text-[#81D8D0] hover:underline">{proposalLink}</a>
+                      <span className="flex items-center gap-2 flex-wrap">
+                        <a href={proposalLink} target="_blank" rel="noopener noreferrer" className="text-[#81D8D0] hover:underline break-all">{proposalLink}</a>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(proposalLink); }}
+                          className="px-2 py-1 rounded bg-[#333] text-white text-xs hover:bg-[#444] flex-shrink-0"
+                        >
+                          Copy
+                        </button>
+                      </span>
                     </p>
                   )}
                   {acceptance && (
@@ -506,9 +513,13 @@ export default function ProposalTab({
             {htmlContent && (
               <details className="text-sm">
                 <summary className="text-[#81D8D0] cursor-pointer">Preview</summary>
-                <div className="mt-2 bg-white rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                </div>
+                <iframe
+                  srcDoc={htmlContent}
+                  className="mt-2 w-full rounded-lg border border-[#333]"
+                  style={{ height: '500px', background: '#fff' }}
+                  sandbox="allow-same-origin"
+                  title="Preview"
+                />
               </details>
             )}
           </div>
