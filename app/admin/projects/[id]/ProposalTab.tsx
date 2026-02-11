@@ -511,7 +511,8 @@ export default function ProposalTab({
                 <span className="text-green-400 text-sm">✓ HTML loaded ({Math.round(htmlContent.length / 1024)}KB)</span>
               )}
             </div>
-            <details className="text-sm">
+            <p className="text-white/40 text-xs">Upload an HTML file or paste code below. Click Save after making changes.</p>
+            <details className="text-sm" open={!htmlContent}>
               <summary className="text-[#81D8D0] cursor-pointer">{htmlContent ? 'Edit HTML' : 'Or paste HTML directly'}</summary>
               <textarea
                 className="mt-2 w-full bg-[#0a0a0a] border border-[#333] rounded-lg px-3 py-2 text-white text-sm resize-none font-mono"
@@ -520,6 +521,15 @@ export default function ProposalTab({
                 value={htmlContent}
                 onChange={(e) => { setHtmlContent(e.target.value); setHtmlSaved(false) }}
               />
+              <div className="flex justify-end mt-2">
+                <button
+                  onClick={handleSaveProposal}
+                  disabled={savingHtml || !htmlContent.trim()}
+                  className="px-4 py-2 rounded-lg bg-[#81D8D0] text-[#0a0a0a] font-semibold hover:opacity-90 disabled:opacity-50 text-sm"
+                >
+                  {savingHtml ? 'Saving...' : 'Save HTML'}
+                </button>
+              </div>
             </details>
             {htmlContent && (
               <details className="text-sm">
