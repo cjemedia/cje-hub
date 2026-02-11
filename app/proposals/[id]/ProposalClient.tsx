@@ -266,7 +266,7 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
               <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">Terms & Conditions</h2>
             </div>
             <div 
-              className="prose prose-sm sm:prose-base max-w-none text-gray-600 bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200 max-h-[4px] sm:max-h-[500px] overflow-y-auto"
+              className="prose prose-sm sm:prose-base max-w-none text-gray-600 bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200 max-h-[60vh] overflow-y-auto"
               style={{ lineHeight: 1.8 }}
               dangerouslySetInnerHTML={{ __html: project.terms }}
             />
