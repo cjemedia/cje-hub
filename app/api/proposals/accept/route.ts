@@ -138,3 +138,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 })
 }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const projectId = request.nextUrl.searchParams.get('project_id')
+    if (!projectId) {
+      return NextResponse.json({ error: 'Missing project_id' }, { status: 400 })
+    }
+    const supabase = createServiceClient()
+    await supabase
+      .from('proposal_acceptances')
+      .delete()
+      .eq('project_id', projectId)
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Delete acceptance error:', error)
+    return NextResponse.json({ error: 'Failed to delete.' }, { status: 500 })
+  }
+}

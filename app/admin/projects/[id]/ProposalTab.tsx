@@ -323,6 +323,10 @@ export default function ProposalTab({
         deposit_percentage: 50,
       }),
     })
+    // Also delete acceptance records
+    await fetch('/api/proposals/accept?project_id=' + projectId, { method: 'DELETE' })
+    // Also delete acceptance records
+    await fetch('/api/proposals/accept?project_id=' + projectId, { method: 'DELETE' })
     setHtmlContent('')
     setServices([])
     setTerms(DEFAULT_TERMS)
