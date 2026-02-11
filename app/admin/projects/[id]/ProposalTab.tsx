@@ -309,6 +309,10 @@ export default function ProposalTab({
         proposal_maintenance_plans: null,
         proposal_status: null,
         proposal_expires_at: null,
+        proposal_sent_at: null,
+        proposal_viewed_at: null,
+        proposal_message_id: null,
+        proposal_url: null,
         deposit_percentage: 50,
       }),
     })
