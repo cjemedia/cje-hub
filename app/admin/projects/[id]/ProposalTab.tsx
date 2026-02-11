@@ -286,8 +286,15 @@ export default function ProposalTab({
             client_name: clientInfo?.users?.name || 'Client',
             proposal_url: proposalUrl,
             project_name: projectData.name,
+            message: messageDraft || '',
           }),
         })
+      }
+
+      // Send message in thread if there's content
+      if (messageDraft.trim()) {
+        setSendToAllClients(true)
+        await onSendMessage()
       }
 
       await onReload()

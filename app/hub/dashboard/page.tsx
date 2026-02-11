@@ -132,21 +132,25 @@ export default function DashboardPage() {
         })
       }
 
-      // Proposals with status 'sent'
-      const { data: proposals } = await supabase
-        .from('proposals')
-        .select('id, project_id, status')
-        .eq('status', 'sent')
+      // HTML proposals with status 'sent'
+      const { data: htmlProposals } = await supabase
+        .from('projects')
+        .select('id, name, proposal_status, proposal_sent_at, proposal_viewed_at')
+        .in('id', projectIds.length > 0 ? projectIds : ['00000000-0000-0000-0000-000000000000'])
+        .eq('proposal_status', 'sent')
 
-      if (proposals && proposals.length > 0) {
-        const firstProposal = proposals[0]
-        actions.push({
-          type: 'proposal',
-          label: 'Review Proposal',
-          href: `/hub/projects/${firstProposal.project_id}#proposals`,
+      if (htmlProposals && htmlProposals.length > 0) {
+        htmlProposals.forEach(project => {
+          if (!project.proposal_viewed_at ||
+              (project.proposal_sent_at && new Date(project.proposal_sent_at) > new Date(project.proposal_viewed_at))) {
+            actions.push({
+              type: 'proposal',
+              label: `Review Proposal - ${project.name}`,
+              href: `/proposals/${project.id}`,
+            })
+          }
         })
       }
-
       // Unviewed proposals
       projectsWithUrls?.forEach(project => {
         if (project.proposal_url && 
