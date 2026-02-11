@@ -200,9 +200,20 @@ export default function ProposalTab({
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => {
-      setHtmlContent(ev.target?.result as string)
-      setHtmlSaved(false)
+    reader.onload = async (ev) => {
+      const html = ev.target?.result as string
+      setHtmlContent(html)
+      // Auto-save the HTML
+      try {
+        await fetch(`/api/projects/${projectId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ proposal_html: html }),
+        })
+        setHtmlSaved(true)
+      } catch {
+        setHtmlSaved(false)
+      }
     }
     reader.readAsText(file)
   }
@@ -296,6 +307,7 @@ export default function ProposalTab({
         setSendToAllClients(true)
         await onSendMessage()
       }
+      setMessageDraft('')
 
       await onReload()
     } catch {
