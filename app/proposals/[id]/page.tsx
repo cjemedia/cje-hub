@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import ProposalClient from './ProposalClient'
