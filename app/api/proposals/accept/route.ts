@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         }))
 
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.ciarajevans.com'
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ciarajevans.com'
 
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],

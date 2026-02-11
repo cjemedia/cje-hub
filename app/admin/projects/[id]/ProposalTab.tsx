@@ -265,18 +265,25 @@ export default function ProposalTab({
       const baseUrl = window.location.origin
       const proposalUrl = `${baseUrl}/proposals/${projectId}`
 
-      // Get client email
-      const primaryClient = projectClients.find(pc => pc.role === 'primary')
-      const clientEmail = primaryClient?.users?.email || projectData?.users?.email
+      // Send email to ALL project clients
+      const clientEmails = projectClients
+        .map(pc => pc.users?.email)
+        .filter(Boolean)
 
-      if (clientEmail) {
+      // Fallback to projectData.users if no projectClients
+      if (clientEmails.length === 0 && projectData?.users?.email) {
+        clientEmails.push(projectData.users.email)
+      }
+
+      for (const email of clientEmails) {
+        const clientInfo = projectClients.find(pc => pc.users?.email === email)
         await fetch('/api/proposals/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             project_id: projectId,
-            client_email: clientEmail,
-            client_name: primaryClient?.users?.name || projectData?.users?.name || 'Client',
+            client_email: email,
+            client_name: clientInfo?.users?.name || 'Client',
             proposal_url: proposalUrl,
             project_name: projectData.name,
           }),

@@ -131,7 +131,7 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
       <div dangerouslySetInnerHTML={{ __html: project.proposalHtml }} />
 
       {/* Hub-generated interactive section */}
-      <div className="proposal-interactive" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div id="accept" className="proposal-interactive" style={{ fontFamily: "'DM Sans', sans-serif" }}>
         
         {/* Services Section */}
         {project.services.length > 0 && (
@@ -221,8 +221,9 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
         {project.maintenancePlans.length > 0 && (
           <section className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-gray-100">
             <div className="text-center mb-8 sm:mb-10">
-              <p className="text-xs sm:text-sm tracking-[0.2em] uppercase text-gray-400 mb-2">Post-Launch</p>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">Maintenance Plans</h2>
+              <p className="text-xs sm:text-sm tracking-[0.2em] uppercase text-gray-400 mb-2">Post-Launch — Required</p>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">Select a Maintenance Plan</h2>
+              <p className="text-sm text-gray-500 mt-2">Please select one of the plans below to continue with your project.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
