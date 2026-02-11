@@ -543,6 +543,19 @@ export default function ProposalTab({
                 placeholder="Paste your HTML here..."
                 value={htmlContent}
                 onChange={(e) => { setHtmlContent(e.target.value); setHtmlSaved(false) }}
+                onBlur={async (e) => {
+                  const val = e.target.value.trim()
+                  if (val) {
+                    try {
+                      await fetch(`/api/projects/${projectId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ proposal_html: val }),
+                      })
+                      setHtmlSaved(true)
+                    } catch {}
+                  }
+                }}
               />
               <div className="flex justify-end mt-2">
                 <button
