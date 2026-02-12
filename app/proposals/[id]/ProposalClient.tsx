@@ -116,21 +116,43 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
     // Remove doctype, html, head (keep style/link tags), body wrappers
     html = html.replace(/<!DOCTYPE[^>]*>/gi, '')
     html = html.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
-    html = html.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (match, inner) => {
-      // Keep style and link tags from head, discard the rest
+    html = html.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (match: string, inner: string) => {
       const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
       return styles ? styles.join('\n') : ''
     })
     html = html.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
     html = html.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
     html = html.replace(/<meta[^>]*>/gi, '')
+    // Scope all CSS rules inside .proposal-html-content to prevent leaking
+    html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (match: string, attrs: string, css: string) => {
+      // Prefix each CSS rule with .proposal-html-content
+      const scoped = css.replace(/([^{}@][^{]*?)\{/g, (ruleMatch: string, selector: string) => {
+        // Don't prefix @media, @keyframes, etc.
+        if (selector.trim().startsWith('@')) return ruleMatch
+        // Don't prefix :root
+        if (selector.trim() === ':root') return ruleMatch
+        // Replace html, body, * selectors
+        const prefixed = selector.split(',').map((s: string) => {
+          const trimmed = s.trim()
+          if (trimmed === '*' || trimmed === 'html' || trimmed === 'body') {
+            return '.proposal-html-content'
+          }
+          if (trimmed.startsWith('html ') || trimmed.startsWith('body ')) {
+            return '.proposal-html-content ' + trimmed.replace(/^(html|body)\s+/, '')
+          }
+          return '.proposal-html-content ' + trimmed
+        }).join(', ')
+        return prefixed + ' {'
+      })
+      return '<style' + attrs + '>' + scoped + '</style>'
+    })
     return html
   }, [project.proposalHtml])
 
   if (alreadyAccepted) {
     return (
       <div className="min-h-screen bg-white">
-        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+        <div className="proposal-html-content" dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-4 text-2xl">
             ✓
@@ -145,7 +167,7 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   return (
     <div className="min-h-screen bg-white">
       {/* Render the custom HTML proposal */}
-      <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+      <div className="proposal-html-content" dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
 
       {/* Hub-generated interactive section */}
       <div id="accept" className="proposal-interactive" style={{ fontFamily: "'DM Sans', sans-serif" }}>
