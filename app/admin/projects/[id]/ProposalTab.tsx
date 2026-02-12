@@ -293,21 +293,19 @@ export default function ProposalTab({
       if (msgToSend) {
         try {
           const { data: { user } } = await supabase.auth.getUser()
-          for (const pc of projectClients) {
-            await fetch('/api/messages/send', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                project_id: projectId,
-                user_id: pc.user_id,
-                sender_type: 'admin',
-                sender_id: user?.id || null,
-                content: msgToSend,
-                message_type: 'proposal',
-                skip_email: true,
-              }),
-            })
-          }
+          await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              project_id: projectId,
+              user_id: projectClients[0]?.user_id || user?.id,
+              sender_type: 'admin',
+              sender_id: user?.id || null,
+              content: msgToSend,
+              message_type: 'proposal',
+              skip_email: true,
+            }),
+          })
         } catch (e) {
           console.error('Failed to send portal message:', e)
         }

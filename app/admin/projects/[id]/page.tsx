@@ -997,21 +997,18 @@ export default function AdminProjectDetailPage() {
           
           if (contentCalendarSendToAllClients) {
             // Send to all clients
-            const sendPromises = projectClients.map(pc =>
-              fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  project_id: projectId,
-                  user_id: pc.user_id,
-                  sender_type: 'admin',
-                  sender_id: user?.id || null,
-                  content: contentCalendarMessageDraft.trim(),
-                  message_type: 'content_calendar',
-                }),
-              })
-            )
-            await Promise.all(sendPromises)
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: projectClients[0]?.user_id,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: contentCalendarMessageDraft.trim(),
+                message_type: 'content_calendar',
+              }),
+            })
           } else {
             // Send to single client
             const response = await fetch('/api/messages/send', {
@@ -1069,20 +1066,18 @@ export default function AdminProjectDetailPage() {
           
           if (sendToAllClients) {
             // Send to all clients
-            const sendPromises = projectClients.map(pc =>
-              fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  user_id: pc.user_id,
-                  sender_type: 'admin',
-                  sender_id: user?.id || null,
-                  content: messageDraft.trim(),
-                  project_id: projectId,
-                }),
-              })
-            )
-            await Promise.all(sendPromises)
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: projectClients[0]?.user_id,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: messageDraft.trim(),
+                message_type: 'general',
+              }),
+            })
           } else {
             // Send to single client
             await fetch('/api/messages/send', {
@@ -1161,31 +1156,14 @@ export default function AdminProjectDetailPage() {
         try {
           const { data: { user } } = await supabase.auth.getUser()
           
-          if (proposalSendToAllClients) {
-            // Send to all clients
-            const sendPromises = projectClients.map(pc =>
-              fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  project_id: projectId,
-                  user_id: pc.user_id,
-                  sender_type: 'admin',
-                  sender_id: user?.id || null,
-                  content: proposalMessageDraft.trim(),
-                  message_type: 'proposal',
-                }),
-              })
-            )
-            await Promise.all(sendPromises)
-          } else {
-            // Send to single client
+          {
+            const recipientId = proposalSendToAllClients ? projectClients[0]?.user_id : proposalSelectedRecipientId
             const response = await fetch('/api/messages/send', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 project_id: projectId,
-                user_id: proposalSelectedRecipientId,
+                user_id: recipientId,
                 sender_type: 'admin',
                 sender_id: user?.id || null,
                 content: proposalMessageDraft.trim(),
@@ -1235,21 +1213,18 @@ export default function AdminProjectDetailPage() {
           
           if (styleGuideSendToAllClients) {
             // Send to all clients
-            const sendPromises = projectClients.map(pc =>
-              fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  project_id: projectId,
-                  user_id: pc.user_id,
-                  sender_type: 'admin',
-                  sender_id: user?.id || null,
-                  content: styleGuideMessageDraft.trim(),
-                  message_type: 'style_guide',
-                }),
-              })
-            )
-            await Promise.all(sendPromises)
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: projectClients[0]?.user_id,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: styleGuideMessageDraft.trim(),
+                message_type: 'style_guide',
+              }),
+            })
           } else {
             // Send to single client
             const response = await fetch('/api/messages/send', {
@@ -1307,21 +1282,18 @@ export default function AdminProjectDetailPage() {
           
           if (resourceSendToAllClients) {
             // Send to all clients
-            const sendPromises = projectClients.map(pc =>
-              fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  project_id: projectId,
-                  user_id: pc.user_id,
-                  sender_type: 'admin',
-                  sender_id: user?.id || null,
-                  content: resourceMessageDraft.trim(),
-                  message_type: 'resource',
-                }),
-              })
-            )
-            await Promise.all(sendPromises)
+            const response = await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: projectClients[0]?.user_id,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: resourceMessageDraft.trim(),
+                message_type: 'resource',
+              }),
+            })
           } else {
             // Send to single client
             const response = await fetch('/api/messages/send', {
