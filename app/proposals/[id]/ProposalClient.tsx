@@ -111,19 +111,8 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   }
 
   // Strip document wrapper tags so the proposal HTML doesn't close the page
-  const cleanedHtml = useMemo(() => {
-    let html = project.proposalHtml
-    html = html.replace(/<!DOCTYPE[^>]*>/gi, '')
-    html = html.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
-    html = html.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (match: string, inner: string) => {
-      const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
-      return styles ? styles.join('\n') : ''
-    })
-    html = html.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
-    html = html.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
-    html = html.replace(/<meta[^>]*>/gi, '')
-    return html
-  }, [project.proposalHtml])
+  // HTML is already cleaned server-side
+  const cleanedHtml = project.proposalHtml
 
   if (alreadyAccepted) {
     return (

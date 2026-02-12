@@ -48,12 +48,24 @@ export default async function ProposalPage({ params }: { params: { id: string } 
 
   const alreadyAccepted = acceptance?.payment_status === 'paid'
 
+  // Strip document wrapper tags server-side so browser parser doesn't close the document
+  let cleanHtml = project.proposal_html
+  cleanHtml = cleanHtml.replace(/<!DOCTYPE[^>]*>/gi, '')
+  cleanHtml = cleanHtml.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
+  cleanHtml = cleanHtml.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (_: string, inner: string) => {
+    const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
+    return styles ? styles.join('\n') : ''
+  })
+  cleanHtml = cleanHtml.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
+  cleanHtml = cleanHtml.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
+  cleanHtml = cleanHtml.replace(/<meta[^>]*>/gi, '')
+
   return (
     <ProposalClient
       project={{
         id: project.id,
         name: project.name,
-        proposalHtml: project.proposal_html,
+        proposalHtml: cleanHtml,
         services: project.proposal_services || [],
         terms: project.proposal_terms || '',
         maintenancePlans: project.proposal_maintenance_plans || [],
