@@ -704,7 +704,7 @@ export default function HubProjectDetailPage() {
         )}
 
         {/* Proposal */}
-        {project?.proposal_url && (
+        {(project?.proposal_url || (project?.proposal_html && project?.proposal_status === 'sent')) && (
           <section ref={sectionRefs.proposal} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-3 sm:p-4 space-y-3">
             <div>
               <h2 className="text-white font-semibold text-lg mb-1">Proposal</h2>
@@ -715,14 +715,14 @@ export default function HubProjectDetailPage() {
               )}
             </div>
             <a
-              href={project.proposal_url}
+              href={project.proposal_html ? `/proposals/${project.id}` : project.proposal_url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackActivity('proposal')}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#81D8D0] to-[#5fb3ad] text-[#0a0a0a] font-semibold hover:opacity-90 transition-opacity"
             >
               <ExternalLink size={18} />
-              View Proposal
+              {project.proposal_status === 'accepted' ? 'View Signed Proposal' : 'View & Accept Proposal'}
             </a>
 
             {/* Proposal Message History */}
