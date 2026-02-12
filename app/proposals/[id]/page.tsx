@@ -4,14 +4,13 @@ export const revalidate = 0
 
 import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
-import ProposalClient from './ProposalClient'
 
 export default async function ProposalPage({ params }: { params: { id: string } }) {
   const supabase = createServiceClient()
   
   const { data: project, error } = await supabase
     .from('projects')
-    .select('id, name, proposal_html, proposal_services, proposal_terms, proposal_maintenance_plans, proposal_expires_at, proposal_status, deposit_percentage, proposal_viewed_at')
+    .select('id, proposal_html, proposal_expires_at, proposal_status, proposal_viewed_at')
     .eq('id', params.id)
     .maybeSingle()
 
@@ -19,10 +18,8 @@ export default async function ProposalPage({ params }: { params: { id: string } 
     notFound()
   }
 
-  // Check expiration
   const isExpired = project.proposal_expires_at && new Date(project.proposal_expires_at) < new Date()
 
-  // Track view (only if status is 'sent')
   if (project.proposal_status === 'sent' && !isExpired) {
     await supabase
       .from('projects')
@@ -37,42 +34,20 @@ export default async function ProposalPage({ params }: { params: { id: string } 
     return <ExpiredProposal />
   }
 
-  // Check if already accepted
-  const { data: acceptance } = await supabase
-    .from('proposal_acceptances')
-    .select('*')
-    .eq('project_id', params.id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  const alreadyAccepted = acceptance?.payment_status === 'paid'
-
-  // Strip document wrapper tags server-side so browser parser doesn't close the document
-  let cleanHtml = project.proposal_html
-  cleanHtml = cleanHtml.replace(/<!DOCTYPE[^>]*>/gi, '')
-  cleanHtml = cleanHtml.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
-  cleanHtml = cleanHtml.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (_: string, inner: string) => {
-    const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
-    return styles ? styles.join('\n') : ''
-  })
-  cleanHtml = cleanHtml.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
-  cleanHtml = cleanHtml.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
-  cleanHtml = cleanHtml.replace(/<meta[^>]*>/gi, '')
+  // Update the Accept Proposal nav link to point to /accept page
+  let html = project.proposal_html
+  html = html.replace(
+    /href="#accept"[^>]*onclick="[^"]*"/gi,
+    `href="/proposals/${params.id}/accept"`
+  )
+  // Also update any remaining #accept links
+  html = html.replace(
+    /href="#accept"/gi,
+    `href="/proposals/${params.id}/accept"`
+  )
 
   return (
-    <ProposalClient
-      project={{
-        id: project.id,
-        name: project.name,
-        proposalHtml: cleanHtml,
-        services: project.proposal_services || [],
-        terms: project.proposal_terms || '',
-        maintenancePlans: project.proposal_maintenance_plans || [],
-        depositPercentage: project.deposit_percentage || 50,
-      }}
-      alreadyAccepted={alreadyAccepted}
-    />
+    <div dangerouslySetInnerHTML={{ __html: html }} />
   )
 }
 
@@ -103,7 +78,7 @@ function ExpiredProposal() {
           margin: '0 auto 1.5rem',
           fontSize: '1.5rem',
         }}>
-          ✦
+          \u2726
         </div>
         <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem' }}>
           This proposal has expired
