@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     const messageBlock = message
-      ? '<p style="color: #a1a1a1; font-size: 15px; line-height: 1.6; margin: 0 0 32px; padding: 16px; border-left: 3px solid #81D8D0; background: rgba(129,216,208,0.05); border-radius: 0 8px 8px 0;">' + message + '</p>'
+     ? '<p style="color: #a1a1a1; font-size: 15px; line-height: 1.6; margin: 0 0 32px; padding: 16px; border-left: 3px solid #81D8D0; background: rgba(129,216,208,0.05); border-radius: 0 8px 8px 0; text-align: left;">' + message.replace(/\n/g, '<br>') + '</p>'
       : ''
 
     await sendEmail({
