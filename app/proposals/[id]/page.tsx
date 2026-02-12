@@ -5,7 +5,7 @@ export const revalidate = 0
 import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 
-export default async function ProposalPage({ params }: { params: { id: string } }) {
+export default async function ProposalPage({ params, searchParams }: { params: { id: string }, searchParams: { ref?: string } }) {
   const supabase = createServiceClient()
   
   const { data: project, error } = await supabase
@@ -20,7 +20,7 @@ export default async function ProposalPage({ params }: { params: { id: string } 
 
   const isExpired = project.proposal_expires_at && new Date(project.proposal_expires_at) < new Date()
 
-  if (project.proposal_status === 'sent' && !isExpired) {
+  if (project.proposal_status === 'sent' && !isExpired && searchParams.ref === 'client') {
     await supabase
       .from('projects')
       .update({ 

@@ -715,7 +715,7 @@ export default function HubProjectDetailPage() {
               )}
             </div>
             <a
-              href={project.proposal_html ? `/proposals/${project.id}` : project.proposal_url}
+              href={project.proposal_html ? `/proposals/${project.id}?ref=client` : project.proposal_url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackActivity('proposal')}

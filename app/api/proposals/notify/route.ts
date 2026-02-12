@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
               Your website proposal for <strong style="color: #fff;">${project_name || 'your project'}</strong> is ready to review.
             </p>
             ${messageBlock}
-            <a href="${proposal_url}" style="display: inline-block; background: #81D8D0; color: #0a0a0a; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase;">
+            <a href="${proposal_url}?ref=client" style="display: inline-block; background: #81D8D0; color: #0a0a0a; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase;">
               View Your Proposal
             </a>
             <p style="color: #555; font-size: 13px; margin-top: 24px;">
