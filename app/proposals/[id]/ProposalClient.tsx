@@ -122,26 +122,13 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
     html = html.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
     html = html.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
     html = html.replace(/<meta[^>]*>/gi, '')
-    // Remove CTA section and footer if present
-    html = html.replace(/<section class="cta-section">[\s\S]*?<\/section>/gi, '')
-    html = html.replace(/<footer[\s\S]*?<\/footer>/gi, '')
-    // Strip global CSS rules that leak into the rest of the page
-    html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (m: string, attrs: string, css: string) => {
-      css = css.replace(/\*\s*\{[^}]*\}/g, '')
-      css = css.replace(/html\s*\{[^}]*\}/g, '')
-      css = css.replace(/body\s*\{[^}]*\}/g, '')
-      css = css.replace(/::-webkit-scrollbar[^{]*\{[^}]*\}/g, '')
-      css = css.replace(/position:\s*fixed/g, 'position: sticky')
-      css = css.replace(/(^|\})\s*section\s*\{/gm, '$1 .proposal-content section {')
-      return '<style' + attrs + '>' + css + '</style>'
-    })
     return html
   }, [project.proposalHtml])
 
   if (alreadyAccepted) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="proposal-content" dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-4 text-2xl">
             ✓
@@ -156,10 +143,11 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   return (
     <div className="min-h-screen bg-white">
       {/* Render the custom HTML proposal */}
-      <div className="proposal-content" dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+      <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
 
       {/* Hub-generated interactive section */}
-      <div id="accept" className="proposal-interactive" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div id="accept" style={{ scrollMarginTop: "80px" }} />
+      <div className="proposal-interactive" style={{ fontFamily: "'DM Sans', sans-serif" }}>
         
         {/* Services Section */}
         {project.services.length > 0 && (
