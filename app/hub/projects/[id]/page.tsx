@@ -704,7 +704,7 @@ export default function HubProjectDetailPage() {
         )}
 
         {/* Proposal */}
-        {(project?.proposal_url || (project?.proposal_html && project?.proposal_status === 'sent')) && (
+        {(project?.proposal_url || (project?.proposal_html && ['sent', 'viewed', 'accepted'].includes(project?.proposal_status))) && (
           <section ref={sectionRefs.proposal} className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-3 sm:p-4 space-y-3">
             <div>
               <h2 className="text-white font-semibold text-lg mb-1">Proposal</h2>
