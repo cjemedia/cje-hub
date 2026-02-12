@@ -96,9 +96,6 @@ type Props = {
   onCancelDeleteMessage: () => void
   // Supabase for auth
   supabase: any
-  // Preview modal
-  setPreviewMessage: (msg: { content: string; recipient: string; onConfirm: () => void } | null) => void
-  setShowMessagePreview: (show: boolean) => void
 }
 
 export default function ProposalTab({ 
@@ -108,7 +105,6 @@ export default function ProposalTab({
   editingMessageId, editingMessageContent, onEditMessage, onSaveMessage, onCancelEdit,
   onDeleteMessage, deletingMessageId, onConfirmDeleteMessage, onCancelDeleteMessage,
   supabase,
-  setPreviewMessage, setShowMessagePreview,
 }: Props) {
   // Mode: 'link' (old URL) or 'html' (new full proposal)
   const hasHtml = !!projectData?.proposal_html
@@ -130,6 +126,7 @@ export default function ProposalTab({
   const [depositPct, setDepositPct] = useState(projectData?.deposit_percentage || 50)
   const [savingHtml, setSavingHtml] = useState(false)
   const [sendingHtml, setSendingHtml] = useState(false)
+  const [showProposalPreview, setShowProposalPreview] = useState(false)
   const [htmlSaved, setHtmlSaved] = useState(false)
 
   // Service editing
@@ -306,6 +303,7 @@ export default function ProposalTab({
                 sender_id: user?.id || null,
                 content: messageDraft.trim(),
                 message_type: 'proposal',
+                skip_email: true,
               }),
             })
           }
@@ -327,16 +325,7 @@ export default function ProposalTab({
       return
     }
     if (messageDraft.trim()) {
-      setPreviewMessage({
-        content: messageDraft.trim(),
-        recipient: `All clients (${projectClients.length})`,
-        onConfirm: async () => {
-          setShowMessagePreview(false)
-          setPreviewMessage(null)
-          await doSendProposal()
-        },
-      })
-      setShowMessagePreview(true)
+      setShowProposalPreview(true)
     } else {
       if (!confirm('Send this proposal without a message?')) return
       await doSendProposal()
@@ -848,6 +837,51 @@ export default function ProposalTab({
             </button>
           </div>
         </>
+      )}
+      {/* Proposal Send Preview Modal */}
+      {showProposalPreview && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-xl font-semibold">Send Proposal</h3>
+              <button
+                onClick={() => setShowProposalPreview(false)}
+                className="text-[#a1a1a1] hover:text-white text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3">
+            <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-1">To</p>
+                <p className="text-white">All clients ({projectClients.length})</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/60 uppercase tracking-wider mb-2">Message</p>
+                <div className="bg-[#0a0a0a] border border-[#333333] rounded-lg p-4 min-h-[100px]">
+                  <p className="text-white whitespace-pre-wrap break-words">{messageDraft}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-[#333333]">
+              <button
+                onClick={() => setShowProposalPreview(false)}
+                className="px-4 py-2 rounded-lg border border-[#333333] text-white hover:border-[#81D8D0]/60"
+              >
+                Edit
+              </button>
+              <button
+                onClick={async () => {
+                  setShowProposalPreview(false)
+                  await doSendProposal()
+                }}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#81D8D0] to-[#5fb3ad] text-[#0a0a0a] font-semibold hover:opacity-90"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

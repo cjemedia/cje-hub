@@ -496,7 +496,7 @@ export default function AdminProjectDetailPage() {
             await loadActivity()
           },
         })
-        console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+        setShowMessagePreview(true)
         setSendingProposal(false)
         return
       }
@@ -561,7 +561,7 @@ export default function AdminProjectDetailPage() {
             await loadActivity()
           },
         })
-        console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+        setShowMessagePreview(true)
         setSendingProposal(false)
         return
       }
@@ -668,7 +668,7 @@ export default function AdminProjectDetailPage() {
             await loadActivity()
           },
         })
-        console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+        setShowMessagePreview(true)
         setSendingStyleGuide(false)
         return
       }
@@ -733,7 +733,7 @@ export default function AdminProjectDetailPage() {
             await loadActivity()
           },
         })
-        console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+        setShowMessagePreview(true)
         setSendingStyleGuide(false)
         return
       }
@@ -872,7 +872,7 @@ export default function AdminProjectDetailPage() {
             await loadActivity()
           },
         })
-        console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+        setShowMessagePreview(true)
         setSendingContentCalendar(false)
         return
       }
@@ -937,7 +937,7 @@ export default function AdminProjectDetailPage() {
             await loadActivity()
           },
         })
-        console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+        setShowMessagePreview(true)
         setSendingContentCalendar(false)
         return
       }
@@ -1047,7 +1047,7 @@ export default function AdminProjectDetailPage() {
         }
       },
     })
-    console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+    setShowMessagePreview(true)
   }
 
   const handleSendMessage = async () => {
@@ -1109,7 +1109,7 @@ export default function AdminProjectDetailPage() {
         }
       },
     })
-    console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+    setShowMessagePreview(true)
   }
 
   const handleEditMessage = (message: any) => {
@@ -1213,7 +1213,7 @@ export default function AdminProjectDetailPage() {
         }
       },
     })
-    console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+    setShowMessagePreview(true)
   }
 
   const handleSendStyleGuideMessage = async () => {
@@ -1285,7 +1285,7 @@ export default function AdminProjectDetailPage() {
         }
       },
     })
-    console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+    setShowMessagePreview(true)
   }
 
   const handleSendResourceMessage = async () => {
@@ -1357,7 +1357,7 @@ export default function AdminProjectDetailPage() {
         }
       },
     })
-    console.trace('PREVIEW OPENED'); setShowMessagePreview(true)
+    setShowMessagePreview(true)
   }
 
   const handleDeleteMessage = async (messageId: string) => {
@@ -1844,8 +1844,6 @@ export default function AdminProjectDetailPage() {
               onConfirmDeleteMessage={async (id) => { await handleDeleteMessage(id) }}
               onCancelDeleteMessage={() => setDeletingMessageId(null)}
               supabase={supabase}
-              setPreviewMessage={setPreviewMessage}
-              setShowMessagePreview={setShowMessagePreview}
             />
           )}
           {tab === 'style-guide' && (

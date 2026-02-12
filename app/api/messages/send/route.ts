@@ -5,7 +5,7 @@ import { sendEmail } from '@/lib/resend'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { user_id, sender_type, content, project_id, sender_id, message_type } = body || {}
+    const { user_id, sender_type, content, project_id, sender_id, message_type, skip_email } = body || {}
 
     if (!user_id || !sender_type || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email notification
-    try {
+    if (!skip_email) try {
       if (sender_type === 'admin') {
         if (userProfile?.email) {
           await sendEmail({
