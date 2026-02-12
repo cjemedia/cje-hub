@@ -117,19 +117,18 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   // Build srcDoc: remove CTA/footer, add height reporter
   const iframeSrcDoc = useMemo(() => {
     let html = project.proposalHtml
-    // Remove CTA and footer sections (our app handles acceptance)
-    html = html.replace(/<section class="cta-section">[\s\S]*?<\/section>/gi, '')
-    html = html.replace(/<footer[\s\S]*?<\/footer>/gi, '')
-    // Make Accept Proposal nav button message parent to scroll
-    html = html.replace(
-      /onclick="[^"]*"/g,
-      'onclick="event.preventDefault(); window.parent.postMessage({t:\'scrollAccept\'},\'*\');"'
-    )
-    // Inject resize script before </body>
-    const script = '<script>function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}window.onload=rh;window.onresize=rh;new ResizeObserver(rh).observe(document.body);setTimeout(rh,300);setTimeout(rh,1000);<\/script>'
+    // Add height reporter and disable iframe scrolling
+    const script = \`<script>
+      function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}
+      window.onload=rh;window.onresize=rh;setTimeout(rh,500);setTimeout(rh,1500);
+      // Handle Accept Proposal click
+      document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href="#accept"]');
+        if (link) { e.preventDefault(); window.parent.postMessage({t:"scrollAccept"},"*"); }
+      });
+    <\/script>
+    <style>html,body{overflow:hidden !important;}</style>\`
     html = html.replace('</body>', script + '</body>')
-    // Disable scrolling inside iframe
-    html = html.replace('<body', '<body style="overflow:hidden"')
     return html
   }, [project.proposalHtml])
 
