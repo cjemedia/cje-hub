@@ -96,6 +96,9 @@ type Props = {
   onCancelDeleteMessage: () => void
   // Supabase for auth
   supabase: any
+  // Preview modal
+  setPreviewMessage: (msg: { content: string; recipient: string; onConfirm: () => void } | null) => void
+  setShowMessagePreview: (show: boolean) => void
 }
 
 export default function ProposalTab({ 
@@ -104,7 +107,8 @@ export default function ProposalTab({
   sendToAllClients, setSendToAllClients, onSendMessage, onLoadMessages,
   editingMessageId, editingMessageContent, onEditMessage, onSaveMessage, onCancelEdit,
   onDeleteMessage, deletingMessageId, onConfirmDeleteMessage, onCancelDeleteMessage,
-  supabase
+  supabase,
+  setPreviewMessage, setShowMessagePreview,
 }: Props) {
   // Mode: 'link' (old URL) or 'html' (new full proposal)
   const hasHtml = !!projectData?.proposal_html
@@ -249,15 +253,9 @@ export default function ProposalTab({
     setSavingHtml(false)
   }
 
-  const handleSendProposal = async () => {
-    if (!htmlContent.trim() || services.length === 0) {
-      alert('Save the proposal first.')
-      return
-    }
-    if (!confirm('Send this proposal to the client? They will receive an email with the link.')) return
+  const doSendProposal = async () => {
     setSendingHtml(true)
     try {
-      // Save first
       await fetch(`/api/projects/${projectId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -271,21 +269,14 @@ export default function ProposalTab({
           proposal_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         }),
       })
-
-      // Send email notification
       const baseUrl = window.location.origin
       const proposalUrl = `${baseUrl}/proposals/${projectId}`
-
-      // Send email to ALL project clients
       const clientEmails = projectClients
         .map(pc => pc.users?.email)
         .filter(Boolean)
-
-      // Fallback to projectData.users if no projectClients
       if (clientEmails.length === 0 && projectData?.users?.email) {
         clientEmails.push(projectData.users.email)
       }
-
       for (const email of clientEmails) {
         const clientInfo = projectClients.find(pc => pc.users?.email === email)
         await fetch('/api/proposals/notify', {
@@ -301,19 +292,55 @@ export default function ProposalTab({
           }),
         })
       }
-
-      // Send message in thread if there's content
       if (messageDraft.trim()) {
-        setSendToAllClients(true)
-        await onSendMessage()
+        try {
+          const { data: { user } } = await supabase.auth.getUser()
+          for (const pc of projectClients) {
+            await fetch('/api/messages/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id: projectId,
+                user_id: pc.user_id,
+                sender_type: 'admin',
+                sender_id: user?.id || null,
+                content: messageDraft.trim(),
+                message_type: 'proposal',
+              }),
+            })
+          }
+        } catch (e) {
+          console.error('Failed to send portal message:', e)
+        }
       }
       setMessageDraft('')
-
       await onReload()
     } catch {
       alert('Failed to send proposal.')
     }
     setSendingHtml(false)
+  }
+
+  const handleSendProposal = async () => {
+    if (!htmlContent.trim() || services.length === 0) {
+      alert('Save the proposal first.')
+      return
+    }
+    if (messageDraft.trim()) {
+      setPreviewMessage({
+        content: messageDraft.trim(),
+        recipient: `All clients (${projectClients.length})`,
+        onConfirm: async () => {
+          setShowMessagePreview(false)
+          setPreviewMessage(null)
+          await doSendProposal()
+        },
+      })
+      setShowMessagePreview(true)
+    } else {
+      if (!confirm('Send this proposal without a message?')) return
+      await doSendProposal()
+    }
   }
 
   const handleDeleteHtmlProposal = async () => {

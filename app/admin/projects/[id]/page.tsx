@@ -1844,6 +1844,8 @@ export default function AdminProjectDetailPage() {
               onConfirmDeleteMessage={async (id) => { await handleDeleteMessage(id) }}
               onCancelDeleteMessage={() => setDeletingMessageId(null)}
               supabase={supabase}
+              setPreviewMessage={setPreviewMessage}
+              setShowMessagePreview={setShowMessagePreview}
             />
           )}
           {tab === 'style-guide' && (
