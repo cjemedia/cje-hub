@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           line_items: lineItems,
           mode: 'payment',
           success_url: `${baseUrl}/proposals/${project_id}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${baseUrl}/proposals/${project_id}`,
+          cancel_url: `${baseUrl}/proposals/${project_id}/accept`,
           client_reference_id: acceptance.id,
           metadata: {
             project_id,
