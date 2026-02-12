@@ -47,10 +47,8 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
   }, [selectedServices, project.services])
 
   const subtotal = useMemo(() => {
-    const servicesTotal = selectedServicesList.reduce((sum, s) => sum + s.price, 0)
-    const planTotal = selectedPlan !== null ? project.maintenancePlans[selectedPlan]?.price || 0 : 0
-    return servicesTotal + planTotal
-  }, [selectedServicesList, selectedPlan, project.maintenancePlans])
+    return selectedServicesList.reduce((sum, s) => sum + s.price, 0)
+  }, [selectedServicesList])
 
   const deposit = Math.round(subtotal * (project.depositPercentage / 100))
 
@@ -177,6 +175,7 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
             <div className="text-center mb-6">
               <p className="text-xs tracking-[0.2em] uppercase text-gray-400 mb-2">Ongoing Support</p>
               <h2 className="text-2xl font-semibold text-gray-900">Choose a Maintenance Plan</h2>
+              <p className="text-sm text-gray-500 mt-1">30 days of post-launch support included. Monthly billing begins after.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {project.maintenancePlans.map((plan, idx) => (
