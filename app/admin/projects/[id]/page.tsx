@@ -215,10 +215,6 @@ export default function AdminProjectDetailPage() {
   }
 
   const loadProposalMessages = async () => {
-    if (!projectData?.proposal_sent_at) {
-      setProposalMessages([])
-      return
-    }
     // Load messages filtered by message_type = 'proposal'
     // If message_type column doesn't exist, this will show all project messages
     const { data, error } = await supabase
@@ -247,10 +243,6 @@ export default function AdminProjectDetailPage() {
   }
 
   const loadStyleGuideMessages = async () => {
-    if (!projectData?.style_guide_sent_at) {
-      setStyleGuideMessages([])
-      return
-    }
     // Load messages filtered by message_type = 'style_guide'
     // If message_type column doesn't exist, this will show all project messages
     const { data, error } = await supabase
