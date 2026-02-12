@@ -10,6 +10,8 @@ type Service = {
   price: number
   description: string
   required: boolean
+  type: 'individual' | 'bundle'
+  includes: number[]
 }
 
 type MaintenancePlan = {
@@ -131,7 +133,7 @@ export default function ProposalTab({
 
   // Service editing
   const [editingServiceIdx, setEditingServiceIdx] = useState<number | null>(null)
-  const [serviceForm, setServiceForm] = useState<Service>({ name: '', price: 0, description: '', required: false })
+  const [serviceForm, setServiceForm] = useState<Service>({ name: '', price: 0, description: '', required: false, type: 'individual', includes: [] })
 
   // Plan editing
   const [editingPlanIdx, setEditingPlanIdx] = useState<number | null>(null)
@@ -365,7 +367,7 @@ export default function ProposalTab({
 
   // Service CRUD
   const openAddService = () => {
-    setServiceForm({ name: '', price: 0, description: '', required: false })
+    setServiceForm({ name: '', price: 0, description: '', required: false, type: 'individual', includes: [] })
     setEditingServiceIdx(-1)
   }
   const openEditService = (idx: number) => {
@@ -629,6 +631,26 @@ export default function ProposalTab({
               <div className="bg-[#0a0a0a] border border-[#333] rounded-lg p-3 space-y-2">
                 <input className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 text-white text-sm" placeholder="Service name" value={serviceForm.name} onChange={(e) => setServiceForm(p => ({ ...p, name: e.target.value }))} />
                 <input className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 text-white text-sm" placeholder="Description (optional)" value={serviceForm.description} onChange={(e) => setServiceForm(p => ({ ...p, description: e.target.value }))} />
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setServiceForm(p => ({ ...p, type: 'individual', includes: [] }))} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${serviceForm.type === 'individual' ? 'bg-[#81D8D0] text-black' : 'bg-[#1a1a1a] border border-[#333] text-[#a1a1a1]'}`}>Individual</button>
+                  <button type="button" onClick={() => setServiceForm(p => ({ ...p, type: 'bundle' }))} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${serviceForm.type === 'bundle' ? 'bg-[#81D8D0] text-black' : 'bg-[#1a1a1a] border border-[#333] text-[#a1a1a1]'}`}>Bundle</button>
+                </div>
+                {serviceForm.type === 'bundle' && services.filter(s => s.type !== 'bundle').length > 0 && (
+                  <div className="bg-[#1a1a1a] border border-[#333] rounded-lg p-3">
+                    <p className="text-xs text-[#a1a1a1] mb-2">This bundle includes:</p>
+                    {services.map((s, i) => s.type !== 'bundle' && (
+                      <label key={i} className="flex items-center gap-2 text-sm text-white py-1 cursor-pointer">
+                        <input type="checkbox" checked={serviceForm.includes.includes(i)} onChange={(e) => {
+                          setServiceForm(p => ({
+                            ...p,
+                            includes: e.target.checked ? [...p.includes, i] : p.includes.filter(x => x !== i)
+                          }))
+                        }} className="accent-[#81D8D0]" />
+                        {s.name} — ${s.price}
+                      </label>
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <input type="number" className="w-32 bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 text-white text-sm" placeholder="Price" value={serviceForm.price || ''} onChange={(e) => setServiceForm(p => ({ ...p, price: Number(e.target.value) }))} />
                   <label className="flex items-center gap-2 text-sm text-white cursor-pointer">

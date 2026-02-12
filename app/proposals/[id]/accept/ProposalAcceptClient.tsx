@@ -7,6 +7,8 @@ type Service = {
   price: number
   description?: string
   required?: boolean
+  type?: 'individual' | 'bundle'
+  includes?: number[]
 }
 
 type MaintenancePlan = {
@@ -36,6 +38,35 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
     })
     return initial
   })
+  const disabledByBundle = useMemo(() => {
+    const disabled = new Set<number>()
+    Object.keys(selectedServices).forEach(k => {
+      const i = Number(k)
+      if (selectedServices[i]) {
+        const s = project.services[i]
+        if (s?.type === 'bundle' && s.includes) {
+          s.includes.forEach((idx: number) => disabled.add(idx))
+        }
+      }
+    })
+    return disabled
+  }, [selectedServices, project.services])
+
+  const handleServiceToggle = (index: number) => {
+    const service = project.services[index]
+    if (disabledByBundle.has(index)) return
+    const next = { ...selectedServices }
+    if (next[index]) {
+      delete next[index]
+    } else {
+      next[index] = true
+      if (service.type === 'bundle' && service.includes) {
+        service.includes.forEach((idx: number) => { delete next[idx] })
+      }
+    }
+    setSelectedServices(next)
+  }
+
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null)
   const [clientName, setClientName] = useState('')
   const [agreed, setAgreed] = useState(false)
