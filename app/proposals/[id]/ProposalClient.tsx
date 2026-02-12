@@ -120,10 +120,10 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
     // Remove CTA and footer sections (our app handles acceptance)
     html = html.replace(/<section class="cta-section">[\s\S]*?<\/section>/gi, '')
     html = html.replace(/<footer[\s\S]*?<\/footer>/gi, '')
-    // Make Accept Proposal nav button scroll parent to #accept
+    // Make Accept Proposal nav button message parent to scroll
     html = html.replace(
-      /onclick="[^"]*"(\s*>\s*Accept Proposal)/gi,
-      'onclick="event.preventDefault(); window.parent.document.getElementById(\'accept\').scrollIntoView({behavior:\'smooth\'});"$1'
+      /onclick="[^"]*"/g,
+      'onclick="event.preventDefault(); window.parent.postMessage({t:\'scrollAccept\'},\'*\');"'
     )
     // Inject resize script before </body>
     const script = '<script>function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}window.onload=rh;window.onresize=rh;new ResizeObserver(rh).observe(document.body);setTimeout(rh,300);setTimeout(rh,1000);<\/script>'
@@ -137,6 +137,9 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
     const handler = (e: MessageEvent) => {
       if (e.data?.t === 'ph' && e.data.h) {
         setIframeHeight(e.data.h)
+      }
+      if (e.data?.t === 'scrollAccept') {
+        document.getElementById('accept')?.scrollIntoView({ behavior: 'smooth' })
       }
     }
     window.addEventListener('message', handler)
