@@ -118,16 +118,7 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   const iframeSrcDoc = useMemo(() => {
     let html = project.proposalHtml
     // Add height reporter and disable iframe scrolling
-    const script = \`<script>
-      function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}
-      window.onload=rh;window.onresize=rh;setTimeout(rh,500);setTimeout(rh,1500);
-      // Handle Accept Proposal click
-      document.addEventListener('click', function(e) {
-        var link = e.target.closest('a[href="#accept"]');
-        if (link) { e.preventDefault(); window.parent.postMessage({t:"scrollAccept"},"*"); }
-      });
-    <\/script>
-    <style>html,body{overflow:hidden !important;}</style>\`
+    const script = '<script>function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}window.onload=rh;window.onresize=rh;setTimeout(rh,500);setTimeout(rh,1500);document.addEventListener("click",function(e){var link=e.target.closest("a[href=\\"#accept\\"]");if(link){e.preventDefault();window.parent.postMessage({t:"scrollAccept"},"*");}});<\/script><style>html,body{overflow:hidden !important;}</style>'
     html = html.replace('</body>', script + '</body>')
     return html
   }, [project.proposalHtml])
