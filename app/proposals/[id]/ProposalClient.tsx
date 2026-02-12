@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo } from 'react'
 
 type Service = {
   name: string
@@ -111,41 +111,24 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   }
 
   // Strip document wrapper tags so the proposal HTML doesn't close the page
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [iframeHeight, setIframeHeight] = useState(5000)
-
-  // Build srcDoc: remove CTA/footer, add height reporter
-  const iframeSrcDoc = useMemo(() => {
+  const cleanedHtml = useMemo(() => {
     let html = project.proposalHtml
-    // Add height reporter and disable iframe scrolling
-    const script = '<script>function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}window.onload=rh;window.onresize=rh;setTimeout(rh,500);setTimeout(rh,1500);document.addEventListener("click",function(e){var link=e.target.closest("a[href=\\"#accept\\"]");if(link){e.preventDefault();window.parent.postMessage({t:"scrollAccept"},"*");}});<\/script><style>html,body{overflow:hidden !important;}</style>'
-    html = html.replace('</body>', script + '</body>')
+    html = html.replace(/<!DOCTYPE[^>]*>/gi, '')
+    html = html.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
+    html = html.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (match: string, inner: string) => {
+      const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
+      return styles ? styles.join('\n') : ''
+    })
+    html = html.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
+    html = html.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
+    html = html.replace(/<meta[^>]*>/gi, '')
     return html
   }, [project.proposalHtml])
-
-  useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (e.data?.t === 'ph' && e.data.h) {
-        setIframeHeight(e.data.h)
-      }
-      if (e.data?.t === 'scrollAccept') {
-        document.getElementById('accept')?.scrollIntoView({ behavior: 'smooth' })
-      }
-    }
-    window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [])
 
   if (alreadyAccepted) {
     return (
       <div className="min-h-screen bg-white">
-        <iframe
-          ref={iframeRef}
-          srcDoc={iframeSrcDoc}
-          style={{ width: '100%', height: iframeHeight, border: 'none', overflow: 'hidden' }}
-          scrolling="no"
-          title="Proposal"
-        />
+        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-4 text-2xl">
             ✓
@@ -160,13 +143,7 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   return (
     <div className="min-h-screen bg-white">
       {/* Render the custom HTML proposal */}
-      <iframe
-        ref={iframeRef}
-        srcDoc={iframeSrcDoc}
-        style={{ width: '100%', height: iframeHeight, border: 'none', overflow: 'hidden' }}
-        scrolling="no"
-        title="Proposal"
-      />
+      <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
 
       {/* Hub-generated interactive section */}
       <div id="accept" style={{ scrollMarginTop: "80px" }} />
