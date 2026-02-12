@@ -60,7 +60,7 @@ export default async function ProposalSuccessPage({ params, searchParams }: Page
 
         <p className="text-lg text-gray-500 leading-relaxed mb-8">
           Your proposal has been accepted and your deposit has been received. 
-          We&apos;re excited to get started on <strong className="text-gray-900">{project.name}</strong>!
+          We're excited to get started!
         </p>
 
         <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
