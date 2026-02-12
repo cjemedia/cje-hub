@@ -36,15 +36,10 @@ export default async function ProposalPage({ params }: { params: { id: string } 
 
   // Update the Accept Proposal nav link to point to /accept page
   let html = project.proposal_html
-  html = html.replace(
-    /href="#accept"[^>]*onclick="[^"]*"/gi,
-    `href="/proposals/${params.id}/accept"`
-  )
-  // Also update any remaining #accept links
-  html = html.replace(
-    /href="#accept"/gi,
-    `href="/proposals/${params.id}/accept"`
-  )
+  // Replace #accept links to point to accept page
+  html = html.replace(/href="#accept"/gi, `href="/proposals/${params.id}/accept"`)
+  // Remove onclick scroll handlers since we're navigating to a new page
+  html = html.replace(/onclick="event\.preventDefault\(\);[^"]*"/gi, '')
 
   return (
     <div dangerouslySetInnerHTML={{ __html: html }} />

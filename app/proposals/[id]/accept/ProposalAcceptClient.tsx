@@ -103,7 +103,7 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
       <div className="min-h-screen bg-white flex items-center justify-center p-6">
         <div className="max-w-lg text-center">
           <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-4 text-2xl">
-            \u2713
+            ✓
           </div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">Proposal Accepted</h2>
           <p className="text-gray-500 mb-6">This proposal has already been accepted and paid. Thank you!</p>
@@ -111,7 +111,7 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
             href={`/proposals/${project.id}`}
             className="text-[#81D8D0] hover:underline"
           >
-            \u2190 View Proposal
+            ← View Proposal
           </Link>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
           href={`/proposals/${project.id}`}
           className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1"
         >
-          \u2190 Back to Proposal
+          ← Back to Proposal
         </Link>
         <h1 className="text-lg font-semibold text-gray-900">{project.name}</h1>
         <div />
@@ -199,7 +199,7 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
                   <ul className="space-y-1.5">
                     {plan.features.map((f, fi) => (
                       <li key={fi} className="text-sm text-gray-600 flex items-start gap-2">
-                        <span className="text-[#81D8D0] mt-0.5">\u2713</span> {f}
+                        <span className="text-[#81D8D0] mt-0.5">✓</span> {f}
                       </li>
                     ))}
                   </ul>
@@ -215,7 +215,7 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold text-gray-900">Terms & Conditions</h2>
             </div>
-            <div className="bg-gray-50 rounded-xl p-6 prose prose-sm max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: project.terms }} />
+            <div className="bg-gray-50 rounded-xl p-6 prose prose-sm max-w-none text-gray-700 [&_h3]:text-gray-900 [&_h2]:text-gray-900 [&_h1]:text-gray-900" dangerouslySetInnerHTML={{ __html: project.terms }} />
           </section>
         )}
 
