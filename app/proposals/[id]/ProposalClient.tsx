@@ -110,10 +110,27 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
     }
   }
 
+  // Strip document wrapper tags so the proposal HTML doesn't close the page
+  const cleanedHtml = useMemo(() => {
+    let html = project.proposalHtml
+    // Remove doctype, html, head (keep style/link tags), body wrappers
+    html = html.replace(/<!DOCTYPE[^>]*>/gi, '')
+    html = html.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
+    html = html.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (match, inner) => {
+      // Keep style and link tags from head, discard the rest
+      const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
+      return styles ? styles.join('\n') : ''
+    })
+    html = html.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
+    html = html.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
+    html = html.replace(/<meta[^>]*>/gi, '')
+    return html
+  }, [project.proposalHtml])
+
   if (alreadyAccepted) {
     return (
       <div className="min-h-screen bg-white">
-        <div dangerouslySetInnerHTML={{ __html: project.proposalHtml }} />
+        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-4 text-2xl">
             ✓
@@ -128,7 +145,7 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   return (
     <div className="min-h-screen bg-white">
       {/* Render the custom HTML proposal */}
-      <div dangerouslySetInnerHTML={{ __html: project.proposalHtml }} />
+      <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
 
       {/* Hub-generated interactive section */}
       <div id="accept" className="proposal-interactive" style={{ fontFamily: "'DM Sans', sans-serif" }}>
