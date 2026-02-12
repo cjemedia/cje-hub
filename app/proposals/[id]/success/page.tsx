@@ -4,13 +4,12 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
-export default async function ProposalSuccessPage({ 
-  params, 
-  searchParams 
-}: { 
+interface PageProps {
   params: { id: string }
-  searchParams: { session_id?: string } 
-}) {
+  searchParams: { session_id?: string }
+}
+
+export default async function ProposalSuccessPage({ params, searchParams }: PageProps) {
   const supabase = createServiceClient()
 
   const { data: project } = await supabase
@@ -23,14 +22,12 @@ export default async function ProposalSuccessPage({
     notFound()
   }
 
-  // If we have a Stripe session ID, verify and update payment status
   if (searchParams.session_id && process.env.STRIPE_SECRET_KEY) {
     try {
       const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
       const session = await stripe.checkout.sessions.retrieve(searchParams.session_id)
 
       if (session.payment_status === 'paid') {
-        // Update acceptance record
         await supabase
           .from('proposal_acceptances')
           .update({ 
@@ -40,7 +37,6 @@ export default async function ProposalSuccessPage({
           })
           .eq('project_id', params.id)
 
-        // Update project status
         await supabase
           .from('projects')
           .update({ proposal_status: 'accepted' })
@@ -52,127 +48,64 @@ export default async function ProposalSuccessPage({
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#ffffff',
-      padding: '2rem',
-      fontFamily: "'DM Sans', sans-serif",
-    }}>
-      <div style={{
-        maxWidth: '500px',
-        textAlign: 'center',
-      }}>
-        <div style={{
-          width: '72px',
-          height: '72px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #81D8D0, #5fb3ad)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: '0 auto 2rem',
-          fontSize: '2rem',
-          color: '#ffffff',
-        }}>
+    <div className="min-h-screen flex items-center justify-center bg-white p-8">
+      <div className="max-w-md text-center">
+        <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#81D8D0] to-[#5fb3ad] flex items-center justify-center mx-auto mb-8 text-3xl text-white">
           ✓
         </div>
 
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: 700,
-          color: '#1a1a1a',
-          marginBottom: '0.75rem',
-        }}>
-          You're All Set!
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+          You&apos;re All Set!
         </h1>
 
-        <p style={{
-          fontSize: '1.1rem',
-          color: '#666',
-          lineHeight: 1.7,
-          marginBottom: '2rem',
-        }}>
+        <p className="text-lg text-gray-500 leading-relaxed mb-8">
           Your proposal has been accepted and your deposit has been received. 
-          We're excited to get started on <strong>{project.name}</strong>!
+          We&apos;re excited to get started on <strong className="text-gray-900">{project.name}</strong>!
         </p>
 
-        <div style={{
-          background: '#f8f8f8',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
-          textAlign: 'left',
-        }}>
-          <h3 style={{
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            lettSpacing: '0.15em',
-            textTransform: 'uppercase' as const,
-            color: '#81D8D0',
-            marginBottom: '1rem',
-          }}>
+        <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
+          <h3 className="text-xs font-semibold tracking-[0.15em] uppercase text-[#81D8D0] mb-4">
             What Happens Next
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '0.75rem' }}>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#81D8D0', fontWeight: 600, minWidth: '20px' }}>1.</span>
-              <p style={{ color: '#444', fontSize: '0.95rem', margin: 0, lineHeight: 1.6 }}>
-                You'll receive a confirmation email with your receipt and next steps.
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              <span className="text-[#81D8D0] font-semibold min-w-[20px]">1.</span>
+              <p className="text-gray-600 text-sm leading-relaxed m-0">
+                You&apos;ll receive a confirmation email with your receipt and next steps.
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#81D8D0', fontWeight: 600, minWidth: '20px' }}>2.</span>
-              <p style={{ color: '#444', fontSize: '0.95rem', margin: 0, lineHeight: 1.6 }}>
-                You'll get login credentials for your client portal where you can track progress.
+            <div className="flex gap-3">
+              <span className="text-[#81D8D0] font-semibold min-w-[20px]">2.</span>
+              <p className="text-gray-600 text-sm leading-relaxed m-0">
+                You&apos;ll get login credentials for your client portal where you can track progress.
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-              <span style={{ color: '#81D8D0', fontWeight: 600, minWidth: '20px' }}>3.</span>
-              <p style={{ color: '#444', fontSize: '0.95rem', margin: 0, lineHeight: 1.6 }}>
+            <div className="flex gap-3">
+              <span className="text-[#81D8D0] font-semibold min-w-[20px]">3.</span>
+              <p className="text-gray-600 text-sm leading-relaxed m-0">
                 Your project kicks off with the style guide and design direction phase.
               </p>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+        <div className="flex gap-4 justify-center flex-wrap">
           <Link
-            href={`/proposals/${params.id}`}
-            style={{
-              padding: '0.75rem 1.5rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              color: '#444',
-              textDecoration: 'none',
-              fontSize: '0.9rem',
-            }}
+            href={"/proposals/" + params.id}
+            className="px-6 py-3 border border-gray-200 rounded-lg text-gray-500 text-sm hover:border-gray-300 transition-colors no-underline"
           >
             View Proposal
           </Link>
           
+          <a
             href="mailto:media@ciarajevans.com"
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#81D8D0',
-              borderRadius: '8px',
-              color: '#ffffff',
-              textDecoration: 'none',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-            }}
+            className="px-6 py-3 bg-[#81D8D0] rounded-lg text-white text-sm font-semibold hover:bg-[#5fb3ad] transition-colors no-underline"
           >
             Contact Us
           </a>
         </div>
 
-        <p style={{
-          marginTop: '2rem',
-          fontSize: '0.8rem',
-          color: '#999',
-        }}>
+        <p className="mt-8 text-xs text-gray-400">
           Questions? Reach us at media@ciarajevans.com
         </p>
       </div>
