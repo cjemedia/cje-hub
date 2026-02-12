@@ -79,14 +79,13 @@ export default function ProposalAcceptClient({ project, alreadyAccepted }: Props
           project_id: project.id,
           client_name: clientName.trim(),
           selected_services: selectedServicesList,
-          selected_plan: selectedPlan !== null ? project.maintenancePlans[selectedPlan] : null,
-          deposit_amount: deposit,
-          total_amount: subtotal,
+          selected_maintenance_plan: selectedPlan !== null ? project.maintenancePlans[selectedPlan] : null,
+          deposit_percentage: project.depositPercentage,
         }),
       })
       const data = await res.json()
-      if (data.checkout_url) {
-        window.location.href = data.checkout_url
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
       } else {
         setError('Something went wrong. Please try again.')
       }
