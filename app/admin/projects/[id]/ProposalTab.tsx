@@ -250,7 +250,7 @@ export default function ProposalTab({
     setSavingHtml(false)
   }
 
-  const doSendProposal = async () => {
+  const doSendProposal = async (messageOverride?: string) => {
     setSendingHtml(true)
     try {
       await fetch(`/api/projects/${projectId}`, {
@@ -285,11 +285,12 @@ export default function ProposalTab({
             client_name: clientInfo?.users?.name || 'Client',
             proposal_url: proposalUrl,
             project_name: projectData.name,
-            message: messageDraft || '',
+            message: messageOverride || messageDraft || '',
           }),
         })
       }
-      if (messageDraft.trim()) {
+      const msgToSend = messageOverride || messageDraft.trim()
+      if (msgToSend) {
         try {
           const { data: { user } } = await supabase.auth.getUser()
           for (const pc of projectClients) {
@@ -301,7 +302,7 @@ export default function ProposalTab({
                 user_id: pc.user_id,
                 sender_type: 'admin',
                 sender_id: user?.id || null,
-                content: messageDraft.trim(),
+                content: msgToSend,
                 message_type: 'proposal',
                 skip_email: true,
               }),
@@ -873,7 +874,9 @@ export default function ProposalTab({
               <button
                 onClick={async () => {
                   setShowProposalPreview(false)
-                  await doSendProposal()
+                  const msg = messageDraft.trim()
+                  setMessageDraft('')
+                  await doSendProposal(msg)
                 }}
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#81D8D0] to-[#5fb3ad] text-[#0a0a0a] font-semibold hover:opacity-90"
               >
