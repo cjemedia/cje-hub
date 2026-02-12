@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 
 type Service = {
   name: string
@@ -111,24 +111,48 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   }
 
   // Strip document wrapper tags so the proposal HTML doesn't close the page
-  const cleanedHtml = useMemo(() => {
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [iframeHeight, setIframeHeight] = useState(5000)
+
+  // Build srcDoc: remove CTA/footer, add height reporter
+  const iframeSrcDoc = useMemo(() => {
     let html = project.proposalHtml
-    html = html.replace(/<!DOCTYPE[^>]*>/gi, '')
-    html = html.replace(/<html[^>]*>/gi, '').replace(/<\/html>/gi, '')
-    html = html.replace(/<head[^>]*>([\s\S]*?)<\/head>/gi, (match: string, inner: string) => {
-      const styles = inner.match(/<style[\s\S]*?<\/style>|<link[^>]*>/gi)
-      return styles ? styles.join('\n') : ''
-    })
-    html = html.replace(/<body[^>]*>/gi, '').replace(/<\/body>/gi, '')
-    html = html.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, '')
-    html = html.replace(/<meta[^>]*>/gi, '')
+    // Remove CTA and footer sections (our app handles acceptance)
+    html = html.replace(/<section class="cta-section">[\s\S]*?<\/section>/gi, '')
+    html = html.replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    // Make Accept Proposal nav button scroll parent to #accept
+    html = html.replace(
+      /onclick="[^"]*"(\s*>\s*Accept Proposal)/gi,
+      'onclick="event.preventDefault(); window.parent.document.getElementById(\'accept\').scrollIntoView({behavior:\'smooth\'});"$1'
+    )
+    // Inject resize script before </body>
+    const script = '<script>function rh(){window.parent.postMessage({t:"ph",h:document.documentElement.scrollHeight},"*")}window.onload=rh;window.onresize=rh;new ResizeObserver(rh).observe(document.body);setTimeout(rh,300);setTimeout(rh,1000);<\/script>'
+    html = html.replace('</body>', script + '</body>')
+    // Disable scrolling inside iframe
+    html = html.replace('<body', '<body style="overflow:hidden"')
     return html
   }, [project.proposalHtml])
+
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.t === 'ph' && e.data.h) {
+        setIframeHeight(e.data.h)
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [])
 
   if (alreadyAccepted) {
     return (
       <div className="min-h-screen bg-white">
-        <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+        <iframe
+          ref={iframeRef}
+          srcDoc={iframeSrcDoc}
+          style={{ width: '100%', height: iframeHeight, border: 'none', overflow: 'hidden' }}
+          scrolling="no"
+          title="Proposal"
+        />
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-4 text-2xl">
             ✓
@@ -143,7 +167,13 @@ export default function ProposalClient({ project, alreadyAccepted }: Props) {
   return (
     <div className="min-h-screen bg-white">
       {/* Render the custom HTML proposal */}
-      <div dangerouslySetInnerHTML={{ __html: cleanedHtml }} />
+      <iframe
+        ref={iframeRef}
+        srcDoc={iframeSrcDoc}
+        style={{ width: '100%', height: iframeHeight, border: 'none', overflow: 'hidden' }}
+        scrolling="no"
+        title="Proposal"
+      />
 
       {/* Hub-generated interactive section */}
       <div id="accept" style={{ scrollMarginTop: "80px" }} />
