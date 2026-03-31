@@ -1,7 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
+import Button from '@/components/Button'
+import { ArrowRight } from 'lucide-react'
 
 const HEARD_OPTIONS = [
   'A school event',
@@ -43,6 +48,11 @@ const INITIAL_FORM: FormState = {
   highSchool: '',
 }
 
+const inputClass =
+  'w-full bg-dark border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:ring-2 focus:ring-accent focus:border-accent transition-colors text-sm'
+
+const labelClass = 'block text-sm font-medium text-white/80 mb-2'
+
 export default function ConnectWithAscendPage() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [loading, setLoading] = useState(false)
@@ -51,9 +61,7 @@ export default function ConnectWithAscendPage() {
 
   const supabase = createClient()
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
@@ -62,8 +70,9 @@ export default function ConnectWithAscendPage() {
     setLoading(true)
     setError(null)
 
-    const { error: insertError } = await supabase.from('ascend_leads').insert([
+    const { error: insertError } = await supabase.from('leads').insert([
       {
+        tag: 'ascend',
         first_name: form.firstName,
         last_name: form.lastName,
         email: form.email,
@@ -86,231 +95,214 @@ export default function ConnectWithAscendPage() {
 
   if (submitted) {
     return (
-      <main className="min-h-screen bg-white flex items-center justify-center px-6">
-        <div className="text-center max-w-md">
-          {/* Animated checkmark circle */}
-          <div className="mx-auto mb-8 w-20 h-20 rounded-full bg-[#0ABAB5]/10 flex items-center justify-center">
-            <svg
-              className="w-10 h-10 text-[#0ABAB5]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h1
-            className="text-4xl text-charcoal mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+      <main className="min-h-screen bg-dark overflow-x-hidden">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[80vh] px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center max-w-md"
           >
-            You&apos;re In.
-          </h1>
-          <p className="text-gray-500 text-lg leading-relaxed">
-            Welcome to the Ascend community, {form.firstName}. We&apos;ll be in
-            touch with everything you need to know.
-          </p>
-          <div className="mt-8 w-16 h-px bg-[#0ABAB5] mx-auto" />
-          <p className="mt-6 text-sm text-gray-400">
-            Powered by{' '}
-            <span className="text-[#0ABAB5] font-medium">CJE Media</span>
-          </p>
+            <div className="mx-auto mb-8 w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center">
+              <svg className="w-10 h-10 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="text-4xl font-bold text-white mb-4">You&apos;re In.</h1>
+            <p className="text-white/70 text-lg leading-relaxed">
+              Welcome to the Ascend community, {form.firstName}. We&apos;ll be in touch with everything you need to know.
+            </p>
+            <div className="mt-8 w-16 h-px bg-accent/40 mx-auto" />
+            <p className="mt-6 text-sm text-white/40">
+              Powered by <span className="text-accent">CJE Media</span>
+            </p>
+          </motion.div>
         </div>
+        <Footer />
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-dark overflow-x-hidden">
+      <Navigation />
+
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#0ABAB5] px-6 pt-16 pb-20 text-white text-center">
-        {/* Subtle decorative circles */}
-        <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5" />
-        <div className="pointer-events-none absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-white/5" />
-
-        <p className="uppercase tracking-[0.25em] text-xs font-medium text-white/70 mb-4">
-          Ciara J. Evans Presents
-        </p>
-        <h1
-          className="text-5xl md:text-6xl font-normal leading-tight mb-4"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          Ascend
-        </h1>
-        <div className="w-12 h-px bg-white/50 mx-auto mb-5" />
-        <p className="text-white/90 text-lg max-w-sm mx-auto leading-relaxed">
-          A youth initiative for the next generation of leaders, thinkers, and
-          changemakers.
-        </p>
-      </section>
-
-      {/* Form card */}
-      <section className="px-6 py-12 max-w-lg mx-auto">
-        <div className="mb-8 text-center">
-          <h2
-            className="text-2xl text-gray-800 mb-2"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Stay Connected
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Fill out the form below and we&apos;ll keep you in the loop on
-            events, opportunities, and everything Ascend.
-          </p>
+      <section className="relative pt-32 pb-20 px-6 text-center overflow-hidden">
+        {/* Background text like homepage */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 1 }}>
+          <div className="text-[20vw] font-bold text-white/[0.04] select-none tracking-tight whitespace-nowrap" aria-hidden="true">
+            ASCEND
+          </div>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name row */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-                First Name <span className="text-[#0ABAB5]">*</span>
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                required
-                value={form.firstName}
-                onChange={handleChange}
-                placeholder="First"
-                className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#0ABAB5] transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-                Last Name <span className="text-[#0ABAB5]">*</span>
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                required
-                value={form.lastName}
-                onChange={handleChange}
-                placeholder="Last"
-                className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#0ABAB5] transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-              Email Address <span className="text-[#0ABAB5]">*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#0ABAB5] transition-colors"
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-              Phone Number{' '}
-              <span className="text-gray-400 font-normal normal-case">
-                (optional)
-              </span>
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="(555) 000-0000"
-              className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#0ABAB5] transition-colors"
-            />
-          </div>
-
-          {/* Grade Level */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-              Grade Level
-            </label>
-            <select
-              name="gradeLevel"
-              value={form.gradeLevel}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-[#0ABAB5] transition-colors bg-white appearance-none"
-            >
-              <option value="">Select grade level</option>
-              {GRADE_OPTIONS.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* High School */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-              High School
-            </label>
-            <input
-              type="text"
-              name="highSchool"
-              value={form.highSchool}
-              onChange={handleChange}
-              placeholder="School name"
-              className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#0ABAB5] transition-colors"
-            />
-          </div>
-
-          {/* How they heard */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1.5">
-              How did you hear about Ascend?
-            </label>
-            <select
-              name="howHeard"
-              value={form.howHeard}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-none px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-[#0ABAB5] transition-colors bg-white appearance-none"
-            >
-              <option value="">Select an option</option>
-              {HEARD_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#0ABAB5] text-white text-sm font-medium uppercase tracking-widest py-4 transition-colors hover:bg-[#089490] disabled:opacity-60 disabled:cursor-not-allowed"
+        <div className="relative" style={{ zIndex: 2 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            {loading ? 'Submitting...' : 'Join the Community'}
-          </button>
-
-          <p className="text-center text-xs text-gray-400 leading-relaxed">
-            By submitting, you agree to receive updates from CJE Media. We
-            respect your privacy and will never share your information.
-          </p>
-        </form>
+            <div className="inline-block px-4 py-2 bg-accent/10 rounded-full mb-6">
+              <span className="text-accent font-semibold text-sm">Ciara J. Evans Presents</span>
+            </div>
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6">Ascend</h1>
+            <p className="text-white/60 text-lg max-w-xl mx-auto leading-relaxed">
+              A youth initiative for the next generation of leaders, thinkers, and changemakers.
+            </p>
+          </motion.div>
+        </div>
       </section>
 
-      {/* Footer */}
-      <footer className="text-center pb-10">
-        <div className="w-16 h-px bg-[#0ABAB5]/30 mx-auto mb-4" />
-        <p className="text-xs text-gray-400">
-          © {new Date().getFullYear()} CJE Media · ciarajevans.com
-        </p>
-      </footer>
+      {/* Form Section */}
+      <section className="px-6 pb-24">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="max-w-lg mx-auto"
+        >
+          <div className="bg-dark-light rounded-2xl border border-white/10 shadow-2xl p-8">
+            <div className="mb-8 text-center">
+              <h2 className="text-2xl font-bold text-white mb-2">Stay Connected</h2>
+              <p className="text-white/60 text-sm">
+                Fill out the form and we&apos;ll keep you in the loop on events, opportunities, and everything Ascend.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Name row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>
+                    First Name <span className="text-accent">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    required
+                    value={form.firstName}
+                    onChange={handleChange}
+                    placeholder="First"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Last Name <span className="text-accent">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    value={form.lastName}
+                    onChange={handleChange}
+                    placeholder="Last"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className={labelClass}>
+                  Email Address <span className="text-accent">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className={labelClass}>
+                  Phone Number{' '}
+                  <span className="text-white/40 font-normal">(optional)</span>
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="(555) 000-0000"
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Grade */}
+              <div>
+                <label className={labelClass}>Grade Level</label>
+                <select
+                  name="gradeLevel"
+                  value={form.gradeLevel}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="" className="bg-[#1a1a1a]">Select grade level</option>
+                  {GRADE_OPTIONS.map((g) => (
+                    <option key={g} value={g} className="bg-[#1a1a1a]">{g}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* High School */}
+              <div>
+                <label className={labelClass}>High School</label>
+                <input
+                  type="text"
+                  name="highSchool"
+                  value={form.highSchool}
+                  onChange={handleChange}
+                  placeholder="School name"
+                  className={inputClass}
+                />
+              </div>
+
+              {/* How they heard */}
+              <div>
+                <label className={labelClass}>How did you hear about Ascend?</label>
+                <select
+                  name="howHeard"
+                  value={form.howHeard}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="" className="bg-[#1a1a1a]">Select an option</option>
+                  {HEARD_OPTIONS.map((o) => (
+                    <option key={o} value={o} className="bg-[#1a1a1a]">{o}</option>
+                  ))}
+                </select>
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                size="lg"
+                className="btn-primary w-full"
+                icon={ArrowRight}
+                disabled={loading}
+              >
+                {loading ? 'Submitting...' : 'Join the Community'}
+              </Button>
+
+              <p className="text-center text-xs text-white/30 leading-relaxed">
+                By submitting, you agree to receive updates from CJE Media. We respect your privacy and will never share your information.
+              </p>
+            </form>
+          </div>
+        </motion.div>
+      </section>
+
+      <Footer />
     </main>
   )
 }
