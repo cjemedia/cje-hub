@@ -66,32 +66,34 @@ export default function ConnectWithAscendPage() {
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+  e.preventDefault()
+  setLoading(true)
+  setError(null)
 
-    const { error: insertError } = await supabase.from('leads').insert([
-      {
-        tag: 'ascend',
-        first_name: form.firstName,
-        last_name: form.lastName,
-        email: form.email,
-        phone: form.phone || null,
-        how_heard: form.howHeard || null,
-        grade_level: form.gradeLevel || null,
-        high_school: form.highSchool || null,
-      },
-    ])
+  const res = await fetch('/api/leads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      tag: 'ascend',
+      first_name: form.firstName,
+      last_name: form.lastName,
+      email: form.email,
+      phone: form.phone || null,
+      how_heard: form.howHeard || null,
+      grade_level: form.gradeLevel || null,
+      high_school: form.highSchool || null,
+    }),
+  })
 
-    setLoading(false)
+  setLoading(false)
 
-    if (insertError) {
-      setError('Something went wrong. Please try again.')
-      return
-    }
-
-    setSubmitted(true)
+  if (!res.ok) {
+    setError('Something went wrong. Please try again.')
+    return
   }
+
+  setSubmitted(true)
+}
 
   if (submitted) {
     return (
