@@ -17,6 +17,7 @@ import {
   ExternalLink,
   X,
   CalendarCheck,
+  UserPlus,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -31,6 +32,7 @@ const navItems = [
   { href: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { href: '/admin/invoices', icon: Receipt, label: 'Invoices' },
   { href: '/admin/events', icon: CalendarCheck, label: 'Events' },
+  { href: '/admin/leads', icon: UserPlus, label: 'Leads' },
 ]
 
 export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {

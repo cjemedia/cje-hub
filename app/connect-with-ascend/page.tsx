@@ -146,7 +146,7 @@ export default function ConnectWithAscendPage() {
             </div>
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6">Ascend</h1>
             <p className="text-white/60 text-lg max-w-xl mx-auto leading-relaxed">
-              A youth initiative for the next generation of leaders, thinkers, and changemakers.
+              A scholarship strategy program for the next generation of HBCU scholars, leaders, and changemakers.
             </p>
           </motion.div>
         </div>
@@ -164,7 +164,7 @@ export default function ConnectWithAscendPage() {
             <div className="mb-8 text-center">
               <h2 className="text-2xl font-bold text-white mb-2">Stay Connected</h2>
               <p className="text-white/60 text-sm">
-                Fill out the form and we&apos;ll keep you in the loop on events, opportunities, and everything Ascend.
+                Join Ascend and stay connected to scholarship opportunities, resources, and strategies for HBCU-bound students.
               </p>
             </div>
 
