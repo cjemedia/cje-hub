@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   // Public routes that don't require authentication
-  const publicPaths = ['/login', '/forgot-password', '/reset-password']
+  const publicPaths = ['/login', '/forgot-password', '/reset-password', '/connect-with-ascend']
   const isPublicRoute = publicPaths.some(path => request.nextUrl.pathname.startsWith(path))
 
   // Return early for public routes - no auth checks needed
