@@ -99,7 +99,7 @@ export default function InquiriesList({
 ${portalUrl}
 Password: ${portalPassword}
 
-Fill out the Property Vision Form and I'll send you a $350 deposit link to secure your filming dates.
+Fill out the Property Vision Form and I'll send you a deposit link to secure your filming dates.
 
 — Ciara`
 
