@@ -30,14 +30,15 @@ export async function POST(
       return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 })
     }
 
-    // Create Stripe Payment Link
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
+    // Generic product name keeps the customer's receipt clean.
+    // Client identification lives in metadata + payment_intent description.
     const price = await stripe.prices.create({
       unit_amount: Math.round(Number(amount) * 100),
       currency: 'usd',
       product_data: {
-        name: `CJE Airbnb Marketing — ${inquiry.first_name} ${inquiry.last_name}`,
+        name: 'CJE Airbnb Marketing Package',
       },
     })
 
@@ -50,10 +51,13 @@ export async function POST(
         inquiry_id: inquiry.id,
         client_email: inquiry.email,
         client_name: `${inquiry.first_name} ${inquiry.last_name}`,
+        property_location: inquiry.property_location || '',
+      },
+      payment_intent_data: {
+        description: `Airbnb Marketing — ${inquiry.first_name} ${inquiry.last_name}${inquiry.property_location ? ` · ${inquiry.property_location}` : ''}`,
       },
     })
 
-    // Update inquiry record
     const now = new Date().toISOString()
     const { error: updateError } = await supabase
       .from('marketing_inquiries')
@@ -75,66 +79,87 @@ export async function POST(
     const prefilledUrl = `${paymentLink.url}?prefilled_email=${encodeURIComponent(inquiry.email)}`
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ciarajevans.com'
 
-    // Email client
+    // -------- Email to client (no amount in body — it's on the Stripe page) --------
     try {
       await sendEmail({
         to: inquiry.email,
-        subject: `Your CJE Airbnb Marketing Deposit — Secure Your Filming Dates`,
+        subject: `Your CJE Airbnb Marketing — Deposit Link Inside`,
         replyTo: 'media@ciarajevans.com',
         html: `
-          <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 580px; margin: 0 auto; color: #1a1a1a; background: #ffffff;">
-            <div style="text-align: center; padding: 2.5rem 0 2rem; border-bottom: 1px solid #efefef;">
-              <div style="font-size: 1.5rem; font-weight: 300; letter-spacing: 0.2em; color: #0a0a0a;">CJE <span style="color: #0ABAB5; font-weight: 600;">Media</span></div>
-            </div>
-            <div style="padding: 2.5rem 1.75rem;">
-              <p style="font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: #0ABAB5; font-weight: 600; margin: 0 0 1rem;">Your Deposit Is Ready</p>
-              <h1 style="font-size: 1.75rem; font-weight: 300; color: #0a0a0a; margin: 0 0 1.5rem; line-height: 1.3;">
-                Hi ${inquiry.first_name},
-              </h1>
-              <p style="font-size: 0.95rem; line-height: 1.7; color: #4a4a4a; margin-bottom: 1.5rem;">
-                Thank you for submitting your Property Vision Form. To secure your filming dates, please complete your <strong style="color: #0a0a0a;">$${Number(amount).toFixed(2)} deposit</strong> using the secure link below.
-              </p>
-              <div style="text-align: center; margin: 2.5rem 0;">
-                <a href="${prefilledUrl}"
-                   style="display: inline-block; background: #0a0a0a; color: #ffffff; padding: 1rem 2.5rem; text-decoration: none; letter-spacing: 0.25em; font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">
-                  Complete Your Deposit
-                </a>
-              </div>
-              <p style="font-size: 0.85rem; line-height: 1.7; color: #8a8a8a; margin-bottom: 1rem;">
-                Once payment is complete, I'll be in touch to lock in your filming schedule and align on creative direction.
-              </p>
-              <p style="font-size: 0.85rem; line-height: 1.7; color: #8a8a8a; margin-bottom: 2rem;">
-                Looking forward to creating something beautiful for your property.
-              </p>
-              <p style="font-size: 0.9rem; line-height: 1.6; color: #1a1a1a; margin: 0;">
-                — Ciara<br/>
-                <span style="color: #8a8a8a; font-size: 0.8rem;">CJE Media</span>
-              </p>
-            </div>
-            <div style="padding: 1.5rem; background: #fafaf7; text-align: center; font-size: 0.75rem; color: #8a8a8a; letter-spacing: 0.05em;">
-              Questions? Reply to this email or text 773.727.8262
-            </div>
-          </div>
+<div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; color: #1a1a1a;">
+  <div style="text-align: center; padding: 2.5rem 1.5rem 0;">
+    <div style="font-size: 0.95rem; font-weight: 300; letter-spacing: 0.3em; color: #0a0a0a;">
+      CJE <span style="color: #0ABAB5; font-weight: 600;">MEDIA</span>
+    </div>
+    <div style="font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: #8a8a8a; margin-top: 0.5rem; font-weight: 500;">
+      Airbnb Marketing
+    </div>
+    <div style="width: 24px; height: 1px; background: #0ABAB5; margin: 1rem auto 0;"></div>
+  </div>
+  <div style="padding: 2.5rem 2rem 1rem;">
+    <p style="font-size: 1rem; line-height: 1.7; color: #1a1a1a; margin: 0 0 1rem;">
+      Hi ${inquiry.first_name},
+    </p>
+    <p style="font-size: 0.95rem; line-height: 1.7; color: #4a4a4a; margin: 0 0 1rem;">
+      Thank you for sharing your property vision. Your deposit link is ready below — once payment is in, I'll lock your filming dates and be in touch on creative direction.
+    </p>
+    <div style="text-align: center; margin: 2.5rem 0 1.5rem;">
+      <a href="${prefilledUrl}"
+         style="display: inline-block; background: #0a0a0a; color: #ffffff; padding: 0.95rem 2.25rem; text-decoration: none; letter-spacing: 0.25em; font-size: 0.7rem; text-transform: uppercase; font-weight: 600;">
+        Complete Your Deposit
+      </a>
+    </div>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #1a1a1a; margin: 2rem 0 0;">
+      — Ciara
+    </p>
+  </div>
+  <div style="padding: 1.5rem; border-top: 1px solid #f0f0f0; text-align: center; font-size: 0.7rem; color: #8a8a8a; letter-spacing: 0.05em;">
+    media@ciarajevans.com · 773.727.8262
+  </div>
+</div>
         `,
       })
     } catch (emailErr) {
       console.error('Client email failed:', emailErr)
     }
 
-    // Notify Ciara
+    // -------- Notify Ciara (internal — keeps the amount) --------
     try {
       await sendEmail({
         to: 'media@ciarajevans.com',
         subject: `Payment link sent — ${inquiry.first_name} ${inquiry.last_name} · $${Number(amount).toFixed(2)}`,
         html: `
-          <div style="font-family: 'Helvetica Neue', sans-serif; color: #1a1a1a;">
-            <p>Payment link of <strong>$${Number(amount).toFixed(2)}</strong> just went out to ${inquiry.first_name} ${inquiry.last_name} (${inquiry.email}).</p>
-            <p>
-              <a href="${paymentLink.url}" style="color: #0ABAB5;">View Stripe link</a>
-              &nbsp;·&nbsp;
-              <a href="${baseUrl}/admin/marketing-inquiries/${inquiry.id}" style="color: #0ABAB5;">View inquiry</a>
-            </p>
-          </div>
+<div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; color: #1a1a1a;">
+  <div style="text-align: center; padding: 2.5rem 1.5rem 0;">
+    <div style="font-size: 0.95rem; font-weight: 300; letter-spacing: 0.3em; color: #0a0a0a;">
+      CJE <span style="color: #0ABAB5; font-weight: 600;">MEDIA</span>
+    </div>
+    <div style="font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: #8a8a8a; margin-top: 0.5rem; font-weight: 500;">
+      Airbnb Marketing
+    </div>
+    <div style="width: 24px; height: 1px; background: #0ABAB5; margin: 1rem auto 0;"></div>
+  </div>
+  <div style="padding: 2.5rem 2rem 1rem;">
+    <p style="font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: #0ABAB5; font-weight: 600; margin: 0 0 1rem;">
+      Payment Link Sent
+    </p>
+    <p style="font-size: 1rem; line-height: 1.7; color: #1a1a1a; margin: 0 0 0.5rem;">
+      <strong>$${Number(amount).toFixed(2)}</strong> link went to ${inquiry.first_name} ${inquiry.last_name}
+    </p>
+    <p style="font-size: 0.85rem; line-height: 1.7; color: #4a4a4a; margin: 0 0 1.5rem;">
+      ${inquiry.email}
+    </p>
+    <div style="text-align: center; margin: 2rem 0 1rem;">
+      <a href="${baseUrl}/admin/marketing-inquiries/${inquiry.id}"
+         style="display: inline-block; background: #0a0a0a; color: #ffffff; padding: 0.95rem 2.25rem; text-decoration: none; letter-spacing: 0.25em; font-size: 0.7rem; text-transform: uppercase; font-weight: 600;">
+        View Inquiry
+      </a>
+    </div>
+  </div>
+  <div style="padding: 1.5rem; border-top: 1px solid #f0f0f0; text-align: center; font-size: 0.7rem; color: #8a8a8a; letter-spacing: 0.05em;">
+    CJE Media · Internal
+  </div>
+</div>
         `,
       })
     } catch (notifyErr) {

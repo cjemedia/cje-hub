@@ -46,30 +46,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Notify Ciara
+    // Notify Ciara — soft branded internal email
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ciarajevans.com'
     try {
       await sendEmail({
         to: 'media@ciarajevans.com',
-        subject: `New Airbnb Marketing Inquiry — ${body.first_name} ${body.last_name}`,
+        subject: `New inquiry — ${body.first_name} ${body.last_name}`,
         replyTo: body.email,
         html: `
-          <div style="font-family: 'Helvetica Neue', sans-serif; max-width: 600px; color: #1a1a1a;">
-            <div style="border-bottom: 1px solid #efefef; padding-bottom: 1rem; margin-bottom: 1.5rem;">
-              <div style="font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: #0ABAB5; font-weight: 600; margin-bottom: 0.5rem;">CJE Media · New Inquiry</div>
-              <h2 style="color: #0a0a0a; font-weight: 300; margin: 0; font-size: 1.5rem;">${body.first_name} ${body.last_name}</h2>
-            </div>
-            <table style="border-collapse: collapse; width: 100%; font-size: 0.9rem;">
-              <tr><td style="padding: 0.5rem 0; color: #888; width: 100px;">Email</td><td style="padding: 0.5rem 0;"><a href="mailto:${body.email}" style="color: #0ABAB5;">${body.email}</a></td></tr>
-              <tr><td style="padding: 0.5rem 0; color: #888;">Phone</td><td style="padding: 0.5rem 0;">${body.phone}</td></tr>
-              <tr><td style="padding: 0.5rem 0; color: #888;">Location</td><td style="padding: 0.5rem 0;">${body.property_location}</td></tr>
-              ${body.airbnb_link ? `<tr><td style="padding: 0.5rem 0; color: #888;">Airbnb</td><td style="padding: 0.5rem 0;"><a href="${body.airbnb_link}" style="color: #0ABAB5;">${body.airbnb_link}</a></td></tr>` : ''}
-            </table>
-            <a href="${baseUrl}/admin/marketing-inquiries/${inquiry.id}"
-               style="display: inline-block; background: #0a0a0a; color: white; padding: 0.85rem 1.5rem; text-decoration: none; letter-spacing: 0.2em; font-size: 0.75rem; text-transform: uppercase; margin-top: 1.5rem; font-weight: 600;">
-              View &amp; Send Payment Link
-            </a>
-          </div>
+<div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; color: #1a1a1a;">
+  <div style="text-align: center; padding: 2.5rem 1.5rem 0;">
+    <div style="font-size: 0.95rem; font-weight: 300; letter-spacing: 0.3em; color: #0a0a0a;">
+      CJE <span style="color: #0ABAB5; font-weight: 600;">MEDIA</span>
+    </div>
+    <div style="font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase; color: #8a8a8a; margin-top: 0.5rem; font-weight: 500;">
+      Airbnb Marketing
+    </div>
+    <div style="width: 24px; height: 1px; background: #0ABAB5; margin: 1rem auto 0;"></div>
+  </div>
+  <div style="padding: 2.5rem 2rem 1rem;">
+    <p style="font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: #0ABAB5; font-weight: 600; margin: 0 0 1rem;">
+      New Inquiry
+    </p>
+    <p style="font-size: 1.25rem; font-weight: 300; line-height: 1.4; color: #0a0a0a; margin: 0 0 1.5rem;">
+      ${body.first_name} ${body.last_name}
+    </p>
+    <div style="font-size: 0.9rem; line-height: 2; color: #4a4a4a;">
+      ${body.property_location}<br/>
+      <a href="mailto:${body.email}" style="color: #0ABAB5; text-decoration: none;">${body.email}</a><br/>
+      ${body.phone}
+    </div>
+    <div style="text-align: center; margin: 2.5rem 0 1rem;">
+      <a href="${baseUrl}/admin/marketing-inquiries/${inquiry.id}"
+         style="display: inline-block; background: #0a0a0a; color: #ffffff; padding: 0.95rem 2.25rem; text-decoration: none; letter-spacing: 0.25em; font-size: 0.7rem; text-transform: uppercase; font-weight: 600;">
+        Open Inquiry
+      </a>
+    </div>
+  </div>
+  <div style="padding: 1.5rem; border-top: 1px solid #f0f0f0; text-align: center; font-size: 0.7rem; color: #8a8a8a; letter-spacing: 0.05em;">
+    CJE Media · Internal
+  </div>
+</div>
         `,
       })
     } catch (emailErr) {
