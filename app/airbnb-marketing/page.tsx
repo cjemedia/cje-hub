@@ -158,7 +158,7 @@ export default function AirbnbMarketingPage() {
                 <div className="amk-tier-name">Full Marketing</div>
                 <div className="amk-tier-price">$650<span className="amk-small">+/mo</span></div>
                 <div className="amk-tier-tag">Hands-off, fully managed.</div>
-                <div className="amk-tier-desc">Strategy, editing, captions, and posting support — start to finish.</div>
+                <div className="amk-tier-desc">Strategy, editing, captions, and posting support, start to finish.</div>
               </div>
             </div>
           </section>
@@ -301,7 +301,7 @@ export default function AirbnbMarketingPage() {
                   <button type="submit" className="amk-submit-btn" disabled={submitting}>
                     {submitting ? 'Submitting...' : 'Submit Vision'}
                   </button>
-                  <p className="amk-submit-note">After submitting, you'll receive your $350 deposit link via email.</p>
+                  <p className="amk-submit-note">After submitting, you'll receive your deposit link via email.</p>
                 </div>
               </form>
             </div>
@@ -325,9 +325,9 @@ export default function AirbnbMarketingPage() {
             <div className="amk-thanks-mark">✓</div>
             <h2>Thank you<span className="amk-script">.</span></h2>
             <p>
-              Your Property Vision Form has been received. Ciara will review everything and send your $350 deposit link to your inbox shortly. Once payment is complete, we'll lock in your filming dates.
+              Your Property Vision Form has been received. I'll review everything and send your deposit link to your inbox shortly. Once payment is complete, we'll lock in your filming dates.
             </p>
-            <div className="amk-thanks-meta">— Ciara, CJE Media</div>
+            <div className="amk-thanks-meta">Ciara, CJE Media</div>
           </div>
         </div>
       )}
@@ -361,7 +361,7 @@ function Field({ label, required, optional, hint, children }: {
         {label}
         {required && <span className="amk-req"> ·</span>}
         {optional && <span className="amk-opt">optional</span>}
-        {hint && <span className="amk-hint"> — {hint}</span>}
+        {hint && <span className="amk-hint">: {hint}</span>}
       </label>
       {children}
     </div>
