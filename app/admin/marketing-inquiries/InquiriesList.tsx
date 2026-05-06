@@ -101,7 +101,7 @@ Password: ${portalPassword}
 
 Fill out the Property Vision Form and I'll send you a deposit link to secure your filming dates.
 
-— Ciara`
+Ciara`
 
   const filtered = filter === 'all' ? items : items.filter(i => i.status === filter)
   const counts = items.reduce<Record<string, number>>((acc, i) => {
@@ -191,7 +191,7 @@ Fill out the Property Vision Form and I'll send you a deposit link to secure you
             className="w-full flex items-center justify-center gap-2 bg-[#0ABAB5] hover:bg-[#089690] text-black font-semibold text-xs uppercase tracking-widest py-3 transition disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {copied === 'msg' ? (
-              <><Check size={14} /> Message Copied — Paste Into Text or Email</>
+              <><Check size={14} /> Message Copied. Paste Into Text or Email</>
             ) : (
               <><MessageSquareShare size={14} /> Copy Ready-to-Send Message</>
             )}

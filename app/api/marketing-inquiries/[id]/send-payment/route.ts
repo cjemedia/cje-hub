@@ -54,7 +54,7 @@ export async function POST(
         property_location: inquiry.property_location || '',
       },
       payment_intent_data: {
-        description: `Airbnb Marketing — ${inquiry.first_name} ${inquiry.last_name}${inquiry.property_location ? ` · ${inquiry.property_location}` : ''}`,
+        description: `Airbnb Marketing for ${inquiry.first_name} ${inquiry.last_name}${inquiry.property_location ? ` · ${inquiry.property_location}` : ''}`,
       },
     })
 
@@ -79,11 +79,11 @@ export async function POST(
     const prefilledUrl = `${paymentLink.url}?prefilled_email=${encodeURIComponent(inquiry.email)}`
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ciarajevans.com'
 
-    // -------- Email to client (no amount in body — it's on the Stripe page) --------
+    // -------- Email to client (no amount in body, it's on the Stripe page) --------
     try {
       await sendEmail({
         to: inquiry.email,
-        subject: `Your CJE Airbnb Marketing — Deposit Link Inside`,
+        subject: `Your CJE Airbnb Marketing Deposit Link`,
         replyTo: 'media@ciarajevans.com',
         html: `
 <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; color: #1a1a1a;">
@@ -101,7 +101,7 @@ export async function POST(
       Hi ${inquiry.first_name},
     </p>
     <p style="font-size: 0.95rem; line-height: 1.7; color: #4a4a4a; margin: 0 0 1rem;">
-      Thank you for sharing your property vision. Your deposit link is ready below — once payment is in, I'll lock your filming dates and be in touch on creative direction.
+      Thank you for sharing your property vision. Your deposit link is ready below. Once payment is in, I'll lock your filming dates and be in touch on creative direction.
     </p>
     <div style="text-align: center; margin: 2.5rem 0 1.5rem;">
       <a href="${prefilledUrl}"
@@ -110,7 +110,7 @@ export async function POST(
       </a>
     </div>
     <p style="font-size: 0.9rem; line-height: 1.6; color: #1a1a1a; margin: 2rem 0 0;">
-      — Ciara
+      Ciara
     </p>
   </div>
   <div style="padding: 1.5rem; border-top: 1px solid #f0f0f0; text-align: center; font-size: 0.7rem; color: #8a8a8a; letter-spacing: 0.05em;">
@@ -123,11 +123,11 @@ export async function POST(
       console.error('Client email failed:', emailErr)
     }
 
-    // -------- Notify Ciara (internal — keeps the amount) --------
+    // -------- Notify Ciara (internal, keeps the amount) --------
     try {
       await sendEmail({
         to: 'media@ciarajevans.com',
-        subject: `Payment link sent — ${inquiry.first_name} ${inquiry.last_name} · $${Number(amount).toFixed(2)}`,
+        subject: `Payment link sent to ${inquiry.first_name} ${inquiry.last_name} · $${Number(amount).toFixed(2)}`,
         html: `
 <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; color: #1a1a1a;">
   <div style="text-align: center; padding: 2.5rem 1.5rem 0;">

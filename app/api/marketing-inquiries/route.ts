@@ -46,12 +46,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Notify Ciara — soft branded internal email
+    // Notify Ciara: soft branded internal email
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ciarajevans.com'
     try {
       await sendEmail({
         to: 'media@ciarajevans.com',
-        subject: `New inquiry — ${body.first_name} ${body.last_name}`,
+        subject: `New inquiry: ${body.first_name} ${body.last_name}`,
         replyTo: body.email,
         html: `
 <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; color: #1a1a1a;">
