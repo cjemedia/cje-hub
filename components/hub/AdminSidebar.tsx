@@ -20,6 +20,7 @@ import {
   UserPlus,
   QrCode,
   Sparkles,
+  Video,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -36,7 +37,8 @@ const navItems = [
   { href: '/admin/events', icon: CalendarCheck, label: 'Events' },
   { href: '/admin/leads', icon: UserPlus, label: 'Leads' },
   { href: '/admin/qr-generator', icon: QrCode, label: 'QR Generator' },
-  { href: '/admin/marketing-inquiries', icon: Sparkles, label: 'Airbnb Inquiries' }
+  { href: '/admin/marketing-inquiries', icon: Sparkles, label: 'Airbnb Inquiries' },
+  { href: '/admin/content-days', icon: Video, label: 'Content Days' }
 ]
 
 export default function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
