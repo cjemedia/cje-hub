@@ -539,7 +539,7 @@ export default function ContentDaysPage() {
                 link are on the way.
               </div>
 
-              <div className="cd-confirmed-sig">.  CIARA, CJE MEDIA</div>
+              <div className="cd-confirmed-sig">CIARA J.</div>
             </section>
 
             <BandFooter />
