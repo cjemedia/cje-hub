@@ -280,8 +280,8 @@ export async function createContentDayCallEvent(opts: {
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}:00`
   }
 
-  const startISO = `${fmt(slotTime)}-06:00`
-  const endISO = `${fmt(slotEnd)}-06:00`
+  const startISO = fmt(slotTime)
+  const endISO = fmt(slotEnd)
 
   const attendees = [
     { email: opts.email },
