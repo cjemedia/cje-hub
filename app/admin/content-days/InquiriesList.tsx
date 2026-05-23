@@ -103,15 +103,16 @@ export default function InquiriesList({ portalUrl }: { portalUrl: string }) {
   }
 
   // Ready-to-send DM/text message Ciara can paste into IG/SMS
-  const dmMessage = `Hey! Excited you're interested in a CJE Content Day.
+  const dmMessage = `Hi! 🩵 Thank you so much for reaching out about our CJE Content Days!
 
-Tap the link below, fill out the quick form, and pick a time for our vision call. On that call we'll lock in your shoot date and talk through your content vibe.
+To get started, click the link below, fill out the quick form, and book a time for your vision call ✨ During our call, we'll talk through your content goals, lock in your shoot date, and start building the perfect shot list for your brand.
 
 ${portalUrl}
 
-Spots fill fast. Secure yours soon.
+Spots are limited and dates are filling quickly, so secure yours soon ☺️
 
-.  Ciara`
+Speak with you soon,
+Ciara J.`
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-4 md:p-8">

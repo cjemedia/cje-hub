@@ -294,7 +294,7 @@ function buildClientEmail(d: {
     </p>
 
     <p style="font-family: 'Georgia', serif; font-style: italic; color: #81D8D0; font-size: 1.1rem; margin-top: 1.5rem;">
-     . Ciara, CJE Media
+      Ciara J.
     </p>
   </div>
 
