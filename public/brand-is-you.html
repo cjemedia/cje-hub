@@ -1,0 +1,2739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Brand Is YOU · Personal Brand Guide Map by Ciara J. Evans</title>
+<meta name="description" content="A personal brand guide map to help you clarify who you are, what you bring, and how you want to be remembered. Created by Ciara J. Evans, CJE Media." />
+<meta name="author" content="Ciara J. Evans" />
+<meta property="og:title" content="The Brand Is YOU · A Personal Brand Guide Map" />
+<meta property="og:description" content="Clarify who you are, what you bring, and how you want to be remembered. Created by Ciara J. Evans." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ciarajevans.com/brand-is-you" />
+<link rel="canonical" href="https://ciarajevans.com/brand-is-you" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Special+Elite&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --ink:      #0a0a0a;
+  --ink-70:   rgba(10, 10, 10, 0.7);
+  --ink-50:   rgba(10, 10, 10, 0.5);
+  --ink-20:   rgba(10, 10, 10, 0.2);
+  --ink-10:   rgba(10, 10, 10, 0.1);
+  --tiffany:  #81D8D0;
+  --tiffany-soft: #d8f0ed;
+  --tiffany-deep: #5FB5AD;
+  --cream:    #f4f1ea;
+  --paper:    #fefdf8;
+  --paper-shadow: rgba(10, 10, 10, 0.08);
+  --line:     #e5e2d7;
+  --sticky-yellow: #fff6b0;
+  --sticky-tiffany: #b8ebe6;
+
+  --font-display: 'Anton', 'Arial Narrow', sans-serif;
+  --font-script:  'Caveat', 'Brush Script MT', cursive;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'Special Elite', 'Courier New', monospace;
+
+  --max-w: 1200px;
+  --radius: 4px;
+  --shadow-card: 0 4px 20px rgba(10, 10, 10, 0.08), 0 1px 3px rgba(10, 10, 10, 0.05);
+  --shadow-lift: 0 8px 30px rgba(10, 10, 10, 0.12);
+  --transition: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--cream);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+a { color: var(--tiffany-deep); text-decoration: none; }
+img, svg { display: block; max-width: 100%; }
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.topbar-brand { display: flex; align-items: center; gap: 0.5rem; }
+.topbar-brand-you { color: var(--tiffany); }
+.topbar-actions { display: flex; gap: 1rem; align-items: center; }
+.topbar-btn {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  padding: 0.35rem 0.75rem;
+  transition: color 0.2s;
+}
+.topbar-btn:hover { color: var(--tiffany); }
+.topbar-btn.primary {
+  background: var(--tiffany);
+  color: var(--ink);
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+}
+.topbar-btn.primary:hover { background: #fff; color: var(--ink); }
+.topbar-saved-indicator {
+  font-size: 0.65rem;
+  color: var(--tiffany);
+  letter-spacing: 0.2em;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.topbar-saved-indicator.visible { opacity: 1; }
+
+/* ============================================================
+   HAND-DRAWN SVG ACCENTS (reusable)
+   ============================================================ */
+.hd-arrow, .hd-underline, .hd-circle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+}
+.hd-arrow svg, .hd-underline svg, .hd-circle svg {
+  width: 100%; height: 100%;
+  fill: none;
+  stroke: var(--tiffany);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Paper texture treatment for cards */
+.paper-texture {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(129, 216, 208, 0.03) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(10, 10, 10, 0.02) 0, transparent 40%);
+}
+
+/* Torn paper edge (for tape / film strip vibes) */
+.torn-edge-top {
+  position: relative;
+}
+.torn-edge-top::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 0; right: 0; height: 8px;
+  background: inherit;
+  clip-path: polygon(0 100%, 3% 0, 6% 100%, 10% 20%, 14% 100%, 18% 10%, 22% 100%, 26% 20%, 30% 100%, 34% 0, 38% 100%, 42% 10%, 46% 100%, 50% 20%, 54% 100%, 58% 0, 62% 100%, 66% 20%, 70% 100%, 74% 0, 78% 100%, 82% 20%, 86% 100%, 90% 10%, 94% 100%, 98% 0, 100% 100%);
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.hero {
+  padding: 6rem 1.5rem 3rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  background:
+    radial-gradient(ellipse at top right, rgba(129, 216, 208, 0.08), transparent 60%),
+    radial-gradient(ellipse at bottom left, rgba(129, 216, 208, 0.05), transparent 60%),
+    var(--cream);
+}
+.hero-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  position: relative;
+}
+.hero-left { position: relative; z-index: 2; }
+.hero-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--tiffany-deep);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: var(--tiffany);
+}
+
+/* NOTEBOOK PAPER "THE BRAND IS YOU" CARD */
+.hero-title-card {
+  position: relative;
+  background: var(--paper);
+  padding: 3.5rem 2.5rem 3rem;
+  box-shadow: var(--shadow-card);
+  transform: rotate(-1.5deg);
+  background-image:
+    linear-gradient(to bottom, transparent 0, transparent calc(2rem - 1px), rgba(129, 216, 208, 0.15) calc(2rem - 1px), rgba(129, 216, 208, 0.15) 2rem);
+  background-size: 100% 2rem;
+  background-position: 0 3rem;
+  max-width: 480px;
+}
+.hero-title-card::before {
+  /* Paper clip */
+  content: '';
+  position: absolute;
+  top: -18px;
+  right: 32px;
+  width: 28px;
+  height: 60px;
+  border: 3px solid #999;
+  border-radius: 14px 14px 4px 4px;
+  border-bottom: 3px solid #999;
+  background: transparent;
+  transform: rotate(15deg);
+  z-index: 3;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 7vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+.hero-title-you {
+  display: block;
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: 1.1em;
+  color: var(--tiffany);
+  text-transform: none;
+  line-height: 0.9;
+  margin-top: 0.25rem;
+  position: relative;
+  transform: rotate(-3deg);
+  padding-left: 1rem;
+}
+.hero-title-you::after {
+  /* Underline swash */
+  content: '';
+  position: absolute;
+  left: 1rem;
+  bottom: 0.2em;
+  width: 70%;
+  height: 4px;
+  background: var(--tiffany);
+  border-radius: 2px;
+  transform: rotate(-1deg);
+}
+
+/* Sticky notes */
+.sticky-note {
+  position: absolute;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-script);
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--ink);
+  box-shadow: 2px 4px 8px rgba(10,10,10,0.1);
+  z-index: 5;
+}
+.sticky-note-yellow { background: var(--sticky-yellow); }
+.sticky-note-tiffany { background: var(--sticky-tiffany); }
+.hero-sticky-1 {
+  top: -20px;
+  right: -30px;
+  transform: rotate(6deg);
+  background: var(--sticky-tiffany);
+  padding: 0.6rem 1rem;
+  max-width: 130px;
+  text-align: center;
+}
+
+.hero-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+}
+/* Right side: a black card with layered pieces */
+.hero-collage {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  height: 500px;
+}
+.hero-black-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 75%;
+  height: 60%;
+  background: var(--ink);
+  color: #fff;
+  padding: 2rem 1.75rem;
+  transform: rotate(1deg);
+  box-shadow: var(--shadow-card);
+  z-index: 2;
+}
+.hero-black-card-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+.hero-black-card-title span { color: var(--tiffany); }
+.hero-black-card-sub {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--tiffany);
+  margin: 1rem 0;
+  font-weight: 700;
+}
+.hero-black-card-body {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 1.25rem;
+}
+.hero-black-card-tape {
+  display: inline-block;
+  background: var(--tiffany);
+  color: var(--ink);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  font-weight: 700;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+  margin-top: 0.5rem;
+}
+.hero-cream-note {
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+  transform: rotate(3deg);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-script);
+  font-size: 1.4rem;
+  color: var(--ink);
+  line-height: 1.15;
+  max-width: 180px;
+  z-index: 3;
+}
+.hero-cream-note em { color: var(--tiffany-deep); font-style: normal; }
+
+.hero-megaphone {
+  position: absolute;
+  bottom: -40px;
+  left: -40px;
+  width: 150px;
+  height: 150px;
+  z-index: 4;
+  transform: rotate(-12deg);
+  filter: drop-shadow(4px 6px 8px rgba(10, 10, 10, 0.15));
+}
+
+/* Start button */
+.hero-cta-wrap {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--tiffany);
+  color: var(--ink);
+  padding: 1.1rem 2.5rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 0;
+  transition: transform 0.25s var(--transition), box-shadow 0.25s var(--transition), background 0.2s;
+  box-shadow: 0 4px 0 var(--ink);
+}
+.btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: #a8ebe4;
+}
+.btn-primary:active { transform: translate(0, 0); box-shadow: 0 2px 0 var(--ink); }
+.btn-primary svg { width: 16px; height: 16px; stroke-width: 3; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-70);
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--ink); border-color: var(--tiffany); }
+
+.hero-time-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--ink-50);
+  font-weight: 500;
+}
+.hero-time-note svg { width: 14px; height: 14px; }
+
+/* ============================================================
+   DIVIDER BAND
+   ============================================================ */
+.band {
+  background: var(--ink);
+  color: #fff;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+.band-item { display: flex; align-items: center; gap: 0.75rem; }
+.band-item::before { content: '✧'; color: var(--tiffany); font-size: 1rem; }
+.band-item strong { color: var(--tiffany); font-weight: 700; }
+
+/* ============================================================
+   PROGRESS STEPPER
+   ============================================================ */
+.stepper-section {
+  padding: 3rem 1.5rem 2rem;
+  background: var(--cream);
+}
+.stepper {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  position: relative;
+}
+.stepper::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: var(--ink-20);
+  z-index: 0;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.step:hover:not(.step-disabled) { transform: translateY(-2px); }
+.step-num {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 3px solid var(--cream);
+  transition: all 0.25s var(--transition);
+}
+.step-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-70);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+.step-active .step-num {
+  background: var(--tiffany);
+  color: var(--ink);
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(129, 216, 208, 0.5);
+}
+.step-active .step-label { color: var(--ink); font-weight: 700; }
+.step-complete .step-num {
+  background: var(--ink);
+  color: var(--tiffany);
+}
+.step-complete .step-num::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 12px;
+  border-right: 2.5px solid var(--tiffany);
+  border-bottom: 2.5px solid var(--tiffany);
+  transform: rotate(45deg) translate(-1px, -2px);
+}
+.step-complete .step-num { position: relative; font-size: 0; }
+.step-disabled { opacity: 0.4; cursor: not-allowed; }
+.step-flag { font-size: 1.5rem; }
+
+/* ============================================================
+   SECTION LAYOUT
+   ============================================================ */
+.section-wrap {
+  padding: 2rem 1.5rem 4rem;
+  background: var(--cream);
+  display: none;
+}
+.section-wrap.active { display: block; animation: fadeSlide 0.5s var(--transition); }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 3rem;
+  align-items: flex-start;
+}
+.section-main { position: relative; }
+
+/* Section header */
+.section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+.section-head-num {
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  padding: 0.5rem 1rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.section-head-text { position: relative; padding-top: 0.25rem; }
+.section-head-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+.section-head-title span { color: var(--tiffany); }
+.section-head-tagline-band {
+  display: inline-block;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-right: 0.75rem;
+}
+.section-head-tagline-band span { color: var(--tiffany); }
+.section-head-prompt {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink-70);
+  font-weight: 500;
+  margin-top: 1rem;
+  max-width: 500px;
+  line-height: 1.5;
+}
+.section-head-scribble {
+  position: absolute;
+  top: -30px;
+  right: -20px;
+  color: var(--tiffany);
+  font-family: var(--font-script);
+  font-size: 1.5rem;
+  transform: rotate(15deg);
+}
+
+/* Hand-drawn accents around section number tab */
+.section-head-doodle-arrow {
+  position: absolute;
+  left: -20px;
+  top: -22px;
+  width: 60px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 3;
+}
+.section-head-doodle-arrow path {
+  fill: none;
+  stroke: var(--tiffany);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.section-head-doodle-tally {
+  position: absolute;
+  right: -30px;
+  top: 8px;
+  width: 44px;
+  height: 26px;
+  pointer-events: none;
+}
+.section-head-doodle-tally path {
+  fill: none;
+  stroke: var(--tiffany);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.section-head-num { position: relative; }
+
+/* Question cards */
+.q-card {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 2rem 2rem 2rem 3rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.q-card:hover, .q-card:focus-within {
+  border-color: var(--tiffany);
+  box-shadow: var(--shadow-card);
+}
+.q-card::before {
+  /* Sticky note number tab */
+  content: attr(data-num);
+  position: absolute;
+  top: -12px;
+  left: -14px;
+  background: var(--sticky-tiffany);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-script);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  transform: rotate(-6deg);
+  box-shadow: 1px 2px 4px rgba(10,10,10,0.1);
+  z-index: 2;
+}
+.q-label {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+.q-hint {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ink-50);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+.q-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--line);
+  background: rgba(255,255,255,0.5);
+  font-size: 0.95rem;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  border-radius: 2px;
+}
+.q-input:focus {
+  border-color: var(--tiffany);
+  background: #fff;
+}
+.q-textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+.q-input-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+/* Radio group */
+.q-radio-group { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.q-radio {
+  position: relative;
+  cursor: pointer;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255,255,255,0.6);
+  border: 1.5px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+.q-radio:hover { border-color: var(--tiffany); }
+.q-radio input { position: absolute; opacity: 0; pointer-events: none; }
+.q-radio.selected {
+  background: var(--tiffany);
+  border-color: var(--tiffany);
+}
+
+/* Brand statement fill-in */
+.brand-statement {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 2.4;
+  color: var(--ink);
+}
+.brand-statement .bs-input,
+.brand-statement .bs-select {
+  display: inline-block;
+  width: auto;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-bottom: 2px solid var(--tiffany);
+  background: rgba(129, 216, 208, 0.1);
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  color: var(--tiffany-deep);
+  outline: none;
+  text-align: center;
+  transition: background 0.2s;
+  vertical-align: baseline;
+  border-radius: 2px 2px 0 0;
+}
+.brand-statement .bs-input { min-width: 180px; }
+.brand-statement .bs-input.bs-input-lg { min-width: 260px; }
+.brand-statement .bs-select {
+  min-width: 110px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 1.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%235FB5AD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-color: rgba(129, 216, 208, 0.1);
+}
+.brand-statement .bs-input:focus,
+.brand-statement .bs-select:focus {
+  background-color: rgba(129, 216, 208, 0.25);
+}
+.brand-example {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(129, 216, 208, 0.08);
+  border-left: 3px solid var(--tiffany);
+  font-size: 0.9rem;
+  color: var(--ink-70);
+  line-height: 1.6;
+  font-style: italic;
+}
+.brand-example-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--tiffany-deep);
+  font-weight: 700;
+  font-style: normal;
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   SIDEBAR (Remember card + Progress)
+   ============================================================ */
+.section-side {
+  position: sticky;
+  top: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.remember-card {
+  position: relative;
+  background: var(--paper);
+  padding: 2.5rem 2rem 2.5rem 3rem;
+  transform: rotate(1.5deg);
+  box-shadow: var(--shadow-card);
+  background-image:
+    linear-gradient(to bottom, transparent 0, transparent calc(1.75rem - 1px), rgba(129, 216, 208, 0.15) calc(1.75rem - 1px), rgba(129, 216, 208, 0.15) 1.75rem);
+  background-size: 100% 1.75rem;
+  background-position: 0 2rem;
+}
+.remember-card::before {
+  /* Notebook holes */
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 20px;
+  bottom: 20px;
+  width: 12px;
+  background-image:
+    radial-gradient(circle, rgba(10,10,10,0.15) 5px, transparent 6px);
+  background-size: 12px 45px;
+  background-repeat: repeat-y;
+}
+.remember-tape {
+  display: inline-block;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  font-weight: 700;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+  margin-bottom: 1.5rem;
+}
+.remember-quote {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 1rem;
+}
+.remember-quote span { color: var(--tiffany); }
+.remember-emphasis {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-script);
+  font-size: 1.5rem;
+  color: var(--ink);
+  padding: 0.25rem 0.5rem;
+  transform: rotate(-1deg);
+}
+.remember-emphasis::before {
+  content: '';
+  position: absolute;
+  inset: -4px -8px;
+  border: 2px solid var(--tiffany);
+  border-radius: 50%;
+  transform: rotate(-3deg);
+}
+.remember-checklist {
+  list-style: none;
+  margin-top: 1.75rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.remember-checklist li {
+  padding: 0.4rem 0 0.4rem 1.75rem;
+  position: relative;
+  color: var(--ink);
+}
+.remember-checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--tiffany);
+}
+.remember-checklist li::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0.85rem;
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  transform: rotate(45deg);
+}
+
+.progress-card {
+  background: var(--tiffany);
+  color: var(--ink);
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transform: rotate(-1deg);
+  box-shadow: var(--shadow-card);
+}
+.progress-circle-wrap { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
+.progress-circle-svg { width: 70px; height: 70px; transform: rotate(-90deg); }
+.progress-circle-bg { fill: none; stroke: rgba(10,10,10,0.15); stroke-width: 6; }
+.progress-circle-fg {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s var(--transition);
+}
+.progress-circle-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+.progress-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.affirm-tab {
+  position: relative;
+  background: var(--ink);
+  color: #fff;
+  padding: 1rem 1.75rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+  transform: rotate(-1deg);
+  box-shadow: var(--shadow-card);
+  align-self: flex-start;
+}
+.affirm-tab::before {
+  /* paper clip */
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 20px;
+  width: 20px;
+  height: 40px;
+  border: 2px solid #999;
+  border-radius: 10px 10px 3px 3px;
+  border-bottom-color: #999;
+  transform: rotate(-15deg);
+}
+
+/* ============================================================
+   NAV BUTTONS
+   ============================================================ */
+.section-nav {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  position: relative;
+}
+.section-nav-scribble {
+  position: absolute;
+  left: -50px;
+  top: -20px;
+  color: var(--tiffany-deep);
+  font-family: var(--font-script);
+  font-size: 1.5rem;
+  transform: rotate(-15deg);
+}
+.btn-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.75rem;
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+  transition: transform 0.2s, background 0.2s;
+}
+.btn-nav:hover { transform: translateX(2px); background: #222; }
+.btn-nav svg { width: 14px; height: 14px; stroke-width: 3; }
+.btn-nav-secondary { background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+.btn-nav-secondary:hover { background: var(--ink); color: #fff; }
+.btn-nav-secondary svg { transform: rotate(180deg); }
+
+/* ============================================================
+   "WHAT'S NEXT" PREVIEW BAND
+   ============================================================ */
+.next-band {
+  background: var(--ink);
+  color: #fff;
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.next-band-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 2rem;
+}
+.next-band-left { display: flex; flex-direction: column; gap: 0.25rem; }
+.next-band-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--tiffany);
+  line-height: 1;
+}
+.next-band-title {
+  font-family: var(--font-script);
+  font-size: 2rem;
+  color: #fff;
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+.next-band-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 3px;
+  background: var(--tiffany);
+  border-radius: 2px;
+}
+.next-band-sub {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  margin-top: 0.5rem;
+}
+.next-band-center {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.next-band-right { display: flex; justify-content: flex-end; align-items: center; gap: 1rem; }
+.next-band-note {
+  background: rgba(129, 216, 208, 0.15);
+  border: 1.5px solid var(--tiffany);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-script);
+  font-size: 1.1rem;
+  color: var(--tiffany);
+  transform: rotate(-2deg);
+  max-width: 150px;
+  line-height: 1.15;
+}
+.next-band-arrow {
+  color: var(--tiffany);
+  font-size: 3rem;
+  animation: arrowPulse 2s ease-in-out infinite;
+}
+@keyframes arrowPulse {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+
+/* ============================================================
+   SUMMARY / DOWNLOAD SECTION
+   ============================================================ */
+.summary-wrap {
+  padding: 6rem 1.5rem;
+  background: var(--cream);
+  display: none;
+}
+.summary-wrap.active { display: block; animation: fadeSlide 0.6s var(--transition); }
+.summary-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+.summary-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--tiffany-deep);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+.summary-eyebrow::before, .summary-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 30px;
+  height: 2px;
+  background: var(--tiffany);
+}
+.summary-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.summary-title-script {
+  display: block;
+  font-family: var(--font-script);
+  font-size: 1.15em;
+  color: var(--tiffany);
+  text-transform: none;
+  transform: rotate(-2deg);
+  line-height: 0.9;
+  margin-top: 0.25rem;
+}
+.summary-message {
+  font-size: 1.15rem;
+  color: var(--ink-70);
+  max-width: 600px;
+  margin: 2rem auto 3rem;
+  line-height: 1.6;
+}
+.summary-message strong { color: var(--ink); font-weight: 700; }
+
+.summary-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 4rem;
+}
+
+.summary-preview {
+  background: var(--paper);
+  padding: 3rem;
+  text-align: left;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--line);
+  margin-top: 2rem;
+}
+.summary-preview-head {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--tiffany-deep);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.summary-preview-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  color: var(--ink);
+}
+.summary-preview-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.summary-preview-section:last-child { border-bottom: none; }
+.summary-preview-section-title {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--tiffany-deep);
+  margin-bottom: 1rem;
+}
+.summary-preview-q {
+  margin-bottom: 1.25rem;
+}
+.summary-preview-q-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-70);
+  margin-bottom: 0.35rem;
+}
+.summary-preview-q-answer {
+  font-size: 0.95rem;
+  color: var(--ink);
+  line-height: 1.5;
+  padding-left: 1rem;
+  border-left: 2px solid var(--tiffany);
+  min-height: 1.5rem;
+}
+.summary-preview-q-answer.empty { color: var(--ink-50); font-style: italic; }
+.summary-restart {
+  margin-top: 2rem;
+  color: var(--ink-50);
+  font-size: 0.75rem;
+}
+.summary-restart a { color: var(--ink); text-decoration: underline; }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(10, 10, 10, 0.75);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-backdrop.visible { display: flex; }
+.modal {
+  background: var(--paper);
+  padding: 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: var(--shadow-lift);
+  position: relative;
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+.modal-body { font-size: 0.95rem; color: var(--ink-70); margin-bottom: 1.5rem; line-height: 1.5; }
+.modal-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  outline: none;
+}
+.modal-input:focus { border-color: var(--tiffany); }
+.modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  color: var(--ink-50);
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+/* ============================================================
+   BRANDED FOOTER
+   ============================================================ */
+.cje-footer {
+  background: var(--ink);
+  color: #fff;
+  padding: 3rem 1.5rem 2rem;
+  text-align: center;
+  border-top: 3px solid var(--tiffany);
+}
+.cje-footer-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+.cje-footer-wordmark {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  letter-spacing: 0.15em;
+  color: #fff;
+  line-height: 1;
+}
+.cje-footer-wordmark span { color: var(--tiffany); }
+.cje-footer-tagline {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+}
+.cje-footer-created {
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  color: var(--tiffany);
+  line-height: 1.2;
+  margin-top: 0.5rem;
+}
+.cje-footer-created strong { color: #fff; font-weight: 600; letter-spacing: 0.02em; }
+.cje-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 0.75rem;
+}
+.cje-footer-links a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cje-footer-links a:hover { color: var(--tiffany); }
+.cje-footer-rule {
+  width: 60px; height: 2px;
+  background: var(--tiffany);
+  margin: 0.5rem 0;
+}
+.cje-footer-copyright {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 1rem;
+}
+
+/* Ciara sign-off card on summary */
+.ciara-signoff {
+  margin: 3rem auto 2rem;
+  padding: 2.5rem 2rem;
+  background: var(--paper);
+  border-top: 3px solid var(--tiffany);
+  max-width: 500px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  text-align: center;
+}
+.ciara-signoff::before {
+  /* Paperclip decoration */
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-8deg);
+  width: 22px;
+  height: 50px;
+  border: 2.5px solid #999;
+  border-radius: 11px 11px 3px 3px;
+}
+.ciara-signoff-eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--tiffany-deep);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.ciara-signoff-message {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.ciara-signoff-message strong { color: var(--ink); font-weight: 700; }
+.ciara-signoff-name {
+  font-family: var(--font-script);
+  font-size: 2rem;
+  color: var(--ink);
+  line-height: 1;
+  transform: rotate(-2deg);
+  display: inline-block;
+  position: relative;
+}
+.ciara-signoff-name::after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 2px;
+  background: var(--tiffany);
+  margin: 0.35rem auto 0;
+  border-radius: 2px;
+}
+.ciara-signoff-role {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .hero-right { min-height: 400px; margin-top: 2rem; }
+  .section-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .section-side { position: static; }
+  .stepper { grid-template-columns: repeat(7, 1fr); gap: 0.25rem; }
+  .step-label { font-size: 0.55rem; }
+  .step-num { width: 36px; height: 36px; font-size: 0.75rem; }
+  .stepper::before { top: 18px; }
+  .next-band-inner { grid-template-columns: 1fr; text-align: center; gap: 1.5rem; }
+  .next-band-right { justify-content: center; }
+  .band { gap: 1rem; font-size: 0.65rem; }
+  .q-input-row { grid-template-columns: 1fr; }
+  .brand-statement { font-size: 1rem; line-height: 2.2; }
+  .brand-statement .bs-input,
+  .brand-statement .bs-select { font-size: 1.15rem; min-width: 140px; }
+  .brand-statement .bs-input.bs-input-lg { min-width: 180px; }
+}
+@media (max-width: 600px) {
+  .topbar { padding: 0.6rem 1rem; font-size: 0.65rem; letter-spacing: 0.2em; }
+  .topbar-btn { font-size: 0.6rem; padding: 0.35rem 0.5rem; }
+  .hero { padding: 5rem 1rem 2rem; }
+  .hero-title-card { padding: 2.5rem 1.5rem; }
+  .section-wrap, .summary-wrap { padding: 1.5rem 1rem 3rem; }
+  .q-card { padding: 1.5rem 1.25rem 1.5rem 2rem; }
+  .section-head { flex-direction: column; gap: 0.75rem; }
+  .section-nav { flex-wrap: wrap; }
+  .summary-preview { padding: 1.5rem; }
+  .summary-actions { flex-direction: column; align-items: stretch; }
+  .btn-primary { justify-content: center; padding: 1rem 1.5rem; font-size: 0.7rem; }
+}
+
+/* ============================================================
+   PRINT (for Save-as-PDF)
+   ============================================================ */
+@media print {
+  .topbar, .stepper-section, .band, .next-band, .section-nav,
+  .section-side, .summary-actions, .hero-cta-wrap { display: none !important; }
+  body { background: white; }
+  .section-wrap { display: block !important; page-break-after: always; padding: 1rem; }
+  .summary-wrap { display: block !important; padding: 1rem; }
+  .q-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+  .section-inner { grid-template-columns: 1fr; }
+  .cje-footer { background: white; color: var(--ink); border-top: 2px solid var(--ink); }
+  .cje-footer-wordmark, .cje-footer-created strong { color: var(--ink); }
+  .cje-footer-created { color: var(--ink); }
+  .cje-footer-tagline, .cje-footer-links, .cje-footer-copyright { color: #555; }
+  .cje-footer-links a { color: #555; }
+  .ciara-signoff { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP BAR
+     ============================================================ -->
+<nav class="topbar" role="navigation">
+  <div class="topbar-brand">
+    <span>The Brand Is</span>
+    <span class="topbar-brand-you">YOU</span>
+  </div>
+  <div class="topbar-actions">
+    <span id="saved-indicator" class="topbar-saved-indicator">Saved</span>
+    <button class="topbar-btn" onclick="saveProgress(true)">Save Progress</button>
+    <button class="topbar-btn primary" onclick="if(confirm('Exit and clear your progress?')) resetAll();">Exit</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     WELCOME / HERO
+     ============================================================ -->
+<section id="section-welcome" class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Personal Brand Guide Map</div>
+      <div style="font-family: var(--font-script); font-size: 1.35rem; color: var(--ink); margin-bottom: 2rem; margin-top: -0.75rem; line-height: 1;">
+        with <span style="color: var(--tiffany-deep); font-weight: 600;">Ciara J. Evans</span>
+      </div>
+
+      <div class="hero-title-card">
+        <div style="position: absolute; top: -20px; right: -30px; background: var(--sticky-tiffany); padding: 0.6rem 0.9rem; transform: rotate(6deg); font-family: var(--font-script); font-size: 1.05rem; line-height: 1.15; text-align: center; box-shadow: 2px 4px 8px rgba(10,10,10,0.1); max-width: 130px;">build<br/>your<br/>future</div>
+        <h1 class="hero-title">
+          THE<br/>BRAND<br/>IS
+          <span class="hero-title-you">you</span>
+        </h1>
+      </div>
+
+      <p style="font-size: 1.05rem; line-height: 1.7; color: var(--ink-70); max-width: 480px; margin: 2.5rem 0 1rem;">
+        Before you build a resume, pitch yourself, apply for the opportunity, or walk into the room, you need to understand the brand you are already carrying.
+      </p>
+      <p style="font-size: 1.05rem; line-height: 1.7; color: var(--ink-70); max-width: 480px; margin-bottom: 2rem;">
+        Your personal brand is not about becoming someone else. It is about making sure the right people can clearly see the value, story, and strengths that already exist within you.
+      </p>
+
+      <div class="hero-cta-wrap">
+        <button class="btn-primary" onclick="goToSection(1)">
+          Start Your Guide Map
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <div class="hero-time-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Takes 10 to 15 minutes
+        </div>
+        <button class="btn-ghost" onclick="if(hasSavedProgress()) { resumeSaved(); } else { alert('No saved progress yet. Fill out at least one section, then come back!'); }">
+          Resume Saved Progress
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-collage">
+        <!-- Hand-drawn arrow pointing from left to the black card -->
+        <svg style="position: absolute; top: -30px; left: -60px; width: 100px; height: 60px; z-index: 5; overflow: visible;" viewBox="0 0 100 60" fill="none">
+          <path d="M 5 45 Q 30 20 60 25 Q 78 27 88 15" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M 82 8 L 88 15 L 80 20" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+
+        <div class="hero-black-card">
+          <div class="hero-black-card-title">Your Story.<br/>Your Value.<br/><span>Your Future.</span></div>
+          <div class="hero-black-card-sub">Let's Build It Together.</div>
+          <div class="hero-black-card-body">A personal brand guide map to help you clarify who you are, what you bring, and how you want to be remembered.</div>
+          <div class="hero-black-card-tape">Be Seen. Be Valued. Be You.</div>
+        </div>
+
+        <!-- Small yellow sticky note top-right -->
+        <div style="position: absolute; top: 12px; right: 8px; background: var(--sticky-yellow); padding: 0.7rem 0.9rem; transform: rotate(9deg); font-family: var(--font-script); font-size: 1.1rem; line-height: 1.15; text-align: center; box-shadow: 2px 3px 6px rgba(10,10,10,0.12); max-width: 105px; z-index: 4;">
+          find<br/><em style="color: var(--tiffany-deep); font-style: normal;">your voice</em>
+        </div>
+
+        <!-- Cream note bottom-right -->
+        <div class="hero-cream-note">
+          Create<br/>
+          <em>Opportunities</em><br/>
+          On Purpose
+        </div>
+
+        <!-- Megaphone (improved) -->
+        <svg class="hero-megaphone" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="mgHorn" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#a8ebe4"/>
+              <stop offset="1" stop-color="#81D8D0"/>
+            </linearGradient>
+          </defs>
+          <!-- Handle -->
+          <rect x="24" y="86" width="6" height="30" rx="2" fill="#0a0a0a"/>
+          <!-- Body cylinder -->
+          <ellipse cx="35" cy="72" rx="18" ry="26" fill="url(#mgHorn)" stroke="#0a0a0a" stroke-width="2"/>
+          <!-- Horn cone -->
+          <path d="M50 48 L115 22 L115 122 L50 96 Z" fill="url(#mgHorn)" stroke="#0a0a0a" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- Inner opening -->
+          <ellipse cx="35" cy="72" rx="10" ry="17" fill="#0a0a0a"/>
+          <!-- Trigger button -->
+          <circle cx="30" cy="100" r="4" fill="#0a0a0a"/>
+          <!-- Sound waves -->
+          <path d="M124 45 Q135 52 132 60" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M128 30 Q142 45 138 62" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+          <path d="M124 100 Q135 92 132 82" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        </svg>
+
+        <!-- Doodle stars -->
+        <svg style="position: absolute; top: 55%; left: -15px; width: 30px; height: 30px; z-index: 3;" viewBox="0 0 30 30" fill="none">
+          <path d="M15 3 L15 27 M3 15 L27 15 M6 6 L24 24 M24 6 L6 24" stroke="#0a0a0a" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DIVIDER BAND
+     ============================================================ -->
+<div class="band">
+  <span class="band-item">This isn't just a questionnaire. It's a game plan.</span>
+  <span class="band-item">The brand is <strong>YOU</strong>. Let's make it unforgettable.</span>
+</div>
+
+<!-- ============================================================
+     STEPPER (visible during sections)
+     ============================================================ -->
+<div id="stepper-wrap" class="stepper-section" style="display: none;">
+  <div class="stepper">
+    <div class="step" data-step="1" onclick="goToSection(1)">
+      <div class="step-num">01</div>
+      <div class="step-label">First Impression</div>
+    </div>
+    <div class="step" data-step="2" onclick="goToSection(2)">
+      <div class="step-num">02</div>
+      <div class="step-label">Your Story</div>
+    </div>
+    <div class="step" data-step="3" onclick="goToSection(3)">
+      <div class="step-num">03</div>
+      <div class="step-label">Your Value</div>
+    </div>
+    <div class="step" data-step="4" onclick="goToSection(4)">
+      <div class="step-num">04</div>
+      <div class="step-label">Your Audience</div>
+    </div>
+    <div class="step" data-step="5" onclick="goToSection(5)">
+      <div class="step-num">05</div>
+      <div class="step-label">Your Presence</div>
+    </div>
+    <div class="step" data-step="6" onclick="goToSection(6)">
+      <div class="step-num">06</div>
+      <div class="step-label">Your Statement</div>
+    </div>
+    <div class="step" data-step="7" onclick="goToSection(7)">
+      <div class="step-num step-flag">🏁</div>
+      <div class="step-label">Action Plan</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 1: FIRST IMPRESSION
+     ============================================================ -->
+<section id="section-1" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head" style="position: relative;">
+        <!-- Curved arrow doodle from the 01 tab pointing to the title -->
+        <svg style="position: absolute; left: 45px; top: -8px; width: 70px; height: 50px; z-index: 4;" viewBox="0 0 70 50" fill="none">
+          <path d="M 5 40 Q 20 5 55 20" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M 48 12 L 55 20 L 46 26" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <!-- Small scribble tally right of the title -->
+        <svg style="position: absolute; right: -10px; top: 8px; width: 60px; height: 40px; z-index: 4;" viewBox="0 0 60 40" fill="none">
+          <path d="M 5 20 L 15 5" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 15 25 L 25 8" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 25 30 L 35 15" stroke="#81D8D0" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="section-head-num">01<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>First Impression</span></h2>
+          <div>
+            <span class="section-head-tagline-band">People form opinions before you even speak.</span>
+          </div>
+          <p class="section-head-prompt" style="margin-top: 1rem; font-weight: 600; color: var(--ink);">
+            Let's make sure the right one.
+          </p>
+          <p class="section-head-prompt">
+            If someone looked you up today, what would they think you are known for?
+          </p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">What three words do you want people to associate with you professionally?</div>
+        <div class="q-input-row">
+          <input class="q-input" type="text" placeholder="Word #1" data-key="s1_desired_1" />
+          <input class="q-input" type="text" placeholder="Word #2" data-key="s1_desired_2" />
+          <input class="q-input" type="text" placeholder="Word #3" data-key="s1_desired_3" />
+        </div>
+      </div>
+
+      <div class="q-card" data-num="02">
+        <div class="q-label">What three words do you think people currently associate with you?</div>
+        <div class="q-input-row">
+          <input class="q-input" type="text" placeholder="Word #1" data-key="s1_current_1" />
+          <input class="q-input" type="text" placeholder="Word #2" data-key="s1_current_2" />
+          <input class="q-input" type="text" placeholder="Word #3" data-key="s1_current_3" />
+        </div>
+      </div>
+
+      <div class="q-card" data-num="03">
+        <div class="q-label">Where is the gap between how you want to be seen and how you currently show up?</div>
+        <textarea class="q-input q-textarea" placeholder="Type your answer here..." data-key="s1_gap"></textarea>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav" onclick="nextSection()">
+          Save &amp; Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">Your brand isn't what you <span>say</span> it is.</div>
+        <div class="remember-emphasis">It's what people experience.</div>
+        <ul class="remember-checklist">
+          <li>Be intentional</li>
+          <li>Be consistent</li>
+          <li>Be authentic</li>
+          <li>Be unforgettable</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>Keep going, great things take time. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">You got this.</div>
+    </aside>
+  </div>
+</section>
+
+<!-- Preview of section 2 -->
+<div class="next-band" data-section-nav="1">
+  <div class="next-band-inner">
+    <div class="next-band-left">
+      <div class="next-band-num">02</div>
+      <div class="next-band-title">Your Story</div>
+      <div class="next-band-sub">Your story is your strategy.</div>
+    </div>
+    <div class="next-band-center">What's Next?</div>
+    <div class="next-band-right">
+      <div class="next-band-note">Can't wait to see what you build.</div>
+      <span class="next-band-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 2: YOUR STORY
+     ============================================================ -->
+<section id="section-2" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head">
+        <div class="section-head-num">02<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>Story</span></h2>
+          <div><span class="section-head-tagline-band">Your story is part of your strategy.</span></div>
+          <p class="section-head-prompt">
+            People connect with people before they connect with titles.
+          </p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">What experiences have shaped the way you work, lead, create, or serve?</div>
+        <textarea class="q-input q-textarea" placeholder="Think about jobs, roles, moments, mentors, projects..." data-key="s2_experiences"></textarea>
+      </div>
+
+      <div class="q-card" data-num="02">
+        <div class="q-label">What challenges have helped build your confidence, discipline, or perspective?</div>
+        <textarea class="q-input q-textarea" placeholder="Setbacks and struggles that taught you something..." data-key="s2_challenges"></textarea>
+      </div>
+
+      <div class="q-card" data-num="03">
+        <div class="q-label">What part of your story could help someone understand your value more clearly?</div>
+        <textarea class="q-input q-textarea" placeholder="The moment or thread that explains why you do what you do..." data-key="s2_value_story"></textarea>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav btn-nav-secondary" onclick="prevSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          Back
+        </button>
+        <button class="btn-nav" onclick="nextSection()">
+          Save &amp; Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">Your <span>story</span> is your superpower.</div>
+        <div class="remember-emphasis">Only you have lived it.</div>
+        <ul class="remember-checklist">
+          <li>Be honest</li>
+          <li>Be specific</li>
+          <li>Be human</li>
+          <li>Be brave</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>Every chapter counts. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">Own your narrative.</div>
+    </aside>
+  </div>
+</section>
+
+<div class="next-band" data-section-nav="2">
+  <div class="next-band-inner">
+    <div class="next-band-left">
+      <div class="next-band-num">03</div>
+      <div class="next-band-title">Your Value</div>
+      <div class="next-band-sub">What you bring to the table.</div>
+    </div>
+    <div class="next-band-center">What's Next?</div>
+    <div class="next-band-right">
+      <div class="next-band-note">Say it out loud.</div>
+      <span class="next-band-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 3: YOUR VALUE
+     ============================================================ -->
+<section id="section-3" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head">
+        <div class="section-head-num">03<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>Value</span></h2>
+          <div><span class="section-head-tagline-band">Say the thing.</span></div>
+          <p class="section-head-prompt">Your brand should clearly communicate what you bring to the table.</p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">What are three skills you are confident in?</div>
+        <div class="q-input-row">
+          <input class="q-input" type="text" placeholder="Skill #1" data-key="s3_skill_1"/>
+          <input class="q-input" type="text" placeholder="Skill #2" data-key="s3_skill_2"/>
+          <input class="q-input" type="text" placeholder="Skill #3" data-key="s3_skill_3"/>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="02">
+        <div class="q-label">What problems do people usually come to you to solve?</div>
+        <textarea class="q-input q-textarea" placeholder="The questions and asks that land in your inbox or DMs..." data-key="s3_problems"></textarea>
+      </div>
+
+      <div class="q-card" data-num="03">
+        <div class="q-label">What makes your perspective, background, or approach different?</div>
+        <textarea class="q-input q-textarea" placeholder="Your unfair advantage. The lens only you can bring..." data-key="s3_different"></textarea>
+      </div>
+
+      <div class="q-card" data-num="04">
+        <div class="q-label">What is one thing you want to be trusted for?</div>
+        <input class="q-input" type="text" placeholder="One clear thing..." data-key="s3_trusted_for"/>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav btn-nav-secondary" onclick="prevSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          Back
+        </button>
+        <button class="btn-nav" onclick="nextSection()">
+          Save &amp; Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">Undersold is <span>overlooked</span>.</div>
+        <div class="remember-emphasis">Name your value.</div>
+        <ul class="remember-checklist">
+          <li>Be clear</li>
+          <li>Be confident</li>
+          <li>Be specific</li>
+          <li>Be visible</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>Halfway there. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">You're the value.</div>
+    </aside>
+  </div>
+</section>
+
+<div class="next-band" data-section-nav="3">
+  <div class="next-band-inner">
+    <div class="next-band-left">
+      <div class="next-band-num">04</div>
+      <div class="next-band-title">Your Audience</div>
+      <div class="next-band-sub">Who you're building this for.</div>
+    </div>
+    <div class="next-band-center">What's Next?</div>
+    <div class="next-band-right">
+      <div class="next-band-note">Speak to the right room.</div>
+      <span class="next-band-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 4: YOUR AUDIENCE
+     ============================================================ -->
+<section id="section-4" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head">
+        <div class="section-head-num">04<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>Audience</span></h2>
+          <div><span class="section-head-tagline-band">Speak to the right room.</span></div>
+          <p class="section-head-prompt">A strong brand knows who it is speaking to.</p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">Who do you want your personal brand to attract?</div>
+        <div class="q-hint">Employers, mentors, collaborators, clients, community leaders, scholarship committees, creative partners...</div>
+        <textarea class="q-input q-textarea" placeholder="Name them specifically..." data-key="s4_audience"></textarea>
+      </div>
+
+      <div class="q-card" data-num="02">
+        <div class="q-label">What do you want those people to understand about you immediately?</div>
+        <textarea class="q-input q-textarea" placeholder="The one thing that should land in the first 30 seconds..." data-key="s4_first_impression"></textarea>
+      </div>
+
+      <div class="q-card" data-num="03">
+        <div class="q-label">What opportunities do you want your brand to help create?</div>
+        <textarea class="q-input q-textarea" placeholder="Jobs, partnerships, invitations, speaking slots, features..." data-key="s4_opportunities"></textarea>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav btn-nav-secondary" onclick="prevSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          Back
+        </button>
+        <button class="btn-nav" onclick="nextSection()">
+          Save &amp; Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">If you talk to <span>everyone</span>, you reach no one.</div>
+        <div class="remember-emphasis">Choose your room.</div>
+        <ul class="remember-checklist">
+          <li>Be specific</li>
+          <li>Be relevant</li>
+          <li>Be clear</li>
+          <li>Be found</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>Keep going. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">Your people are looking.</div>
+    </aside>
+  </div>
+</section>
+
+<div class="next-band" data-section-nav="4">
+  <div class="next-band-inner">
+    <div class="next-band-left">
+      <div class="next-band-num">05</div>
+      <div class="next-band-title">Your Presence</div>
+      <div class="next-band-sub">Where they'll find you.</div>
+    </div>
+    <div class="next-band-center">What's Next?</div>
+    <div class="next-band-right">
+      <div class="next-band-note">Get seen where it counts.</div>
+      <span class="next-band-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 5: YOUR DIGITAL PRESENCE
+     ============================================================ -->
+<section id="section-5" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head">
+        <div class="section-head-num">05<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>Digital Presence</span></h2>
+          <div><span class="section-head-tagline-band">Get seen where it counts.</span></div>
+          <p class="section-head-prompt">Your online presence should support the opportunities you say you want.</p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">Does your LinkedIn, Instagram, portfolio, or website reflect where you are trying to go?</div>
+        <div class="q-radio-group" data-radio-group="s5_reflects">
+          <label class="q-radio" data-value="Yes">
+            <input type="radio" name="s5_reflects" value="Yes"/>
+            Yes
+          </label>
+          <label class="q-radio" data-value="Somewhat">
+            <input type="radio" name="s5_reflects" value="Somewhat"/>
+            Somewhat
+          </label>
+          <label class="q-radio" data-value="Not yet">
+            <input type="radio" name="s5_reflects" value="Not yet"/>
+            Not yet
+          </label>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="02">
+        <div class="q-label">What is one thing you need to update online?</div>
+        <input class="q-input" type="text" placeholder="LinkedIn headline, bio, portfolio link..." data-key="s5_update"/>
+      </div>
+
+      <div class="q-card" data-num="03">
+        <div class="q-label">What is one post, project, or accomplishment you should share this week?</div>
+        <textarea class="q-input q-textarea" placeholder="A win, a lesson, a project, a milestone..." data-key="s5_share"></textarea>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav btn-nav-secondary" onclick="prevSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          Back
+        </button>
+        <button class="btn-nav" onclick="nextSection()">
+          Save &amp; Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">Your feed is your <span>front door</span>.</div>
+        <div class="remember-emphasis">Curate on purpose.</div>
+        <ul class="remember-checklist">
+          <li>Be searchable</li>
+          <li>Be current</li>
+          <li>Be aligned</li>
+          <li>Be proud</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>Almost there. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">Update. Post. Repeat.</div>
+    </aside>
+  </div>
+</section>
+
+<div class="next-band" data-section-nav="5">
+  <div class="next-band-inner">
+    <div class="next-band-left">
+      <div class="next-band-num">06</div>
+      <div class="next-band-title">Your Statement</div>
+      <div class="next-band-sub">Put it all into one sentence.</div>
+    </div>
+    <div class="next-band-center">What's Next?</div>
+    <div class="next-band-right">
+      <div class="next-band-note">Say it in one breath.</div>
+      <span class="next-band-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 6: YOUR BRAND STATEMENT
+     ============================================================ -->
+<section id="section-6" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head">
+        <div class="section-head-num">06<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>Brand Statement</span></h2>
+          <div><span class="section-head-tagline-band">Put it all into one sentence.</span></div>
+          <p class="section-head-prompt">Now let's put it together. Fill in the blanks below in your own words.</p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">Write your personal brand statement.</div>
+        <div class="brand-statement">
+          I am a <input type="text" class="bs-input" placeholder="what you are" data-key="s6_iam" size="18"/>
+          who <select class="bs-select" data-key="s6_verb">
+            <option value="helps">helps</option>
+            <option value="brings">brings</option>
+            <option value="creates">creates</option>
+          </select>
+          <input type="text" class="bs-input bs-input-lg" placeholder="who you serve and what you make possible" data-key="s6_who" size="30"/>
+          through <input type="text" class="bs-input bs-input-lg" placeholder="how you do it" data-key="s6_how" size="26"/>.
+        </div>
+
+        <div class="brand-example">
+          <div class="brand-example-label">Example</div>
+          I am a <strong>creative marketing strategist</strong> who <strong>helps</strong> <strong>brands and organizations create meaningful experiences</strong> through <strong>storytelling, strategy, and intentional event design</strong>.
+        </div>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav btn-nav-secondary" onclick="prevSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          Back
+        </button>
+        <button class="btn-nav" onclick="nextSection()">
+          Save &amp; Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">If you can't <span>say it</span>, they can't share it.</div>
+        <div class="remember-emphasis">One sentence. Made to travel.</div>
+        <ul class="remember-checklist">
+          <li>Be memorable</li>
+          <li>Be shareable</li>
+          <li>Be true</li>
+          <li>Be YOU</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>One left. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">You just said it.</div>
+    </aside>
+  </div>
+</section>
+
+<div class="next-band" data-section-nav="6">
+  <div class="next-band-inner">
+    <div class="next-band-left">
+      <div class="next-band-num">07</div>
+      <div class="next-band-title">Action Plan</div>
+      <div class="next-band-sub">Visibility requires action.</div>
+    </div>
+    <div class="next-band-center">Final Section</div>
+    <div class="next-band-right">
+      <div class="next-band-note">Now, do the thing.</div>
+      <span class="next-band-arrow">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 7: YOUR ACTION PLAN
+     ============================================================ -->
+<section id="section-7" class="section-wrap">
+  <div class="section-inner">
+    <div class="section-main">
+      <div class="section-head">
+        <div class="section-head-num">07<svg class="section-head-doodle-arrow" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 6 Q 20 4 32 18 L 40 30 M 36 24 L 40 30 L 34 32"/></svg><svg class="section-head-doodle-tally" viewBox="0 0 44 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 4 L 6 22 M 16 3 L 14 23 M 24 4 L 22 22 M 4 12 L 28 15"/></svg></div>
+        <div class="section-head-text">
+          <h2 class="section-head-title">Your <span>Action Plan</span></h2>
+          <div><span class="section-head-tagline-band">The brand is YOU, but visibility requires action.</span></div>
+          <p class="section-head-prompt">Turn intention into movement. Pick something you can do this week.</p>
+        </div>
+      </div>
+
+      <div class="q-card" data-num="01">
+        <div class="q-label">What is one thing you will update today?</div>
+        <input class="q-input" type="text" placeholder="Bio, headline, portfolio, email signature..." data-key="s7_update_today"/>
+      </div>
+
+      <div class="q-card" data-num="02">
+        <div class="q-label">Who is one person you will connect with this week?</div>
+        <input class="q-input" type="text" placeholder="Name a person, not a role..." data-key="s7_connect"/>
+      </div>
+
+      <div class="q-card" data-num="03">
+        <div class="q-label">What is one opportunity you will prepare yourself for?</div>
+        <textarea class="q-input q-textarea" placeholder="A specific opportunity you want to be ready for..." data-key="s7_opportunity"></textarea>
+      </div>
+
+      <div class="q-card" data-num="04">
+        <div class="q-label">What is one word you want people to remember after interacting with you?</div>
+        <input class="q-input" type="text" placeholder="Just one word..." data-key="s7_one_word"/>
+      </div>
+
+      <div class="section-nav">
+        <button class="btn-nav btn-nav-secondary" onclick="prevSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          Back
+        </button>
+        <button class="btn-nav" onclick="finishGuide()" style="background: var(--tiffany); color: var(--ink);">
+          Complete My Guide Map
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <aside class="section-side">
+      <div class="remember-card">
+        <div class="remember-tape">Remember:</div>
+        <div class="remember-quote">Motion beats <span>perfection</span>.</div>
+        <div class="remember-emphasis">Start this week.</div>
+        <ul class="remember-checklist">
+          <li>Be brave</li>
+          <li>Be public</li>
+          <li>Be relentless</li>
+          <li>Be YOU</li>
+        </ul>
+      </div>
+      <div class="progress-card">
+        <div class="progress-circle-wrap">
+          <svg class="progress-circle-svg" viewBox="0 0 70 70">
+            <circle class="progress-circle-bg" cx="35" cy="35" r="30"/>
+            <circle class="progress-circle-fg" cx="35" cy="35" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5" data-progress="0"/>
+          </svg>
+          <div class="progress-circle-num" data-progress-num>0%</div>
+        </div>
+        <div class="progress-label">Your Progress<br/>Finish strong. <svg style="display:inline-block;width:12px;height:11px;margin-left:6px;vertical-align:baseline;" viewBox="0 0 24 22" fill="currentColor"><path d="M12 21s-8-5.5-8-11a5 5 0 019-3 5 5 0 019 3c0 5.5-8 11-8 11z"/></svg></div>
+      </div>
+      <div class="affirm-tab">Last section. Go.</div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================================================
+     SUMMARY
+     ============================================================ -->
+<section id="section-summary" class="summary-wrap">
+  <div class="summary-inner">
+    <div class="summary-eyebrow">Your Guide Map</div>
+    <h2 class="summary-title">
+      Your Brand Is<br/>
+      <span class="summary-title-script">already speaking.</span>
+    </h2>
+    <p class="summary-message">
+      Now make sure it is saying what <strong>you</strong> want it to say.
+    </p>
+
+    <div class="summary-actions">
+      <button class="btn-primary" onclick="downloadPDF()">
+        Download as PDF
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      </button>
+      <button class="btn-primary" style="background: var(--ink); color: #fff;" onclick="openEmailModal()">
+        Email It To Me
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+      </button>
+    </div>
+
+    <div class="ciara-signoff">
+      <div class="ciara-signoff-eyebrow">A Note From Your Host</div>
+      <div class="ciara-signoff-message">
+        Thank you for making time for this. Your personal brand is not separate from you. Come back to this guide as you build.
+      </div>
+      <div class="ciara-signoff-name">Ciara J. Evans</div>
+      <div class="ciara-signoff-role">CJE Media</div>
+    </div>
+
+    <div id="summary-preview" class="summary-preview">
+      <!-- Filled by JavaScript -->
+    </div>
+
+    <div class="summary-restart">
+      Want to start over? <a href="#" onclick="if(confirm('Clear all your answers and restart?')) resetAll();">Reset the guide map</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BRANDED FOOTER
+     ============================================================ -->
+<footer class="cje-footer">
+  <div class="cje-footer-inner">
+    <div class="cje-footer-wordmark">CJE <span>MEDIA</span></div>
+    <div class="cje-footer-rule"></div>
+    <div class="cje-footer-created">
+      Created with intention by <strong>Ciara J. Evans</strong>
+    </div>
+    <div class="cje-footer-links">
+      <a href="mailto:media@ciarajevans.com">media@ciarajevans.com</a>
+      <a href="tel:+17737278262">(773) 727-8262</a>
+      <a href="https://www.ciarajevans.com" target="_blank" rel="noopener">ciarajevans.com</a>
+    </div>
+    <div class="cje-footer-copyright">
+      © <span id="footer-year">2026</span> CJE Media · All Rights Reserved
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     EMAIL MODAL
+     ============================================================ -->
+<div id="email-modal" class="modal-backdrop">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEmailModal()" aria-label="Close">×</button>
+    <div class="modal-title">Email your guide map</div>
+    <div class="modal-body">
+      Enter your email address. We'll open your mail app with your completed guide map ready to send to yourself.
+    </div>
+    <input id="email-input" class="modal-input" type="email" placeholder="you@example.com" />
+    <div class="modal-actions">
+      <button class="btn-nav btn-nav-secondary" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn-nav" onclick="sendEmail()">Open Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+'use strict';
+
+// ============================================================
+//   STATE
+// ============================================================
+const STORAGE_KEY = 'brand-is-you-v1';
+const TOTAL_SECTIONS = 7;
+let currentSection = 0;  // 0 = welcome
+let answers = {};
+
+// Structured section definitions used for summary + PDF + email
+const SECTION_META = [
+  {
+    id: 1, title: 'Your First Impression',
+    questions: [
+      { label: 'Three words you want people to associate with you professionally', keys: ['s1_desired_1', 's1_desired_2', 's1_desired_3'], type: 'triple' },
+      { label: 'Three words people currently associate with you', keys: ['s1_current_1', 's1_current_2', 's1_current_3'], type: 'triple' },
+      { label: 'The gap between how you want to be seen and how you currently show up', keys: ['s1_gap'], type: 'text' },
+    ],
+  },
+  {
+    id: 2, title: 'Your Story',
+    questions: [
+      { label: 'Experiences that shaped the way you work, lead, create, or serve', keys: ['s2_experiences'], type: 'text' },
+      { label: 'Challenges that built your confidence, discipline, or perspective', keys: ['s2_challenges'], type: 'text' },
+      { label: 'Part of your story that helps people understand your value', keys: ['s2_value_story'], type: 'text' },
+    ],
+  },
+  {
+    id: 3, title: 'Your Value',
+    questions: [
+      { label: 'Three skills you are confident in', keys: ['s3_skill_1', 's3_skill_2', 's3_skill_3'], type: 'triple' },
+      { label: 'Problems people come to you to solve', keys: ['s3_problems'], type: 'text' },
+      { label: 'What makes your perspective, background, or approach different', keys: ['s3_different'], type: 'text' },
+      { label: 'One thing you want to be trusted for', keys: ['s3_trusted_for'], type: 'text' },
+    ],
+  },
+  {
+    id: 4, title: 'Your Audience',
+    questions: [
+      { label: 'Who you want your personal brand to attract', keys: ['s4_audience'], type: 'text' },
+      { label: 'What you want them to understand about you immediately', keys: ['s4_first_impression'], type: 'text' },
+      { label: 'Opportunities you want your brand to help create', keys: ['s4_opportunities'], type: 'text' },
+    ],
+  },
+  {
+    id: 5, title: 'Your Digital Presence',
+    questions: [
+      { label: 'Does your online presence reflect where you are trying to go?', keys: ['s5_reflects'], type: 'text' },
+      { label: 'One thing you need to update online', keys: ['s5_update'], type: 'text' },
+      { label: 'One post, project, or accomplishment to share this week', keys: ['s5_share'], type: 'text' },
+    ],
+  },
+  {
+    id: 6, title: 'Your Brand Statement',
+    questions: [
+      { label: 'Your personal brand statement', keys: ['s6_iam', 's6_verb', 's6_who', 's6_how'], type: 'statement' },
+    ],
+  },
+  {
+    id: 7, title: 'Your Action Plan',
+    questions: [
+      { label: 'One thing you will update today', keys: ['s7_update_today'], type: 'text' },
+      { label: 'One person you will connect with this week', keys: ['s7_connect'], type: 'text' },
+      { label: 'One opportunity you will prepare yourself for', keys: ['s7_opportunity'], type: 'text' },
+      { label: 'One word you want people to remember after interacting with you', keys: ['s7_one_word'], type: 'text' },
+    ],
+  },
+];
+
+// ============================================================
+//   INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromStorage();
+  bindInputs();
+  bindRadios();
+  updateProgress();
+});
+
+// ============================================================
+//   NAVIGATION
+// ============================================================
+function goToSection(n) {
+  currentSection = n;
+  // Hide all sections
+  document.querySelectorAll('.section-wrap, .summary-wrap, .hero, .next-band').forEach(el => {
+    el.classList.remove('active');
+    if (el.classList.contains('hero')) el.style.display = n === 0 ? 'flex' : 'none';
+    if (el.classList.contains('next-band')) el.style.display = 'none';
+  });
+  document.querySelector('.band').style.display = n === 0 ? 'flex' : 'none';
+
+  const stepperWrap = document.getElementById('stepper-wrap');
+  if (n >= 1 && n <= TOTAL_SECTIONS) {
+    stepperWrap.style.display = 'block';
+    const target = document.getElementById(`section-${n}`);
+    if (target) target.classList.add('active');
+    // Show the next-band for THIS section
+    const nextBand = document.querySelector(`.next-band[data-section-nav="${n}"]`);
+    if (nextBand) nextBand.style.display = 'block';
+  } else if (n === 'summary') {
+    stepperWrap.style.display = 'none';
+    document.getElementById('section-summary').classList.add('active');
+    renderSummary();
+  } else {
+    stepperWrap.style.display = 'none';
+  }
+
+  updateStepper();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextSection() {
+  saveProgress();
+  if (currentSection < TOTAL_SECTIONS) goToSection(currentSection + 1);
+  else finishGuide();
+}
+function prevSection() {
+  saveProgress();
+  if (currentSection > 1) goToSection(currentSection - 1);
+  else goToSection(0);
+}
+function finishGuide() {
+  saveProgress();
+  goToSection('summary');
+}
+
+function updateStepper() {
+  document.querySelectorAll('.step').forEach((step, idx) => {
+    const stepNum = idx + 1;
+    step.classList.remove('step-active', 'step-complete', 'step-disabled');
+    if (stepNum === currentSection) step.classList.add('step-active');
+    else if (stepNum < currentSection) step.classList.add('step-complete');
+  });
+}
+
+// ============================================================
+//   PROGRESS BAR
+// ============================================================
+function updateProgress() {
+  const allKeys = SECTION_META.flatMap(s => s.questions.flatMap(q => q.keys));
+  const filled = allKeys.filter(k => (answers[k] || '').toString().trim().length > 0).length;
+  const pct = Math.round((filled / allKeys.length) * 100);
+  document.querySelectorAll('[data-progress]').forEach(circle => {
+    const CIRC = 2 * Math.PI * 30; // 188.5
+    circle.setAttribute('stroke-dashoffset', CIRC - (CIRC * pct / 100));
+  });
+  document.querySelectorAll('[data-progress-num]').forEach(el => el.textContent = pct + '%');
+}
+
+// ============================================================
+//   INPUT BINDING
+// ============================================================
+function bindInputs() {
+  document.querySelectorAll('[data-key]').forEach(input => {
+    const key = input.getAttribute('data-key');
+    // Restore saved value; for SELECT elements with no saved value, capture the current default
+    if (answers[key]) {
+      input.value = answers[key];
+    } else if (input.tagName === 'SELECT' && input.value) {
+      answers[key] = input.value;  // sync default option into state so summary matches UI
+    }
+    // Save on change
+    const handler = () => {
+      answers[key] = input.value;
+      saveProgress();
+      updateProgress();
+    };
+    input.addEventListener('input', handler);
+    input.addEventListener('change', handler);
+    input.addEventListener('blur', handler);
+  });
+}
+
+function bindRadios() {
+  document.querySelectorAll('[data-radio-group]').forEach(group => {
+    const key = group.getAttribute('data-radio-group');
+    // Restore
+    if (answers[key]) {
+      const opt = group.querySelector(`[data-value="${CSS.escape(answers[key])}"]`);
+      if (opt) opt.classList.add('selected');
+    }
+    group.querySelectorAll('.q-radio').forEach(opt => {
+      opt.addEventListener('click', () => {
+        group.querySelectorAll('.q-radio').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        answers[key] = opt.getAttribute('data-value');
+        saveProgress();
+        updateProgress();
+      });
+    });
+  });
+}
+
+// ============================================================
+//   STORAGE
+// ============================================================
+function saveProgress(showIndicator) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      answers,
+      currentSection,
+      savedAt: new Date().toISOString(),
+    }));
+    if (showIndicator) flashSavedIndicator();
+  } catch (e) { console.warn('Could not save:', e); }
+}
+function flashSavedIndicator() {
+  const el = document.getElementById('saved-indicator');
+  el.textContent = 'Saved';
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 1800);
+}
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    answers = data.answers || {};
+  } catch (e) { answers = {}; }
+}
+function hasSavedProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    return Object.keys(data.answers || {}).length > 0;
+  } catch (e) { return false; }
+}
+function resumeSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data = JSON.parse(raw);
+    const savedSection = data.currentSection || 1;
+    goToSection(savedSection > 0 ? savedSection : 1);
+  } catch (e) { goToSection(1); }
+}
+function resetAll() {
+  localStorage.removeItem(STORAGE_KEY);
+  answers = {};
+  currentSection = 0;
+  document.querySelectorAll('[data-key]').forEach(i => { i.value = ''; });
+  document.querySelectorAll('.q-radio').forEach(o => o.classList.remove('selected'));
+  goToSection(0);
+}
+
+// ============================================================
+//   SUMMARY / OUTPUT
+// ============================================================
+function formatAnswer(question) {
+  if (question.type === 'triple') {
+    const parts = question.keys.map(k => (answers[k] || '').trim()).filter(Boolean);
+    return parts.length ? parts.join(', ') : '';
+  }
+  if (question.type === 'statement') {
+    const [iam, verb, who, how] = question.keys.map(k => (answers[k] || '').trim());
+    if (!iam && !verb && !who && !how) return '';
+    return `I am a ${iam || '____'} who ${verb || '____'} ${who || '____'} through ${how || '____'}.`;
+  }
+  return (answers[question.keys[0]] || '').trim();
+}
+
+function renderSummary() {
+  const container = document.getElementById('summary-preview');
+  let html = `
+    <div class="summary-preview-head">Personal Brand Guide Map</div>
+    <div class="summary-preview-title">Your Answers</div>
+  `;
+  SECTION_META.forEach(section => {
+    html += `<div class="summary-preview-section">
+      <div class="summary-preview-section-title">${section.title}</div>`;
+    section.questions.forEach(q => {
+      const ans = formatAnswer(q);
+      html += `<div class="summary-preview-q">
+        <div class="summary-preview-q-label">${q.label}</div>
+        <div class="summary-preview-q-answer ${ans ? '' : 'empty'}">${ans ? escapeHtml(ans) : '(You skipped this one. That is okay.)'}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ============================================================
+//   DOWNLOAD PDF (via print)
+// ============================================================
+function downloadPDF() {
+  // Ensure all sections are visible for print
+  const allSections = document.querySelectorAll('.section-wrap');
+  allSections.forEach(s => s.classList.add('active'));
+  // Trigger browser print. User can pick "Save as PDF".
+  setTimeout(() => {
+    window.print();
+    // Reset after
+    setTimeout(() => {
+      allSections.forEach(s => s.classList.remove('active'));
+      const summary = document.getElementById('section-summary');
+      if (summary) summary.classList.add('active');
+    }, 500);
+  }, 100);
+}
+
+// ============================================================
+//   EMAIL
+// ============================================================
+function openEmailModal() {
+  document.getElementById('email-modal').classList.add('visible');
+  document.getElementById('email-input').focus();
+}
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('visible');
+}
+function sendEmail() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  const body = buildEmailBody();
+  const subject = 'My Personal Brand Guide Map';
+  const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+  closeEmailModal();
+}
+
+function buildEmailBody() {
+  let body = 'THE BRAND IS YOU\n';
+  body += 'Personal Brand Guide Map\n';
+  body += 'with Ciara J. Evans, CJE Media\n';
+  body += '=========================================\n\n';
+  SECTION_META.forEach(section => {
+    body += `${section.title.toUpperCase()}\n`;
+    body += '-----------------------------------------\n';
+    section.questions.forEach(q => {
+      body += `Q: ${q.label}\n`;
+      const ans = formatAnswer(q);
+      body += `A: ${ans || '(skipped)'}\n\n`;
+    });
+    body += '\n';
+  });
+  body += '=========================================\n';
+  body += 'Your brand is already speaking.\n';
+  body += 'Now make sure it is saying what you want it to say.\n\n';
+  body += 'Created with intention by Ciara J. Evans\n';
+  body += 'CJE Media\n';
+  body += 'media@ciarajevans.com · (773) 727-8262 · ciarajevans.com\n';
+  return body;
+}
+
+// Set footer year dynamically
+document.addEventListener('DOMContentLoaded', () => {
+  const yearEl = document.getElementById('footer-year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+</script>
+
+</body>
+</html>

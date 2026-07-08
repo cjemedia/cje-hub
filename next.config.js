@@ -54,7 +54,11 @@ const nextConfig = {
       },
     ]
   },
+  async rewrites() {
+    return [
+      { source: '/brand-is-you', destination: '/brand-is-you.html' },
+    ]
+  },
 }
 
 module.exports = nextConfig
-
